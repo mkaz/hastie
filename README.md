@@ -29,16 +29,16 @@ For my Mac I use homebrew, so it was simply a matter of: `brew install go`
 
 For my Linux environments I use a Debian variant so you can install with: `apt-get install golang`
 
+#### Libraries
 
-Uses blackfriday for markdown conversion. 
-    $ goinstall github.com/russross/blackfriday
+Uses **blackfriday** for markdown conversion. `goinstall github.com/russross/blackfriday`
 
-Users goconf for reading configuration file
-    $ goinstall goconf.googlecode.com/hg
+Uses **goconf** for reading configuration file `goinstall goconf.googlecode.com/hg`
 
-If the above does not work, try
-    $ cd $GOROOT/src/pkg/goconf/googlecode.com/hg
-    $ gomake install
+If the above does not work for gconf, try
+
+     cd $GOROOT/src/pkg/goconf/googlecode.com/hg
+     gomake install`
 
 
 --------------------------------------------------------------------------------
