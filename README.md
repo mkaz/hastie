@@ -1,7 +1,12 @@
 
 ## Hastie - Static Site Generator in Go
 
+Author : Marcus Kazmierczak
+         http://mkaz.com/
+
 Started: Feb 13, 2012
+Project: https://github.com/mkaz/hastie
+
 
 Hastie is intended as replacement of jekyll (for myself), but jekyll has a 
 robust plugin, extensibility and community that I do not expect to even attempt.
@@ -26,16 +31,14 @@ For my Linux environments I use a Debian variant so you can install with: `apt-g
 
 
 Uses blackfriday for markdown conversion. 
-Install:
-  $ goinstall github.com/russross/blackfriday
+    $ goinstall github.com/russross/blackfriday
 
 Users goconf for reading configuration file
-Install:
-  $ goinstall goconf.googlecode.com/hg
+    $ goinstall goconf.googlecode.com/hg
 
-  If the above does not work, try
-  $ cd $GOROOT/src/pkg/goconf/googlecode.com/hg
-  $ gomake install
+If the above does not work, try
+    $ cd $GOROOT/src/pkg/goconf/googlecode.com/hg
+    $ gomake install
 
 
 --------------------------------------------------------------------------------
@@ -66,8 +69,9 @@ This will generate:
 
 
 A few current limitations:
-  - all files must be have .md extension
-  - sub-directories are only one level deep
+
+  * all files must be have .md extension
+  * sub-directories are only one level deep
 
 
 The usage of hastie is just as a template engine, it does not copy over
@@ -81,10 +85,10 @@ delete a template it won't be removed from `public`
 
 Data available to templates:
 
-    .Title
-    .Date
-    .Content
-    .Category
+    .Title -- Page Title
+    .Date -- Page Date format using .Date.Format "Jan 2, 2006"
+    .Content -- Converted HTML Content
+    .Category -- Category (directory)
     .OutFile -- file path
     .Recent -- list of 3 most recent files
     .Pages -- list of all page obhects
@@ -102,6 +106,5 @@ Data available to templates:
 * Read .html files and apply template, no markdown
 * Add ability to support rss.xml
 
-* Command Line Arguments
-* --verbose : --help
+* Command Line Arguments (--verbose, --help)
 
