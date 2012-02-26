@@ -8,14 +8,9 @@ Started: Feb 13, 2012
 Project: https://github.com/mkaz/hastie
 
 
-Hastie is intended as replacement of jekyll (for myself), but jekyll has a 
-robust plugin, extensibility and community that I do not expect to even attempt.
-If you are looking for a flexible tool to publish your site use jekyll.
+Hastie is intended as replacement of jekyll (for myself), but jekyll has a robust plugin, extensibility and community that I do not expect to even attempt.  If you are looking for a flexible tool to publish your site use jekyll.
 
-If you are looking for a tool to tweek and play with the Go language, then this
-might be your choice. Most customizations will probably require code changes.
-The reason I created the tool was to learn Go, I'm publishing to hopefully 
-help others with playing with the language.
+If you are looking for a tool to tweek and play with the Go language, then this might be your choice. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm publishing to hopefully help others with playing with the language.
 
 Note: The name Hastie also comes from the novel Dr. Jekyll and Mr. Hyde
 
@@ -45,8 +40,7 @@ If the above does not work for gconf, try
 
 ## Usage
 
-Hastie walks through a templates directory and generates HTML files to a publish 
-directory. It uses Go's template language for templates and markdown for content.
+Hastie walks through a templates directory and generates HTML files to a publish directory. It uses Go's template language for templates and markdown for content.
 
 Here is sample site layout: (see test directory)
 
@@ -74,13 +68,9 @@ A few current limitations:
   * sub-directories are only one level deep
 
 
-The usage of hastie is just as a template engine, it does not copy over
-and images, have a built-in web server or any of the other features that
-jekyll has.
+The usage of hastie is just as a template engine, it does not copy over any images, does not have a built-in web server or any of the other features that jekyll has.
 
-I keep the `public` directory full with all of the assets for the site such 
-as images, stylesheets, etc and hastie copies in the html files. So if you 
-delete a template it won't be removed from `public`
+I keep the `public` directory full with all of the assets for the site such as images, stylesheets, etc and hastie copies in the html files. So if you delete a template it won't be removed from `public`
 
 
 Data available to templates:
