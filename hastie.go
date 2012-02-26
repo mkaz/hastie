@@ -128,7 +128,7 @@ func main() {
 		 * read and parse all template files          */
 		buffer := new(bytes.Buffer)
 		layoutsglob := fmt.Sprintf("%s/*.html", config["LayoutDir"])
-		ts, err := template.ParseTemplateGlob(layoutsglob)
+		ts, err := template.ParseGlob(layoutsglob)
 		if err != nil {
 			fmt.Println("Error Parsing Templates: ", err)
 			os.Exit(1)
