@@ -1,0 +1,27 @@
+{{ template "header.html" . }}
+
+<div id="post">
+  <h2> {{ .Title }} </h2>
+  <div class="meta">Date: {{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+  
+  {{ .Content }}
+
+  <br clear="both"/>
+  <div class="archive_link">
+    Archive: <a href="/{{ .Category }}/">{{ .Category }}</a>
+  </div>
+</div>
+
+TODO: previous - next links
+
+<p><hr/></p>
+
+<p>Recent Posts</p>
+<ul>
+  {{ range .Recent }}
+    <li> <a href="{{ .OutFile }}">{{.Title}}</a></li>
+  {{ end }}
+</ul>
+
+  
+{{ template "footer.html" }}
