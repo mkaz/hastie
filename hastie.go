@@ -61,10 +61,6 @@ func main() {
   site := &SiteStruct{}
   filepath.Walk(config.TemplateDir, site, nil)
 
-  // create directories
-  ///TODO: create necessary directories
-
-
   /* ******************************************
    * Loop through directories and build pages 
    * ****************************************** */
@@ -113,7 +109,10 @@ func main() {
   // build recent file list, sorted
   recentList := getRecentList(pages)
 
-  // Next Loop through Pages and apply templates and write out
+
+  /* ******************************************
+   * Loop through pages and generate templates
+   * ****************************************** */
   for _, page := range pages {
 
     fmt.Println("  Generating Template: ", page.OutFile)
@@ -129,17 +128,16 @@ func main() {
     }
 
 
-    /* apply template - writes page data to buffer */
+    /* Templating - writes page data to buffer 
+     * read and parse all template files          */
     buffer := new(bytes.Buffer)
-    // read and parse all templates, since header, footer need
-    // to be read and parsed for them to be included
     layoutsglob := fmt.Sprintf("%s/*.html", config.LayoutDir)
     ts, err := template.ParseTemplateGlob(layoutsglob)
     if err != nil {
       fmt.Println("Error Parsing Templates: ", err)
       os.Exit(1)
     }
-    // pick layout based on specified
+    // pick layout based on specified in file
     templateFile := ""
     if page.Layout == "" {
       templateFile = "post.html"
@@ -164,13 +162,12 @@ func main() {
 /* ************************************************
  * Read and Parse File
  * @param filename
- * @return content, params
- *
- * Note: named return params allows return to "know" what to return
+ * @return Page object
  * ************************************************ */
 func readParseFile(filename string) (page Page) {
   if (debug) { fmt.Println("Parsing File: ", filename) }
   epoch, _ := time.Parse("20060102", "19700101")
+
   // setup default page struct
   page = Page{
     Title: "",
@@ -224,14 +221,14 @@ func readParseFile(filename string) (page Page) {
   page.OutFile = filename[strings.Index(filename, "/")+1:]
   page.OutFile = strings.Replace(page.OutFile, ".md", ".html", 1)
 
-  // first directory is category
+  // next first directory is category
   if strings.Contains(page.OutFile, "/") {
     page.Category = page.OutFile[0:strings.Index(page.OutFile, "/")]
   }
 
-  // parse date from filename, first part is just sample
+  // parse date from filename
   base := filepath.Base(page.OutFile)
-  if base[0:2] == "20" || base[0:2] == "19" {  //HACK: if file starts with 20 assume date
+  if base[0:2] == "20" || base[0:2] == "19" {  //HACK: if file starts with 20 or 19 assume date
     page.Date, _ = time.Parse("2006-01-02", base[0:10])
     page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1)  // remove date from final filename
   }
@@ -254,6 +251,7 @@ func readParseFile(filename string) (page Page) {
 func getRecentList(pages PagesSlice) (list PagesSlice) {
   fmt.Println("Creating Recent File List")
   for _, page := range pages {
+    // pages without dates are set to epoch
     if (page.Date.Format("2006") != "1970") {
       list = append(list, page)
     }
@@ -266,20 +264,6 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
   }
 
   return list
-}
-
-
-/* ************************************************
- * Takes a string array and sorts then reverses
- * Used for creating a most recent list
- * ************************************************ */
-func sortReverse(arr []string) []string {
-  ss := sort.StringSlice(arr)
-  ss.Sort()
-  for i, j := 0, len(ss)-1; i < j; i, j = i+1, j-1 {
-    ss[i], ss[j] = ss[j], ss[i]
-  }
-  return ss
 }
 
 
@@ -303,7 +287,6 @@ func (v *SiteStruct) VisitFile(path string, f *os.FileInfo) {
   v.Files = append(v.Files, path)
   /* fmt.Printf("File: %s  -- Path: %s \n", f.Name, path)*/
 }
-
 
 
 /* ************************************************
