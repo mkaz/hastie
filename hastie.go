@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-const debug = true
+const debug = false
 
 type Page struct {
 	Content  string
@@ -65,11 +65,9 @@ func main() {
 	var pages PagesSlice
 	for _, dir := range site.Directories {
 
-		fmt.Println("Reading Directory: ", dir)
 		directory_file_count := 0
 		readglob := fmt.Sprintf("%s/*.md", dir)
 		var dirfiles, _ = filepath.Glob(readglob)
-		fmt.Println("---> dirfiles:", dirfiles)
 
 		// loop through files in directory
 		for _, file := range dirfiles {
@@ -288,34 +286,23 @@ func Walker(fn string, fi os.FileInfo, err error) error {
 	}
 
 	if fi.IsDir() {
-		fmt.Println("Found Dir", fi.Name())
 		site.Categories = append(site.Categories, fi.Name())
 		site.Directories = append(site.Directories, fn)
 		return nil
 	} else {
-		site.Files = append(site.Files, fi.Name())
+		site.Files = append(site.Files, fn)
 		return nil
 	}
 	return nil
 
 }
 
-func (v *SiteStruct) VisitDir(path string, f os.FileInfo) bool {
-	v.Categories = append(v.Categories, f.Name())
-	v.Directories = append(v.Directories, path)
-	/* fmt.Println("Directory: ", f.Name)*/
-	return true
-}
-
-func (v *SiteStruct) VisitFile(path string, f os.FileInfo) {
-	v.Files = append(v.Files, path)
-	/* fmt.Printf("File: %s  -- Path: %s \n", f.Name, path)*/
-}
 
 /* ************************************************
  * Check if File / Directory Exists
  * ************************************************ */
 func exists(path string) bool {
+	// TODO: Check if regular file
 	_, err := os.Stat(path)
 	if err != nil {
 		return false
