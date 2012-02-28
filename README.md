@@ -1,12 +1,12 @@
-
 ## Hastie - Static Site Generator in Go
 
-Author : Marcus Kazmierczak
-         http://mkaz.com/
+Author :
+
+ - Marcus Kazmierczak, http://mkaz.com/
+ - Fredrik Steen, http://github.com/stone
 
 Started: Feb 13, 2012
 Project: https://github.com/mkaz/hastie
-
 
 Hastie is intended as replacement of jekyll (for myself), but jekyll has a robust plugin, extensibility and community that I do not expect to even attempt.  If you are looking for a flexible tool to publish your site use jekyll.
 
@@ -18,27 +18,38 @@ Note: The name Hastie also comes from the novel Dr. Jekyll and Mr. Hyde
 
 ## Install Notes
 
-You need Go binaries already installed see: http://golang.org/doc/install.html
+Untill Go v1.0 is released you need to install Go Weekly: <http://golang.org/doc/install.html#fetch>
 
-For my Mac I use homebrew, so it was simply a matter of: `brew install go`
+    $ cd $HOME
+    $ hg clone -u weekly https://go.googlecode.com/hg/ go
+    $ cd $HOME/go/src; ./all.bash
+    $ echo "GOROOT=$HOME/go" >> $HOME/.bashrc
 
-For my Linux environments I use a Debian variant so you can install with: `apt-get install golang`
 
 #### Libraries
 
-Uses **blackfriday** for markdown conversion. `goinstall github.com/russross/blackfriday`
+Uses **blackfriday** for markdown conversion. `go get github.com/russross/blackfriday`
 
-Uses **goconf** for reading configuration file `goinstall goconf.googlecode.com/hg`
-
-If the above does not work for gconf, try
-
-     cd $GOROOT/src/pkg/goconf/googlecode.com/hg
-     gomake install`
+Uses **goconf** for reading configuration file `go get goconf.googlecode.com/hg`
 
 
 --------------------------------------------------------------------------------
 
 ## Usage
+
+    usage: hastie [flags]
+      -c="hastie.json": Config file
+      -h=false: show this help
+      -v=false: verbose output
+
+Configuration file format (default ./hastie.json)
+
+    {
+      "TemplateDir": "posts",
+      "LayoutDir": "layouts",
+      "PublishDir": "public"
+    }
+
 
 Hastie walks through a templates directory and generates HTML files to a publish directory. It uses Go's template language for templates and markdown for content.
 
@@ -67,7 +78,6 @@ A few current limitations:
   * all files must be have .md extension
   * sub-directories are only one level deep
 
-
 The usage of hastie is just as a template engine, it does not copy over any images, does not have a built-in web server or any of the other features that jekyll has.
 
 I keep the `public` directory full with all of the assets for the site such as images, stylesheets, etc and hastie copies in the html files. So if you delete a template it won't be removed from `public`
@@ -95,6 +105,4 @@ Data available to templates:
 * Create LESS converter for stylesheets
 * Read .html files and apply template, no markdown
 * Add ability to support rss.xml
-
-* Command Line Arguments (--verbose, --help)
 
