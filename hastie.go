@@ -97,7 +97,6 @@ func main() {
 	var pages PagesSlice
 	for _, dir := range site.Directories {
 
-		directory_file_count := 0
 		readglob := fmt.Sprintf("%s/*.md", dir)
 		var dirfiles, _ = filepath.Glob(readglob)
 
@@ -115,7 +114,6 @@ func main() {
 				continue // skip to next file
 			}
 			pages = append(pages, page)
-			directory_file_count += 1
 		}
 	}
 
