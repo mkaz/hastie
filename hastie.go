@@ -15,6 +15,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
@@ -26,7 +27,15 @@ import (
 	"time"
 )
 
-const debug = false
+const (
+	cfgFiledefault = "hastie.json"
+)
+
+var (
+	verbose = flag.Bool("v", false, "verbose output")
+	help    = flag.Bool("h", false, "show this help")
+	cfgfile = flag.String("c", cfgFiledefault, "Config file")
+)
 
 type Page struct {
 	Content  string
@@ -48,15 +57,38 @@ func (p PagesSlice) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Un
 func (p PagesSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p PagesSlice) Sort()              { sort.Sort(p) }
 
-// create list of directories and files
+// holds lists of directories and files
 var site = &SiteStruct{}
 
+// Wrapper around Fprintf taking verbose flag in account.
+func Printvf(format string, a ...interface{}) {
+	if *verbose {
+		fmt.Fprintf(os.Stderr, format, a...)
+	}
+}
+
+// Wrapper around Fprintln taking verbose flag in account.
+func Printvln(a ...interface{}) {
+	if *verbose {
+		fmt.Fprintln(os.Stderr, a...)
+	}
+}
+
+func usage() {
+	fmt.Fprintln(os.Stderr, "usage: hastie [flags]")
+	flag.PrintDefaults()
+	os.Exit(2)
+}
+
 func main() {
-	//TODO: add verbose / debug - command-line arguments
+	flag.Usage = usage
+	flag.Parse()
+	if *help {
+		usage()
+	}
 
 	setupConfig()
 
-	//filepath.Walk(config["TemplateDir"], site, nil)
 	filepath.Walk(config["TemplateDir"], Walker)
 
 	/* ******************************************
@@ -71,9 +103,7 @@ func main() {
 
 		// loop through files in directory
 		for _, file := range dirfiles {
-			if debug {
-				fmt.Println("  File: ", file)
-			}
+			Printvln("  File:", file)
 			outfile := filepath.Base(file)
 			outfile = strings.Replace(outfile, ".md", ".html", 1)
 
@@ -89,14 +119,14 @@ func main() {
 		}
 	}
 
-	if debug { // spit out pages structure
-		fmt.Println("################################################################################")
-		fmt.Printf(" %-50s | %-10s | %s \n", "Title", "Category", "Outfile")
-		fmt.Println("--------------------------------------------------------------------------------")
+	if *verbose { // spit out pages structure
+		Printvln("################################################################################")
+		Printvf(" %-50s | %-10s | %s \n", "Title", "Category", "Outfile")
+		Printvln("--------------------------------------------------------------------------------")
 		for _, page := range pages {
-			fmt.Printf(" %-50s | %-10s | %s \n", page.Title, page.Category, page.OutFile)
+			Printvf(" %-50s | %-10s | %s \n", page.Title, page.Category, page.OutFile)
 		}
-		fmt.Println("################################################################################")
+		Printvln("################################################################################")
 	}
 
 	/* ******************************************
@@ -145,15 +175,11 @@ func main() {
 
 		// writing out file
 		writedir := fmt.Sprintf("%s/%s", config["PublishDir"], page.Category)
-		if debug {
-			fmt.Println(" Write Directory: ", writedir)
-		}
+		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		outfile := fmt.Sprintf("%s/%s", config["PublishDir"], page.OutFile)
-		if debug {
-			fmt.Println(" Writing File: ", outfile)
-		}
+		Printvln(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
 
@@ -165,9 +191,7 @@ func main() {
  * @return Page object
  * ************************************************ */
 func readParseFile(filename string) (page Page) {
-	if debug {
-		fmt.Println("Parsing File: ", filename)
-	}
+	Printvln("Parsing File:", filename)
 	epoch, _ := time.Parse("20060102", "19700101")
 
 	// setup default page struct
@@ -270,15 +294,14 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 	return list
 }
 
-/* ************************************************
- *  File / Directory Walker
- * ************************************************ */
+// Holds lists of Files, Directories and Categories
 type SiteStruct struct {
 	Files       []string
 	Directories []string
 	Categories  []string
 }
 
+// WalkFn that fills SiteStruct with data.
 func Walker(fn string, fi os.FileInfo, err error) error {
 	if err != nil {
 		fmt.Println("Walker:", err)
@@ -297,7 +320,6 @@ func Walker(fn string, fi os.FileInfo, err error) error {
 
 }
 
-
 /* ************************************************
  * Check if File / Directory Exists
  * ************************************************ */
@@ -310,11 +332,9 @@ func exists(path string) bool {
 	return true
 }
 
-/* ************************************************
- * Read Config file or set defaults 
- * ************************************************ */
+// Read cfgfile or setup defaults.
 func setupConfig() {
-	file, err := ioutil.ReadFile("hastie.json")
+	file, err := ioutil.ReadFile(*cfgfile)
 	if err != nil {
 		// set defaults
 		config["TemplateDir"] = "posts"
