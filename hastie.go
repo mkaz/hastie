@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-const debug = false
+const debug = true
 
 type Page struct {
 	Content  string
@@ -48,14 +48,16 @@ func (p PagesSlice) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Un
 func (p PagesSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p PagesSlice) Sort()              { sort.Sort(p) }
 
+// create list of directories and files
+var site = &SiteStruct{}
+
 func main() {
 	//TODO: add verbose / debug - command-line arguments
 
 	setupConfig()
 
-	// create list of directories and files
-	site := &SiteStruct{}
-	filepath.Walk(config["TemplateDir"], site, nil)
+	//filepath.Walk(config["TemplateDir"], site, nil)
+	filepath.Walk(config["TemplateDir"], Walker)
 
 	/* ******************************************
 	 * Loop through directories and build pages 
@@ -67,6 +69,7 @@ func main() {
 		directory_file_count := 0
 		readglob := fmt.Sprintf("%s/*.md", dir)
 		var dirfiles, _ = filepath.Glob(readglob)
+		fmt.Println("---> dirfiles:", dirfiles)
 
 		// loop through files in directory
 		for _, file := range dirfiles {
@@ -140,7 +143,7 @@ func main() {
 		} else {
 			templateFile = fmt.Sprintf("%s.html", page.Layout)
 		}
-		ts.Execute(buffer, templateFile, page)
+		ts.ExecuteTemplate(buffer, templateFile, page)
 
 		// writing out file
 		writedir := fmt.Sprintf("%s/%s", config["PublishDir"], page.Category)
@@ -278,6 +281,25 @@ type SiteStruct struct {
 	Categories  []string
 }
 
+func Walker(fn string, fi os.FileInfo, err error) error {
+	if err != nil {
+		fmt.Println("Walker:", err)
+		return nil
+	}
+
+	if fi.IsDir() {
+		fmt.Println("Found Dir", fi.Name())
+		site.Categories = append(site.Categories, fi.Name())
+		site.Directories = append(site.Directories, fn)
+		return nil
+	} else {
+		site.Files = append(site.Files, fi.Name())
+		return nil
+	}
+	return nil
+
+}
+
 func (v *SiteStruct) VisitDir(path string, f os.FileInfo) bool {
 	v.Categories = append(v.Categories, f.Name())
 	v.Directories = append(v.Directories, path)
@@ -296,9 +318,6 @@ func (v *SiteStruct) VisitFile(path string, f os.FileInfo) {
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	if err != nil {
-		if e, ok := err.(*os.PathError); ok && (e.Error == os.ENOENT || e.Error == os.ENOTDIR) {
-			return false
-		}
 		return false
 	}
 	return true
@@ -308,7 +327,7 @@ func exists(path string) bool {
  * Read Config file or set defaults 
  * ************************************************ */
 func setupConfig() {
-	file, err := ioutil.Readfile("hastie.json")
+	file, err := ioutil.ReadFile("hastie.json")
 	if err != nil {
 		// set defaults
 		config["TemplateDir"] = "posts"
