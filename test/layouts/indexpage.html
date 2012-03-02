@@ -5,7 +5,7 @@
 <p>Recent Posts</p>
 <ul>
   {{ range .Recent }}
-    <li><a href="{{ .OutFile }}">{{ .Title }}</a></li>
+    <li><a href="{{ .Url }}">{{ .Title }}</a></li>
   {{ end }}
 </ul>
 
