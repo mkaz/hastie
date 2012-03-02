@@ -82,19 +82,30 @@ Data available to templates:
     .OutFile -- file path
     .Recent -- list of 3 most recent files
     .Pages -- list of all page obhects
-
+    .Url   -- what is the url for this page
 
 --------------------------------------------------------------------------------
-
 
 ### TODO
 
 * Recent Files: Create List of Recent Files by Category
-
 * Create Next-Prev Links by Category
 * Create LESS converter for stylesheets
+* Create syntax highlighting blocks
+
 * Read .html files and apply template, no markdown
 * Add ability to support rss.xml
 
 * Command Line Arguments (--verbose, --help)
 
+
+
+--------------------------------------------------------------------------------
+
+### CHANGE LOG
+
+ver 0.2
+
+* In config, renamed `template_dir` to `source` This more accurately describes the directory, what I was thinking was templates to be expanded are really the source files for the site.
+
+* Added Url parameter to templates
