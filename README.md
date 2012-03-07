@@ -106,10 +106,16 @@ Data available to templates:
 
 
 
-
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
+
+ver 0.3.1
+
+  * Change category to include full directory path
+
+  * Trimmed begin-end quotes from passed in parameters
+    no need to quote parameters in template files
 
 
 

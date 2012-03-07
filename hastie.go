@@ -224,6 +224,7 @@ func readParseFile(filename string) (page Page) {
 			if colonIndex > 0 {
 				key := strings.TrimSpace(line[:colonIndex])
 				value := strings.TrimSpace(line[colonIndex+1:])
+        value = strings.Trim(value, "\"")  //remove quotes
 				switch key {
 				case "title":
 					page.Title = value
@@ -252,9 +253,10 @@ func readParseFile(filename string) (page Page) {
 	page.OutFile = filename[strings.Index(filename, "/")+1:]
 	page.OutFile = strings.Replace(page.OutFile, ".md", ".html", 1)
 
-	// next first directory is category
+	// next directory(s) category, category includes sub-dir = solog/webdev
+  // TODO: allow category parameter
 	if strings.Contains(page.OutFile, "/") {
-		page.Category = page.OutFile[0:strings.Index(page.OutFile, "/")]
+		page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
 	}
 
 	// parse date from filename
