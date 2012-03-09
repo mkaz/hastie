@@ -40,15 +40,19 @@ var (
 )
 
 type Page struct {
-	Content  string
-	Title    string
-	Category string
-	Layout   string
-	Pages    PagesSlice
-	Recent   PagesSlice
-	Date     time.Time
-	OutFile  string
-	Url      string
+	Content   string
+	Title     string
+	Category  string
+	Layout    string
+	Pages     PagesSlice
+	Recent    PagesSlice
+	Date      time.Time
+	OutFile   string
+	Url       string
+	PrevUrl   string
+  PrevTitle string
+	NextUrl   string
+  NextTitle string
 }
 
 var config map[string]string
@@ -116,6 +120,7 @@ func main() {
 			if page.Content == "" {
 				continue // skip to next file
 			}
+
 			pages = append(pages, page)
 		}
 	}
@@ -155,6 +160,10 @@ func main() {
 		} else {
 			page.Recent = recentList
 		}
+
+    // add prev-next links
+    page.buildPrevNextLinks(recentList)
+
 
 		/* Templating - writes page data to buffer 
 		 * read and parse all template files          */
@@ -197,13 +206,17 @@ func readParseFile(filename string) (page Page) {
 
 	// setup default page struct
 	page = Page{
-		Title:    "",
-		Category: "",
-		Content:  "",
-		Layout:   "",
-		Date:     epoch,
-		OutFile:  filename,
-    Url:      ""}
+		Title:     "",
+		Category:  "",
+		Content:   "",
+		Layout:    "",
+		Date:      epoch,
+		OutFile:   filename,
+    Url:       "",
+    PrevUrl:   "",
+    PrevTitle: "",
+    NextUrl:   "",
+    NextTitle: ""}
 
 	// read file
 	var data, err = ioutil.ReadFile(filename)
@@ -302,6 +315,36 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 
 	return list
 }
+
+
+/* ************************************************
+ * Add Prev Next Links to Page Object 
+ * ************************************************ */
+func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
+    foundIt := false
+    nextPage := Page{}
+    prevPage := Page{}
+    pp := Page{}
+    for _, rp := range recentList {
+
+      if foundIt {
+        prevPage = rp
+        break
+      }
+
+      if (rp.Title == page.Title) {
+        nextPage = pp
+        foundIt = true
+        fmt.Println("Found Previous Page")
+      }
+      pp = rp   // previous page
+    }
+    page.NextUrl = nextPage.Url
+    page.NextTitle = nextPage.Title
+    page.PrevUrl = prevPage.Url
+    page.PrevTitle = prevPage.Title
+}
+
 
 // Holds lists of Files, Directories and Categories
 type SiteStruct struct {

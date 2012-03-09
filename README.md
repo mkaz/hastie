@@ -83,14 +83,18 @@ I keep the `public` directory full with all of the assets for the site such as i
 
 Data available to templates:
 
-    .Title -- Page Title
-    .Date -- Page Date format using .Date.Format "Jan 2, 2006"
-    .Content -- Converted HTML Content
-    .Category -- Category (directory)
-    .OutFile -- file path
-    .Recent -- list of 3 most recent files
-    .Pages -- list of all page obhects
-    .Url   -- what is the url for this page
+    .Title     -- Page Title
+    .Date      -- Page Date format using .Date.Format "Jan 2, 2006"
+    .Content   -- Converted HTML Content
+    .Category  -- Category (directory)
+    .OutFile   -- file path
+    .Recent    -- list of 3 most recent files
+    .Pages     -- list of all page obhects
+    .Url       -- Url for this page
+    .PrevUrl   -- Previous Page Url
+    .PrevTitle -- Previous Page Title
+    .NextUrl   -- Next Page Url
+    .NextTitle -- Next Page Title
 
 --------------------------------------------------------------------------------
 
@@ -109,6 +113,13 @@ Data available to templates:
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
+
+ver 0.3.2
+
+  * Add Prev-Next Links to Page Object
+
+
+
 
 ver 0.3.1
 
