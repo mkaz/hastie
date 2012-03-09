@@ -18,7 +18,7 @@ Note: The name Hastie also comes from the novel Dr. Jekyll and Mr. Hyde
 
 ## Install Notes
 
-Untill Go v1.0 is released you need to install Go Weekly: <http://golang.org/doc/install.html#fetch>
+Until Go v1.0 is released you need to install Go Weekly: <http://golang.org/doc/install.html#fetch>
 
     $ cd $HOME
     $ hg clone -u weekly https://go.googlecode.com/hg/ go
@@ -43,8 +43,8 @@ Uses **blackfriday** for markdown conversion. `go get github.com/russross/blackf
 Configuration file format (default ./hastie.json)
 
     {
-      "TemplateDir": "posts",
-      "LayoutDir": "layouts",
+      "SourceDir" : "posts",
+      "LayoutDir" : "layouts",
       "PublishDir": "public"
     }
 
@@ -74,7 +74,6 @@ This will generate:
 A few current limitations:
 
   * all files must be have .md extension
-  * sub-directories are only one level deep
 
 The usage of hastie is just as a template engine, it does not copy over any images, does not have a built-in web server or any of the other features that jekyll has.
 
@@ -88,62 +87,62 @@ Data available to templates:
     .Content   -- Converted HTML Content
     .Category  -- Category (directory)
     .OutFile   -- file path
-    .Recent    -- list of 3 most recent files
-    .Pages     -- list of all page obhects
+    .Recent    -- list most recent files, latest first
     .Url       -- Url for this page
     .PrevUrl   -- Previous Page Url
     .PrevTitle -- Previous Page Title
     .NextUrl   -- Next Page Url
     .NextTitle -- Next Page Title
 
+Functions Available:
+    
+  .Recent.Limit n   -- will limit recent list to n items
+
+      Example 3 most recent titles: 
+        {{ range .Recent.Limit 3 }}
+          {{ .Title }}
+        {{ end }}
+    
+
 --------------------------------------------------------------------------------
 
 ### TODO
 
 * Recent Files: Create List of Recent Files by Category
-* Create Next-Prev Links by Category
 * Create LESS converter for stylesheets
 * Create syntax highlighting blocks
 
-* Read .html files and apply template, no markdown
+* Allow misc parameters in head section
 * Add ability to support rss.xml
+* Read .html files and apply template, no markdown
 
-
+#### Bugs
+* Add nicer error message/detection when no config found
+* Shouldn't templates work in source files ??
 
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
 
-ver 0.3.2
+ver 2012-03-09
+  * Add Limit function to PagesSlice, availabe in templates
+  * Removed Pages data, since duplicated
 
+ver 2012-03-08
   * Add Prev-Next Links to Page Object
 
-
-
-
-ver 0.3.1
-
+ver 2012-03-07
   * Change category to include full directory path
-
   * Trimmed begin-end quotes from passed in parameters
     no need to quote parameters in template files
 
-
-
-ver 0.3 
-
+ver 2012-03-02
   * Merged Fredrik Steen changes in github.com/stone/hastie
-
   * Switched config to json format
     - removed dependency on old config
-
   * Moved to Go1 support 
 
-
-
-
 ver 0.2 (unreleased)
-
   * In config, renamed `template_dir` to `source` This more accurately describes the directory, what I was thinking was templates to be expanded are really the source files for the site.
 
   * Added Url parameter to templates

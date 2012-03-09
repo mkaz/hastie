@@ -40,29 +40,20 @@ var (
 )
 
 type Page struct {
-	Content   string
-	Title     string
-	Category  string
-	Layout    string
-	Pages     PagesSlice
-	Recent    PagesSlice
-	Date      time.Time
-	OutFile   string
-	Url       string
-	PrevUrl   string
-  PrevTitle string
-	NextUrl   string
-  NextTitle string
+	Content, Title, Category, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle  string
+	Pages, Recent     PagesSlice
+	Date              time.Time
 }
 
 var config map[string]string
 
 type PagesSlice []Page
 
-func (p PagesSlice) Len() int           { return len(p) }
-func (p PagesSlice) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Unix() }
-func (p PagesSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p PagesSlice) Sort()              { sort.Sort(p) }
+func (p PagesSlice) Len() int               { return len(p) }
+func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Date.Unix() }
+func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
+func (p PagesSlice) Sort()                  { sort.Sort(p) }
+func (p PagesSlice) Limit(n int) PagesSlice { return p[0:n] }
 
 // holds lists of directories and files
 var site = &SiteStruct{}
@@ -151,18 +142,13 @@ func main() {
 
 		fmt.Println("  Generating Template: ", page.OutFile)
 
-		/* Assign global data to page object
-		 * Note: need better templating duplicating data
-		         since no logic in templates to limit to 3 */
-		page.Pages = recentList
-		if len(recentList) > 3 {
-			page.Recent = recentList[0:3]
-		} else {
-			page.Recent = recentList
-		}
+    // added limit function to PagesSlice can be used in templates
+		page.Recent = recentList
 
     // add prev-next links
     page.buildPrevNextLinks(recentList)
+
+    // TODO: add recent by category
 
 
 		/* Templating - writes page data to buffer 
