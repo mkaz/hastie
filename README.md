@@ -94,21 +94,30 @@ Data available to templates:
     .NextUrl   -- Next Page Url
     .NextTitle -- Next Page Title
 
+    .Categories.CATEGORY -- list of most recent files for CATEGORY
+
+
 Functions Available:
     
-  .Recent.Limit n   -- will limit recent list to n items
+  .Recent.Limit n           -- will limit recent list to n items
+  .Categories.Get CATEGORY  -- will fetch category list CATEGORY, useful for dynamic categories
 
-      Example 3 most recent titles: 
+Examples:
+    Show 3 most recent titles: 
         {{ range .Recent.Limit 3 }}
           {{ .Title }}
         {{ end }}
     
+    Show 3 most recent from math category:
+        {{ range .CategoryList.math }}
+          {{ .Title }}
+        {{ end }}
+
 
 --------------------------------------------------------------------------------
 
 ### TODO
 
-* Recent Files: Create List of Recent Files by Category
 * Create LESS converter for stylesheets
 * Create syntax highlighting blocks
 
@@ -116,31 +125,52 @@ Functions Available:
 * Add ability to support rss.xml
 * Read .html files and apply template, no markdown
 
+* Expand example templates to use categories, limit and new feature sets
+
+
 #### Bugs
 * Add nicer error message/detection when no config found
+* Add nicer error detection when error with template
 * Shouldn't templates work in source files ??
 
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
 
+ver 2012-03-10
+
+  * Add Recent List by Category
+  * Switched Config from string map to struct
+  * Created new config element called CategoryMash which allows
+    the combination of multiple categories into a single category.
+    This allows for displaying a list of combined categories
+
+
 ver 2012-03-09
+
   * Add Limit function to PagesSlice, availabe in templates
   * Removed Pages data, since duplicated
 
+
 ver 2012-03-08
+
   * Add Prev-Next Links to Page Object
 
+
 ver 2012-03-07
+
   * Change category to include full directory path
   * Trimmed begin-end quotes from passed in parameters
     no need to quote parameters in template files
 
+
 ver 2012-03-02
+
   * Merged Fredrik Steen changes in github.com/stone/hastie
   * Switched config to json format
     - removed dependency on old config
   * Moved to Go1 support 
+
 
 ver 0.2 (unreleased)
   * In config, renamed `template_dir` to `source` This more accurately describes the directory, what I was thinking was templates to be expanded are really the source files for the site.

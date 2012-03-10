@@ -2,4 +2,9 @@
     "SourceDir"  : "posts",
     "LayoutDir"  : "layouts",
     "PublishDir" : "public"
+    
+    "CategoryMash": {
+      "geek"    : "web-dev,math,dataviz",
+      "ramble"  : "misc,sports"
+    }
 }

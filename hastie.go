@@ -33,6 +33,12 @@ const (
 	cfgFiledefault = "hastie.json"
 )
 
+// config file items
+var config struct {
+  SourceDir, LayoutDir, PublishDir string
+  CategoryMash map[string]string
+}
+
 var (
 	verbose = flag.Bool("v", false, "verbose output")
 	help    = flag.Bool("h", false, "show this help")
@@ -41,19 +47,21 @@ var (
 
 type Page struct {
 	Content, Title, Category, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle  string
-	Pages, Recent     PagesSlice
-	Date              time.Time
+	Recent        PagesSlice
+	Date          time.Time
+  Categories    CategoryList
 }
 
-var config map[string]string
-
 type PagesSlice []Page
-
 func (p PagesSlice) Len() int               { return len(p) }
 func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Date.Unix() }
 func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
 func (p PagesSlice) Sort()                  { sort.Sort(p) }
 func (p PagesSlice) Limit(n int) PagesSlice { return p[0:n] }
+
+type CategoryList map[string]PagesSlice
+func (c CategoryList) Get(category string) PagesSlice   { return c[category] }
+
 
 // holds lists of directories and files
 var site = &SiteStruct{}
@@ -87,7 +95,7 @@ func main() {
 
 	setupConfig()
 
-	filepath.Walk(config["SourceDir"], Walker)
+	filepath.Walk(config.SourceDir, Walker)
 
 	/* ******************************************
 	 * Loop through directories and build pages 
@@ -134,27 +142,27 @@ func main() {
 
 	// build recent file list, sorted
 	recentList := getRecentList(pages)
+  categoryList := getCategoryList(recentList)
+
 
 	/* ******************************************
 	 * Loop through pages and generate templates
 	 * ****************************************** */
 	for _, page := range pages {
 
-		fmt.Println("  Generating Template: ", page.OutFile)
+		Printvf("  Generating Template: ", page.OutFile)
 
-    // added limit function to PagesSlice can be used in templates
+    // added recent pages lists to each page object
 		page.Recent = recentList
+    page.Categories = categoryList
 
     // add prev-next links
     page.buildPrevNextLinks(recentList)
 
-    // TODO: add recent by category
-
-
 		/* Templating - writes page data to buffer 
 		 * read and parse all template files          */
 		buffer := new(bytes.Buffer)
-		layoutsglob := fmt.Sprintf("%s/*.html", config["LayoutDir"])
+		layoutsglob := fmt.Sprintf("%s/*.html", config.LayoutDir)
 		ts, err := template.ParseGlob(layoutsglob)
 		if err != nil {
 			fmt.Println("Error Parsing Templates: ", err)
@@ -170,11 +178,11 @@ func main() {
 		ts.ExecuteTemplate(buffer, templateFile, page)
 
 		// writing out file
-		writedir := fmt.Sprintf("%s/%s", config["PublishDir"], page.Category)
+		writedir := fmt.Sprintf("%s/%s", config.PublishDir, page.Category)
 		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
-		outfile := fmt.Sprintf("%s/%s", config["PublishDir"], page.OutFile)
+		outfile := fmt.Sprintf("%s/%s", config.PublishDir, page.OutFile)
 		Printvln(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
@@ -285,7 +293,7 @@ func readParseFile(filename string) (page Page) {
  *    - does not include files without date
  * ************************************************ */
 func getRecentList(pages PagesSlice) (list PagesSlice) {
-	fmt.Println("Creating Recent File List")
+	Printvf("Creating Recent File List")
 	for _, page := range pages {
 		// pages without dates are set to epoch
 		if page.Date.Format("2006") != "1970" {
@@ -301,6 +309,46 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 
 	return list
 }
+
+
+/* ************************************************
+ * Build Category List
+ *    - return a map containing a list of pages for
+        each category, the key being category name
+ * ************************************************ */
+func getCategoryList(pages PagesSlice) CategoryList {
+  mapList := make(CategoryList)
+  // recentList is passed in which is already sorted
+  // just need to map the pages to category
+
+  // read category mash config, which allows to create
+  // a new category based on combining multiple categories
+  // this is used on my site when I want to display a list 
+  // of items from similar categories together
+  reverseMap := make(map[string]string)
+
+  for k,v := range config.CategoryMash {
+    //split v on comma
+    cats := strings.Split(string(v), ",")
+    //loop through split and add to reverse map
+    for _,cat := range cats {
+      reverseMap[cat] = string(k)
+    }
+  }
+
+  for _, page := range pages {
+
+    // create new category from category mash map
+    if reverseMap[page.Category] != page.Category {
+      thisCategory := reverseMap[page.Category]
+      mapList[thisCategory] = append(mapList[thisCategory], page) 
+    }
+    // still want a list of regular categories
+    mapList[page.Category] = append(mapList[page.Category],page)
+  }
+	return mapList
+}
+
 
 
 /* ************************************************
@@ -321,7 +369,6 @@ func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
       if (rp.Title == page.Title) {
         nextPage = pp
         foundIt = true
-        fmt.Println("Found Previous Page")
       }
       pp = rp   // previous page
     }
@@ -375,9 +422,9 @@ func setupConfig() {
 	file, err := ioutil.ReadFile(*cfgfile)
 	if err != nil {
 		// set defaults
-		config["SourceDir"] = "posts"
-		config["LayoutDir"] = "layouts"
-		config["PublishDir"] = "public"
+		config.SourceDir = "posts"
+		config.LayoutDir = "layouts"
+		config.PublishDir = "public"
 	} else {
 		if err := json.Unmarshal(file, &config); err != nil {
 			fmt.Printf("Error parsing config: %s", err)
