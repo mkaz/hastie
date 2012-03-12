@@ -82,17 +82,22 @@ I keep the `public` directory full with all of the assets for the site such as i
 
 Data available to templates:
 
-    .Title     -- Page Title
-    .Date      -- Page Date format using .Date.Format "Jan 2, 2006"
-    .Content   -- Converted HTML Content
-    .Category  -- Category (directory)
-    .OutFile   -- file path
-    .Recent    -- list most recent files, latest first
-    .Url       -- Url for this page
-    .PrevUrl   -- Previous Page Url
-    .PrevTitle -- Previous Page Title
-    .NextUrl   -- Next Page Url
-    .NextTitle -- Next Page Title
+    .Title        -- Page Title
+    .Date         -- Page Date format using .Date.Format "Jan 2, 2006"
+    .Content      -- Converted HTML Content
+    .Category     -- Category (directory)
+    .OutFile      -- file path
+    .Recent       -- list most recent files, latest first
+    .Url          -- Url for this page
+    .PrevUrl      -- Previous Page Url
+    .PrevTitle    -- Previous Page Title
+    .NextUrl      -- Next Page Url
+    .NextTitle    -- Next Page Title
+    .PrevCatUrl   -- Previous Page Url by Category
+    .PrevCatTitle -- Previous Page Title by Category
+    .NextCatUrl   -- Next Page Url by Category
+    .NextCatTitle -- Next Page Title by Category
+    .Params       -- Map of User Parameters, set in page head
 
     .Categories.CATEGORY -- list of most recent files for CATEGORY
 
@@ -117,15 +122,13 @@ Examples:
 --------------------------------------------------------------------------------
 
 ### TODO
-
 * Create LESS converter for stylesheets
 * Create syntax highlighting blocks
 
-* Allow misc parameters in head section
 * Add ability to support rss.xml
-* Read .html files and apply template, no markdown
 
-* Expand example templates to use categories, limit and new feature sets
+* Read .html files and apply template, no markdown
+* Expand examples to use categories, limit and new feature sets
 
 
 #### Bugs
@@ -136,6 +139,13 @@ Examples:
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
+
+ver 2012-03-12
+
+  * Add Prev-Next Links by Category
+  * Add Parameters to Header, allows user created parameters, stored in .Params
+  * Removed skip if empty content, can build page based on parameters
+
 
 ver 2012-03-10
 

@@ -46,7 +46,8 @@ var (
 )
 
 type Page struct {
-	Content, Title, Category, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle  string
+	Content, Title, Category, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle  string
+  Params        map[string]string
 	Recent        PagesSlice
 	Date          time.Time
   Categories    CategoryList
@@ -115,11 +116,6 @@ func main() {
 			// read & parse file for parameters
 			page := readParseFile(file)
 
-			// skip file if no content
-			if page.Content == "" {
-				continue // skip to next file
-			}
-
 			pages = append(pages, page)
 		}
 	}
@@ -158,6 +154,7 @@ func main() {
 
     // add prev-next links
     page.buildPrevNextLinks(recentList)
+    page.buildCatPrevNextLinks(recentList)
 
 		/* Templating - writes page data to buffer 
 		 * read and parse all template files          */
@@ -207,10 +204,15 @@ func readParseFile(filename string) (page Page) {
 		Date:      epoch,
 		OutFile:   filename,
     Url:       "",
+    Params:   make(map[string]string),
     PrevUrl:   "",
     PrevTitle: "",
     NextUrl:   "",
-    NextTitle: ""}
+    NextTitle: "",
+    PrevCatUrl:   "",
+    PrevCatTitle: "",
+    NextCatUrl:   "",
+    NextCatTitle: ""}
 
 	// read file
 	var data, err = ioutil.ReadFile(filename)
@@ -239,6 +241,8 @@ func readParseFile(filename string) (page Page) {
 					page.Category = value
 				case "layout":
 					page.Layout = value
+        default:
+          page.Params[key] = value
 				}
 			}
 
@@ -377,6 +381,38 @@ func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
     page.PrevUrl = prevPage.Url
     page.PrevTitle = prevPage.Title
 }
+
+
+/* ************************************************
+ * Add Prev Next Links by Category to Page Object
+ * ************************************************ */
+func (page *Page) buildCatPrevNextLinks(recentList PagesSlice) {
+   foundIt := false
+   nextPage := Page{}
+   prevPage := Page{}
+   pp := Page{}
+
+   for _, rp := range recentList {
+     if rp.Category == page.Category {
+       if foundIt {
+         prevPage = rp
+         break
+       }
+
+       if (rp.Title == page.Title) {
+         nextPage = pp
+         foundIt = true
+       }
+       pp = rp   // previous page
+     }
+   }
+   page.NextCatUrl = nextPage.Url
+   page.NextCatTitle = nextPage.Title
+   page.PrevCatUrl = prevPage.Url
+   page.PrevCatTitle = prevPage.Title
+ }
+
+
 
 
 // Holds lists of Files, Directories and Categories
