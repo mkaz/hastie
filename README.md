@@ -46,6 +46,7 @@ Configuration file format (default ./hastie.json)
       "SourceDir" : "posts",
       "LayoutDir" : "layouts",
       "PublishDir": "public"
+
     }
 
 
@@ -104,10 +105,12 @@ Data available to templates:
 
 Functions Available:
     
-  .Recent.Limit n           -- will limit recent list to n items
-  .Categories.Get CATEGORY  -- will fetch category list CATEGORY, useful for dynamic categories
+    .Recent.Limit n           -- will limit recent list to n items
+    .Categories.Get CATEGORY  -- will fetch category list CATEGORY, useful for dynamic categories
+
 
 Examples:
+
     Show 3 most recent titles: 
         {{ range .Recent.Limit 3 }}
           {{ .Title }}
@@ -117,6 +120,19 @@ Examples:
         {{ range .CategoryList.math }}
           {{ .Title }}
         {{ end }}
+
+
+### Using Filters (Example: Less CSS, CoffeeScript)
+
+Hastie allows for the use of any command-line processing of files, provided the process takes the filename as input and spits out the results. It does so using `processFilters` configuration. You set a file extension mapped to the utility to process and the final extension.
+
+Add follow configuration to hastie.json
+
+      "processFilters": {
+        "less": ["/usr/local/bin/lessc", "css"]
+      }
+
+So the above example any files with the extension `.less` will be converted to `.css` using lessc binary and copied to the public directory at the same spot in the directory tree as the original less file.
 
 
 --------------------------------------------------------------------------------
@@ -140,14 +156,18 @@ Examples:
 
 ### CHANGE LOG
 
-ver 2012-03-12
+ver 0.4.0 - March 14, 2012
+  * Add Process Filters allows processing using any third party such as Less CSS or Coffee Script
+
+
+ver 0.3.5 - March 12, 2012
 
   * Add Prev-Next Links by Category
   * Add Parameters to Header, allows user created parameters, stored in .Params
   * Removed skip if empty content, can build page based on parameters
 
 
-ver 2012-03-10
+ver 0.3.4 - March 10, 2012
 
   * Add Recent List by Category
   * Switched Config from string map to struct
@@ -156,25 +176,25 @@ ver 2012-03-10
     This allows for displaying a list of combined categories
 
 
-ver 2012-03-09
+ver 0.3.3 - March 9, 2012
 
   * Add Limit function to PagesSlice, availabe in templates
   * Removed Pages data, since duplicated
 
 
-ver 2012-03-08
+ver 0.3.2 - March 8, 2012
 
   * Add Prev-Next Links to Page Object
 
 
-ver 2012-03-07
+ver 0.3.1 - March 7, 2012
 
   * Change category to include full directory path
   * Trimmed begin-end quotes from passed in parameters
     no need to quote parameters in template files
 
 
-ver 2012-03-02
+ver 0.3.0 - March 2, 2012
 
   * Merged Fredrik Steen changes in github.com/stone/hastie
   * Switched config to json format

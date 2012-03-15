@@ -22,6 +22,7 @@ import (
   "github.com/dhconnelly/blackfriday"
 	"io/ioutil"
 	"os"
+  "os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -37,6 +38,7 @@ const (
 var config struct {
   SourceDir, LayoutDir, PublishDir string
   CategoryMash map[string]string
+  ProcessFilters map[string][]string
 }
 
 var (
@@ -184,7 +186,39 @@ func main() {
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
 
-}
+
+	/* ******************************************
+	 * Loop through processFilters and process
+	 * ****************************************** */
+  for ext,filter := range config.ProcessFilters {
+    extStart := fmt.Sprintf(".%s", ext)
+    extEnd := fmt.Sprintf(".%s", filter[1])
+
+    for _, dir := range site.Directories {
+      readglob := fmt.Sprintf("%s/*%s", dir, extStart)
+      var dirfiles, _ = filepath.Glob(readglob)
+      for _, file := range dirfiles {
+        Printvf("Found file to Process: %s in Directory: %s \n", file, dir)
+        // check for filter
+        //apply process filter command, capture output
+        cmd := exec.Command(filter[0], file)
+        output, _ := cmd.Output()
+
+        // determine output file path and extension
+        outfile := file[strings.Index(file, "/")+1:]
+        outfile = fmt.Sprintf("%s/%s", config.PublishDir, outfile)
+        outfile = strings.Replace(outfile, extStart, extEnd, 1)
+        Printvf("Writing File: %s ", outfile)
+
+        ioutil.WriteFile(outfile, output, 0644)
+
+      }
+    }
+  }
+
+
+} // main
+
 
 /* ************************************************
  * Read and Parse File
