@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+
+  <channel>
+    <title>mkaz.com</title>
+    <link>http://mkaz.com/</link>
+    <description>rss feed for marcus kazmierczak's personal site</description>
+    <language>en-us</language>
+
+    {{ range .Recent.Limit 3 }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>http://mkaz.com{{ .Url }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</pubDate>
+      <author>Marcus Kazmiercak </author>
+      <guid>http://mkaz.com{{ .Url }}</guid>
+      <description>{{ .Content | html }}</description>
+    </item>
+    {{ end }}
+
+  </channel>
+</rss>

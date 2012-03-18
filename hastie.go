@@ -49,7 +49,7 @@ var (
 )
 
 type Page struct {
-	Content, Title, Category, SimpleCategory, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle  string
+	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle  string
   Params        map[string]string
 	Recent        PagesSlice
 	Date          time.Time
@@ -221,7 +221,7 @@ func readParseFile(filename string) (page Page) {
 
 	// setup default page struct
 	page = Page{
-		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename,
+		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename, Extension: ".html",
     Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
     PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
     Params: make(map[string]string),
@@ -254,6 +254,8 @@ func readParseFile(filename string) (page Page) {
 					page.Category = value
 				case "layout":
 					page.Layout = value
+        case "extension":
+          page.Extension = fmt.Sprintf(".%s", value)
         default:
           page.Params[key] = value
 				}
@@ -273,7 +275,7 @@ func readParseFile(filename string) (page Page) {
 
 	// chop off first directory, since that is the template dir
 	page.OutFile = filename[strings.Index(filename, "/")+1:]
-	page.OutFile = strings.Replace(page.OutFile, ".md", ".html", 1)
+	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
   // TODO: allow category parameter

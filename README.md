@@ -158,7 +158,7 @@ ver 0.4.1 - March 15, 2012
   * Categories under subdirected changed to _ instead of / in index
   * Cleaned up code comments
   * Updated documentation to include all new features
-
+  * Add Extension to Template Parameter to Support RSS
 
 ver 0.4.0 - March 14, 2012
 
