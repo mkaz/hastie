@@ -7,6 +7,7 @@
  * |_| |_|\__,_|___/\__|_|\___|
  *
  * Hastie - Static Site Generator
+ * https://github.com/mkaz/hastie
  *
  */
 
@@ -48,7 +49,7 @@ var (
 )
 
 type Page struct {
-	Content, Title, Category, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle  string
+	Content, Title, Category, SimpleCategory, Layout, OutFile, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle  string
   Params        map[string]string
 	Recent        PagesSlice
 	Date          time.Time
@@ -101,7 +102,7 @@ func main() {
 	filepath.Walk(config.SourceDir, Walker)
 
 	/* ******************************************
-	 * Loop through directories and build pages 
+	 * Loop through directories and build pages
 	 * ****************************************** */
 	var pages PagesSlice
 	for _, dir := range site.Directories {
@@ -118,28 +119,19 @@ func main() {
 			// read & parse file for parameters
 			page := readParseFile(file)
 
+      // create array of parsed pages
 			pages = append(pages, page)
 		}
 	}
 
-	if *verbose { // spit out pages structure
-		Printvln("################################################################################")
-		Printvf(" %-50s | %-10s | %s \n", "Title", "Category", "Outfile")
-		Printvln("--------------------------------------------------------------------------------")
-		for _, page := range pages {
-			Printvf(" %-50s | %-10s | %s \n", page.Title, page.Category, page.OutFile)
-		}
-		Printvln("################################################################################")
-	}
-
 	/* ******************************************
 	 * Create any data needed from pages
-	 * for example recent file list
-	 * category list, etc...
 	 * ****************************************** */
 
-	// build recent file list, sorted
+	// recent list if a sorted list of all pages
 	recentList := getRecentList(pages)
+
+  // category list is sorted map of pages by category
   categoryList := getCategoryList(recentList)
 
 
@@ -150,7 +142,7 @@ func main() {
 
 		Printvf("  Generating Template: ", page.OutFile)
 
-    // added recent pages lists to each page object
+    // add recent pages lists to page object
 		page.Recent = recentList
     page.Categories = categoryList
 
@@ -158,8 +150,8 @@ func main() {
     page.buildPrevNextLinks(recentList)
     page.buildCatPrevNextLinks(recentList)
 
-		/* Templating - writes page data to buffer 
-		 * read and parse all template files          */
+		// Templating - writes page data to buffer
+		// read and parse all template files
 		buffer := new(bytes.Buffer)
 		layoutsglob := fmt.Sprintf("%s/*.html", config.LayoutDir)
 		ts, err := template.ParseGlob(layoutsglob)
@@ -188,7 +180,11 @@ func main() {
 
 
 	/* ******************************************
-	 * Loop through processFilters and process
+	 * Process Filters
+   * proces filters are a mapping of file extensions to commands
+   * and an output extensions. find files with extension, run
+   * command which should spit out text and create new file.extension
+   * For example: Less CSS or CoffeeSript
 	 * ****************************************** */
   for ext,filter := range config.ProcessFilters {
     extStart := fmt.Sprintf(".%s", ext)
@@ -198,8 +194,7 @@ func main() {
       readglob := fmt.Sprintf("%s/*%s", dir, extStart)
       var dirfiles, _ = filepath.Glob(readglob)
       for _, file := range dirfiles {
-        Printvf("Found file to Process: %s in Directory: %s \n", file, dir)
-        // check for filter
+        // TODO: check for filter exists
         //apply process filter command, capture output
         cmd := exec.Command(filter[0], file)
         output, _ := cmd.Output()
@@ -208,10 +203,7 @@ func main() {
         outfile := file[strings.Index(file, "/")+1:]
         outfile = fmt.Sprintf("%s/%s", config.PublishDir, outfile)
         outfile = strings.Replace(outfile, extStart, extEnd, 1)
-        Printvf("Writing File: %s ", outfile)
-
         ioutil.WriteFile(outfile, output, 0644)
-
       }
     }
   }
@@ -222,8 +214,6 @@ func main() {
 
 /* ************************************************
  * Read and Parse File
- * @param filename
- * @return Page object
  * ************************************************ */
 func readParseFile(filename string) (page Page) {
 	Printvln("Parsing File:", filename)
@@ -231,22 +221,11 @@ func readParseFile(filename string) (page Page) {
 
 	// setup default page struct
 	page = Page{
-		Title:     "",
-		Category:  "",
-		Content:   "",
-		Layout:    "",
-		Date:      epoch,
-		OutFile:   filename,
-    Url:       "",
-    Params:   make(map[string]string),
-    PrevUrl:   "",
-    PrevTitle: "",
-    NextUrl:   "",
-    NextTitle: "",
-    PrevCatUrl:   "",
-    PrevCatTitle: "",
-    NextCatUrl:   "",
-    NextCatTitle: ""}
+		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename,
+    Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
+    PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
+    Params: make(map[string]string),
+  }
 
 	// read file
 	var data, err = ioutil.ReadFile(filename)
@@ -292,8 +271,6 @@ func readParseFile(filename string) (page Page) {
 
 	}
 
-	// switch directory name to just category
-
 	// chop off first directory, since that is the template dir
 	page.OutFile = filename[strings.Index(filename, "/")+1:]
 	page.OutFile = strings.Replace(page.OutFile, ".md", ".html", 1)
@@ -302,7 +279,9 @@ func readParseFile(filename string) (page Page) {
   // TODO: allow category parameter
 	if strings.Contains(page.OutFile, "/") {
 		page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
+    page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
 	}
+
 
 	// parse date from filename
 	base := filepath.Base(page.OutFile)
@@ -312,8 +291,8 @@ func readParseFile(filename string) (page Page) {
 	}
 
   // add url of page, which includes initial slash
-  // this is needed to get correct links for multi 
-  // level directories 
+  // this is needed to get correct links for multi
+  // level directories
   page.Url = fmt.Sprintf("/%s", page.OutFile)
 
 	// convert markdown content
@@ -361,12 +340,14 @@ func getCategoryList(pages PagesSlice) CategoryList {
 
   // read category mash config, which allows to create
   // a new category based on combining multiple categories
-  // this is used on my site when I want to display a list 
-  // of items from similar categories together
+  // this is used on my site when I want to display a list
+  // of recent items from similar categories together
   reverseMap := make(map[string]string)
 
+  // config consists of a hash with new category being the
+  // key and a comma separated list of existing categories
+  // being the value, create a reverse map
   for k,v := range config.CategoryMash {
-    //split v on comma
     cats := strings.Split(string(v), ",")
     //loop through split and add to reverse map
     for _,cat := range cats {
@@ -379,10 +360,14 @@ func getCategoryList(pages PagesSlice) CategoryList {
     // create new category from category mash map
     if reverseMap[page.Category] != page.Category {
       thisCategory := reverseMap[page.Category]
-      mapList[thisCategory] = append(mapList[thisCategory], page) 
+      mapList[thisCategory] = append(mapList[thisCategory], page)
     }
+
     // still want a list of regular categories
-    mapList[page.Category] = append(mapList[page.Category],page)
+    // simpleCategory replaces / in sub-dir categories to _
+    // this always the categorty to be referenced in template
+    simpleCategory := strings.Replace(page.Category, "/", "_", -1)
+    mapList[simpleCategory] = append(mapList[simpleCategory],page)
   }
 	return mapList
 }
@@ -390,7 +375,7 @@ func getCategoryList(pages PagesSlice) CategoryList {
 
 
 /* ************************************************
- * Add Prev Next Links to Page Object 
+ * Add Prev Next Links to Page Object
  * ************************************************ */
 func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
     foundIt := false
@@ -448,7 +433,6 @@ func (page *Page) buildCatPrevNextLinks(recentList PagesSlice) {
 
 
 
-
 // Holds lists of Files, Directories and Categories
 type SiteStruct struct {
 	Files       []string
@@ -475,9 +459,7 @@ func Walker(fn string, fi os.FileInfo, err error) error {
 
 }
 
-/* ************************************************
- * Check if File / Directory Exists
- * ************************************************ */
+// Check if File / Directory Exists
 func exists(path string) bool {
 	// TODO: Check if regular file
 	_, err := os.Stat(path)

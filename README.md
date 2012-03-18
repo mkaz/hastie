@@ -104,18 +104,18 @@ Data available to templates:
 
 
 Functions Available:
-    
+
     .Recent.Limit n           -- will limit recent list to n items
     .Categories.Get CATEGORY  -- will fetch category list CATEGORY, useful for dynamic categories
 
 
 Examples:
 
-    Show 3 most recent titles: 
+    Show 3 most recent titles:
         {{ range .Recent.Limit 3 }}
           {{ .Title }}
         {{ end }}
-    
+
     Show 3 most recent from math category:
         {{ range .CategoryList.math }}
           {{ .Title }}
@@ -138,25 +138,30 @@ So the above example any files with the extension `.less` will be converted to `
 --------------------------------------------------------------------------------
 
 ### TODO
-* Create LESS converter for stylesheets
 * Create syntax highlighting blocks
-
 * Add ability to support rss.xml
 
 * Read .html files and apply template, no markdown
-* Expand examples to use categories, limit and new feature sets
 
 
 #### Bugs
 * Add nicer error message/detection when no config found
 * Add nicer error detection when error with template
-* Shouldn't templates work in source files ??
+* Should template variables work in source files ??
 
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
 
+ver 0.4.1 - March 15, 2012
+
+  * Categories under subdirected changed to _ instead of / in index
+  * Cleaned up code comments
+  * Updated documentation to include all new features
+
+
 ver 0.4.0 - March 14, 2012
+
   * Add Process Filters allows processing using any third party such as Less CSS or Coffee Script
 
 
@@ -199,7 +204,7 @@ ver 0.3.0 - March 2, 2012
   * Merged Fredrik Steen changes in github.com/stone/hastie
   * Switched config to json format
     - removed dependency on old config
-  * Moved to Go1 support 
+  * Moved to Go1 support
 
 
 ver 0.2 (unreleased)

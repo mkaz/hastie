@@ -3,7 +3,7 @@
 <div id="post">
   <h2> {{ .Title }} </h2>
   <div class="meta">Date: {{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-  
+
   {{ .Content }}
 
   <br clear="both"/>
@@ -12,7 +12,10 @@
   </div>
 </div>
 
-TODO: previous - next links
+
+<div class="prev">Previous: <a href="{{ .PrevUrl }}">{{ .PrevTitle }}</a></div>
+<div class="next">Next: <a href="{{ .NextUrl }}">{{ .NextTitle }}</a></div>
+
 
 <p><hr/></p>
 
@@ -23,5 +26,5 @@ TODO: previous - next links
   {{ end }}
 </ul>
 
-  
+
 {{ template "footer.html" }}

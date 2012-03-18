@@ -1,10 +1,11 @@
 {{ template "header.html" . }}
 
+
 {{ .Content }}
 
-<p>Recent Posts</p>
+<p>Recent Posts in Zebra Category</p>
 <ul>
-  {{ range .Recent }}
+  {{ range .Categories.zebra }}
     <li><a href="{{ .Url }}">{{ .Title }}</a></li>
   {{ end }}
 </ul>
