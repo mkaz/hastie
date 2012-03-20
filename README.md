@@ -153,6 +153,12 @@ So the above example any files with the extension `.less` will be converted to `
 
 ### CHANGE LOG
 
+ver 0.4.2 - March 20, 2012
+
+  * Run file through "go fmt" for proper formating
+  * Convert fmt.Sprintf to simple "+" for string concat
+
+
 ver 0.4.1 - March 15, 2012
 
   * Categories under subdirected changed to _ instead of / in index

@@ -19,11 +19,11 @@ import (
 	"flag"
 	"fmt"
 	/* switched to dhconnelly fork which works with Go1
-   "github.com/russross/blackfriday" */
-  "github.com/dhconnelly/blackfriday"
+	   "github.com/russross/blackfriday" */
+	"github.com/dhconnelly/blackfriday"
 	"io/ioutil"
 	"os"
-  "os/exec"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -37,9 +37,9 @@ const (
 
 // config file items
 var config struct {
-  SourceDir, LayoutDir, PublishDir string
-  CategoryMash map[string]string
-  ProcessFilters map[string][]string
+	SourceDir, LayoutDir, PublishDir string
+	CategoryMash                     map[string]string
+	ProcessFilters                   map[string][]string
 }
 
 var (
@@ -49,14 +49,15 @@ var (
 )
 
 type Page struct {
-	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle  string
-  Params        map[string]string
-	Recent        PagesSlice
-	Date          time.Time
-  Categories    CategoryList
+	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle string
+	Params                                                                                                                                                                map[string]string
+	Recent                                                                                                                                                                PagesSlice
+	Date                                                                                                                                                                  time.Time
+	Categories                                                                                                                                                            CategoryList
 }
 
 type PagesSlice []Page
+
 func (p PagesSlice) Len() int               { return len(p) }
 func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Date.Unix() }
 func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
@@ -64,8 +65,8 @@ func (p PagesSlice) Sort()                  { sort.Sort(p) }
 func (p PagesSlice) Limit(n int) PagesSlice { return p[0:n] }
 
 type CategoryList map[string]PagesSlice
-func (c CategoryList) Get(category string) PagesSlice   { return c[category] }
 
+func (c CategoryList) Get(category string) PagesSlice { return c[category] }
 
 // holds lists of directories and files
 var site = &SiteStruct{}
@@ -84,8 +85,12 @@ func Printvln(a ...interface{}) {
 	}
 }
 
+func PrintErr(str string, a ...interface{}) {
+	fmt.Fprintln(os.Stderr, str, a)
+}
+
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: hastie [flags]")
+	PrintErr("usage: hastie [flags]", "")
 	flag.PrintDefaults()
 	os.Exit(2)
 }
@@ -107,7 +112,7 @@ func main() {
 	var pages PagesSlice
 	for _, dir := range site.Directories {
 
-		readglob := fmt.Sprintf("%s/*.md", dir)
+		readglob := dir + "/*.md"
 		var dirfiles, _ = filepath.Glob(readglob)
 
 		// loop through files in directory
@@ -119,7 +124,7 @@ func main() {
 			// read & parse file for parameters
 			page := readParseFile(file)
 
-      // create array of parsed pages
+			// create array of parsed pages
 			pages = append(pages, page)
 		}
 	}
@@ -131,9 +136,8 @@ func main() {
 	// recent list if a sorted list of all pages
 	recentList := getRecentList(pages)
 
-  // category list is sorted map of pages by category
-  categoryList := getCategoryList(recentList)
-
+	// category list is sorted map of pages by category
+	categoryList := getCategoryList(recentList)
 
 	/* ******************************************
 	 * Loop through pages and generate templates
@@ -142,21 +146,21 @@ func main() {
 
 		Printvf("  Generating Template: ", page.OutFile)
 
-    // add recent pages lists to page object
+		// add recent pages lists to page object
 		page.Recent = recentList
-    page.Categories = categoryList
+		page.Categories = categoryList
 
-    // add prev-next links
-    page.buildPrevNextLinks(recentList)
-    page.buildCatPrevNextLinks(recentList)
+		// add prev-next links
+		page.buildPrevNextLinks(recentList)
+		page.buildCatPrevNextLinks(recentList)
 
 		// Templating - writes page data to buffer
 		// read and parse all template files
 		buffer := new(bytes.Buffer)
-		layoutsglob := fmt.Sprintf("%s/*.html", config.LayoutDir)
+		layoutsglob := config.LayoutDir + "/*.html"
 		ts, err := template.ParseGlob(layoutsglob)
 		if err != nil {
-			fmt.Println("Error Parsing Templates: ", err)
+			PrintErr("Error Parsing Templates: ", err)
 			os.Exit(1)
 		}
 		// pick layout based on specified in file
@@ -164,53 +168,50 @@ func main() {
 		if page.Layout == "" {
 			templateFile = "post.html"
 		} else {
-			templateFile = fmt.Sprintf("%s.html", page.Layout)
+			templateFile = page.Layout + ".html"
 		}
 		ts.ExecuteTemplate(buffer, templateFile, page)
 
 		// writing out file
-		writedir := fmt.Sprintf("%s/%s", config.PublishDir, page.Category)
+		writedir := config.PublishDir + "/" + page.Category
 		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
-		outfile := fmt.Sprintf("%s/%s", config.PublishDir, page.OutFile)
+		outfile := config.PublishDir + "/" + page.OutFile
 		Printvln(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
 
-
 	/* ******************************************
-	 * Process Filters
-   * proces filters are a mapping of file extensions to commands
-   * and an output extensions. find files with extension, run
-   * command which should spit out text and create new file.extension
-   * For example: Less CSS or CoffeeSript
-	 * ****************************************** */
-  for ext,filter := range config.ProcessFilters {
-    extStart := fmt.Sprintf(".%s", ext)
-    extEnd := fmt.Sprintf(".%s", filter[1])
+		 * Process Filters
+	   * proces filters are a mapping of file extensions to commands
+	   * and an output extensions. find files with extension, run
+	   * command which should spit out text and create new file.extension
+	   * For example: Less CSS or CoffeeSript
+		 * ****************************************** */
+	for ext, filter := range config.ProcessFilters {
+		extStart := "." + ext
+		extEnd := "." + filter[1]
 
-    for _, dir := range site.Directories {
-      readglob := fmt.Sprintf("%s/*%s", dir, extStart)
-      var dirfiles, _ = filepath.Glob(readglob)
-      for _, file := range dirfiles {
-        // TODO: check for filter exists
-        //apply process filter command, capture output
-        cmd := exec.Command(filter[0], file)
-        output, _ := cmd.Output()
+		for _, dir := range site.Directories {
+			readglob := dir + "/*" + extStart
+			var dirfiles, _ = filepath.Glob(readglob)
+			for _, file := range dirfiles {
+				// TODO: check for filter exists
+				//apply process filter command, capture output
+				cmd := exec.Command(filter[0], file)
+				output, _ := cmd.Output()
 
-        // determine output file path and extension
-        outfile := file[strings.Index(file, "/")+1:]
-        outfile = fmt.Sprintf("%s/%s", config.PublishDir, outfile)
-        outfile = strings.Replace(outfile, extStart, extEnd, 1)
-        ioutil.WriteFile(outfile, output, 0644)
-      }
-    }
-  }
-
+				// determine output file path and extension
+				outfile := file[strings.Index(file, "/")+1:]
+				outfile = config.PublishDir + "/" + outfile
+				outfile = strings.Replace(outfile, extStart, extEnd, 1)
+				ioutil.WriteFile(outfile, output, 0644)
+			}
+		}
+	}
 
 } // main
-
 
 /* ************************************************
  * Read and Parse File
@@ -222,15 +223,15 @@ func readParseFile(filename string) (page Page) {
 	// setup default page struct
 	page = Page{
 		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename, Extension: ".html",
-    Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
-    PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
-    Params: make(map[string]string),
-  }
+		Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
+		PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
+		Params: make(map[string]string),
+	}
 
 	// read file
 	var data, err = ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Println("Error Reading: ", filename)
+		PrintErr("Error Reading: " + filename)
 		return
 	}
 
@@ -246,7 +247,7 @@ func readParseFile(filename string) (page Page) {
 			if colonIndex > 0 {
 				key := strings.TrimSpace(line[:colonIndex])
 				value := strings.TrimSpace(line[colonIndex+1:])
-        value = strings.Trim(value, "\"")  //remove quotes
+				value = strings.Trim(value, "\"") //remove quotes
 				switch key {
 				case "title":
 					page.Title = value
@@ -254,10 +255,10 @@ func readParseFile(filename string) (page Page) {
 					page.Category = value
 				case "layout":
 					page.Layout = value
-        case "extension":
-          page.Extension = fmt.Sprintf(".%s", value)
-        default:
-          page.Params[key] = value
+				case "extension":
+					page.Extension = "." + value
+				default:
+					page.Params[key] = value
 				}
 			}
 
@@ -278,12 +279,11 @@ func readParseFile(filename string) (page Page) {
 	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
-  // TODO: allow category parameter
+	// TODO: allow category parameter
 	if strings.Contains(page.OutFile, "/") {
 		page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
-    page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
+		page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
 	}
-
 
 	// parse date from filename
 	base := filepath.Base(page.OutFile)
@@ -292,10 +292,10 @@ func readParseFile(filename string) (page Page) {
 		page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1) // remove date from final filename
 	}
 
-  // add url of page, which includes initial slash
-  // this is needed to get correct links for multi
-  // level directories
-  page.Url = fmt.Sprintf("/%s", page.OutFile)
+	// add url of page, which includes initial slash
+	// this is needed to get correct links for multi
+	// level directories
+	page.Url = "/" + page.OutFile
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
@@ -329,111 +329,105 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 	return list
 }
 
-
 /* ************************************************
- * Build Category List
- *    - return a map containing a list of pages for
-        each category, the key being category name
- * ************************************************ */
+* Build Category List
+*    - return a map containing a list of pages for
+       each category, the key being category name
+* ************************************************ */
 func getCategoryList(pages PagesSlice) CategoryList {
-  mapList := make(CategoryList)
-  // recentList is passed in which is already sorted
-  // just need to map the pages to category
+	mapList := make(CategoryList)
+	// recentList is passed in which is already sorted
+	// just need to map the pages to category
 
-  // read category mash config, which allows to create
-  // a new category based on combining multiple categories
-  // this is used on my site when I want to display a list
-  // of recent items from similar categories together
-  reverseMap := make(map[string]string)
+	// read category mash config, which allows to create
+	// a new category based on combining multiple categories
+	// this is used on my site when I want to display a list
+	// of recent items from similar categories together
+	reverseMap := make(map[string]string)
 
-  // config consists of a hash with new category being the
-  // key and a comma separated list of existing categories
-  // being the value, create a reverse map
-  for k,v := range config.CategoryMash {
-    cats := strings.Split(string(v), ",")
-    //loop through split and add to reverse map
-    for _,cat := range cats {
-      reverseMap[cat] = string(k)
-    }
-  }
+	// config consists of a hash with new category being the
+	// key and a comma separated list of existing categories
+	// being the value, create a reverse map
+	for k, v := range config.CategoryMash {
+		cats := strings.Split(string(v), ",")
+		//loop through split and add to reverse map
+		for _, cat := range cats {
+			reverseMap[cat] = string(k)
+		}
+	}
 
-  for _, page := range pages {
+	for _, page := range pages {
 
-    // create new category from category mash map
-    if reverseMap[page.Category] != page.Category {
-      thisCategory := reverseMap[page.Category]
-      mapList[thisCategory] = append(mapList[thisCategory], page)
-    }
+		// create new category from category mash map
+		if reverseMap[page.Category] != page.Category {
+			thisCategory := reverseMap[page.Category]
+			mapList[thisCategory] = append(mapList[thisCategory], page)
+		}
 
-    // still want a list of regular categories
-    // simpleCategory replaces / in sub-dir categories to _
-    // this always the categorty to be referenced in template
-    simpleCategory := strings.Replace(page.Category, "/", "_", -1)
-    mapList[simpleCategory] = append(mapList[simpleCategory],page)
-  }
+		// still want a list of regular categories
+		// simpleCategory replaces / in sub-dir categories to _
+		// this always the categorty to be referenced in template
+		simpleCategory := strings.Replace(page.Category, "/", "_", -1)
+		mapList[simpleCategory] = append(mapList[simpleCategory], page)
+	}
 	return mapList
 }
-
-
 
 /* ************************************************
  * Add Prev Next Links to Page Object
  * ************************************************ */
 func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
-    foundIt := false
-    nextPage := Page{}
-    prevPage := Page{}
-    pp := Page{}
-    for _, rp := range recentList {
+	foundIt := false
+	nextPage := Page{}
+	prevPage := Page{}
+	pp := Page{}
+	for _, rp := range recentList {
 
-      if foundIt {
-        prevPage = rp
-        break
-      }
+		if foundIt {
+			prevPage = rp
+			break
+		}
 
-      if (rp.Title == page.Title) {
-        nextPage = pp
-        foundIt = true
-      }
-      pp = rp   // previous page
-    }
-    page.NextUrl = nextPage.Url
-    page.NextTitle = nextPage.Title
-    page.PrevUrl = prevPage.Url
-    page.PrevTitle = prevPage.Title
+		if rp.Title == page.Title {
+			nextPage = pp
+			foundIt = true
+		}
+		pp = rp // previous page
+	}
+	page.NextUrl = nextPage.Url
+	page.NextTitle = nextPage.Title
+	page.PrevUrl = prevPage.Url
+	page.PrevTitle = prevPage.Title
 }
-
 
 /* ************************************************
  * Add Prev Next Links by Category to Page Object
  * ************************************************ */
 func (page *Page) buildCatPrevNextLinks(recentList PagesSlice) {
-   foundIt := false
-   nextPage := Page{}
-   prevPage := Page{}
-   pp := Page{}
+	foundIt := false
+	nextPage := Page{}
+	prevPage := Page{}
+	pp := Page{}
 
-   for _, rp := range recentList {
-     if rp.Category == page.Category {
-       if foundIt {
-         prevPage = rp
-         break
-       }
+	for _, rp := range recentList {
+		if rp.Category == page.Category {
+			if foundIt {
+				prevPage = rp
+				break
+			}
 
-       if (rp.Title == page.Title) {
-         nextPage = pp
-         foundIt = true
-       }
-       pp = rp   // previous page
-     }
-   }
-   page.NextCatUrl = nextPage.Url
-   page.NextCatTitle = nextPage.Title
-   page.PrevCatUrl = prevPage.Url
-   page.PrevCatTitle = prevPage.Title
- }
-
-
+			if rp.Title == page.Title {
+				nextPage = pp
+				foundIt = true
+			}
+			pp = rp // previous page
+		}
+	}
+	page.NextCatUrl = nextPage.Url
+	page.NextCatTitle = nextPage.Title
+	page.PrevCatUrl = prevPage.Url
+	page.PrevCatTitle = prevPage.Title
+}
 
 // Holds lists of Files, Directories and Categories
 type SiteStruct struct {
@@ -445,7 +439,7 @@ type SiteStruct struct {
 // WalkFn that fills SiteStruct with data.
 func Walker(fn string, fi os.FileInfo, err error) error {
 	if err != nil {
-		fmt.Println("Walker:", err)
+		PrintErr("Walker: ", err)
 		return nil
 	}
 
