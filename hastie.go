@@ -51,9 +51,9 @@ var (
 type Page struct {
 	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle string
 	Params                                                                                                                                                                map[string]string
-	Recent                                                                                                                                                                PagesSlice
+	Recent                                                                                                                                                                *PagesSlice
 	Date                                                                                                                                                                  time.Time
-	Categories                                                                                                                                                            CategoryList
+	Categories                                                                                                                                                            *CategoryList
 }
 
 type PagesSlice []Page
@@ -135,9 +135,11 @@ func main() {
 
 	// recent list if a sorted list of all pages
 	recentList := getRecentList(pages)
+	recentListPtr := &recentList
 
 	// category list is sorted map of pages by category
-	categoryList := getCategoryList(recentList)
+	categoryList := getCategoryList(recentListPtr)
+	categoryListPtr := &categoryList
 
 	/* ******************************************
 	 * Loop through pages and generate templates
@@ -147,12 +149,12 @@ func main() {
 		Printvf("  Generating Template: ", page.OutFile)
 
 		// add recent pages lists to page object
-		page.Recent = recentList
-		page.Categories = categoryList
+		page.Recent = recentListPtr
+		page.Categories = categoryListPtr
 
 		// add prev-next links
-		page.buildPrevNextLinks(recentList)
-		page.buildCatPrevNextLinks(recentList)
+		page.buildPrevNextLinks(recentListPtr)
+		page.buildCatPrevNextLinks(recentListPtr)
 
 		// Templating - writes page data to buffer
 		// read and parse all template files
@@ -200,7 +202,11 @@ func main() {
 				// TODO: check for filter exists
 				//apply process filter command, capture output
 				cmd := exec.Command(filter[0], file)
-				output, _ := cmd.Output()
+				output, err := cmd.Output()
+				if err != nil {
+					PrintErr("Error Process Filter: " + file, err)
+					continue
+				}
 
 				// determine output file path and extension
 				outfile := file[strings.Index(file, "/")+1:]
@@ -334,7 +340,7 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 *    - return a map containing a list of pages for
        each category, the key being category name
 * ************************************************ */
-func getCategoryList(pages PagesSlice) CategoryList {
+func getCategoryList(pages *PagesSlice) CategoryList {
 	mapList := make(CategoryList)
 	// recentList is passed in which is already sorted
 	// just need to map the pages to category
@@ -356,7 +362,7 @@ func getCategoryList(pages PagesSlice) CategoryList {
 		}
 	}
 
-	for _, page := range pages {
+	for _, page := range *pages {
 
 		// create new category from category mash map
 		if reverseMap[page.Category] != page.Category {
@@ -376,12 +382,12 @@ func getCategoryList(pages PagesSlice) CategoryList {
 /* ************************************************
  * Add Prev Next Links to Page Object
  * ************************************************ */
-func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
+func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 	foundIt := false
 	nextPage := Page{}
 	prevPage := Page{}
 	pp := Page{}
-	for _, rp := range recentList {
+	for _, rp := range *recentList {
 
 		if foundIt {
 			prevPage = rp
@@ -403,13 +409,13 @@ func (page *Page) buildPrevNextLinks(recentList PagesSlice) {
 /* ************************************************
  * Add Prev Next Links by Category to Page Object
  * ************************************************ */
-func (page *Page) buildCatPrevNextLinks(recentList PagesSlice) {
+func (page *Page) buildCatPrevNextLinks(recentList *PagesSlice) {
 	foundIt := false
 	nextPage := Page{}
 	prevPage := Page{}
 	pp := Page{}
 
-	for _, rp := range recentList {
+	for _, rp := range *recentList {
 		if rp.Category == page.Category {
 			if foundIt {
 				prevPage = rp
