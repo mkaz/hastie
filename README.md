@@ -153,6 +153,14 @@ So the above example any files with the extension `.less` will be converted to `
 
 ### CHANGE LOG
 
+ver 0.4.3 - March 22, 2012
+  
+  * Speed optimizations improved rendering of mkaz.com time by 75% from 2sec down to 500ms
+  * Pass more objects by reference to reduce copying of large arrays
+  * Moved template parsing out of loop of pages, only needed to do once
+  * Added Timing flag to see what areas take most time ( -t )
+
+
 ver 0.4.2 - March 20, 2012
 
   * Run file through "go fmt" for proper formating

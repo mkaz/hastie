@@ -5,7 +5,7 @@
     "PublishDir" : "public",
 
     "ProcessFilters": {
-      "less": ["/usr/local/Cellar/ruby/1.9.3-p125/bin/lessc", "css"]
+      "less": ["/usr/local/lib/node_modules/less/bin/lessc", "css"]
     }
 
 }

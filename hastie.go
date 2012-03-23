@@ -46,6 +46,7 @@ var (
 	verbose = flag.Bool("v", false, "verbose output")
 	help    = flag.Bool("h", false, "show this help")
 	cfgfile = flag.String("c", cfgFiledefault, "Config file")
+	timing  = flag.Bool("t", false, "display timing")
 )
 
 type Page struct {
@@ -58,6 +59,7 @@ type Page struct {
 
 type PagesSlice []Page
 
+func (p PagesSlice) Get(i int) Page         { return p[i] }
 func (p PagesSlice) Len() int               { return len(p) }
 func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Date.Unix() }
 func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
@@ -67,6 +69,22 @@ func (p PagesSlice) Limit(n int) PagesSlice { return p[0:n] }
 type CategoryList map[string]PagesSlice
 
 func (c CategoryList) Get(category string) PagesSlice { return c[category] }
+
+var startTime time.Time
+var lastTime time.Time
+
+func init() {
+	startTime = time.Now()
+	lastTime = time.Now()
+}
+
+func elapsedTimer(str string) {
+	if !*timing {
+		return
+	}
+	fmt.Printf("Event: %-25s -- %9v  (%9v) \n", str, time.Since(lastTime), time.Since(startTime))
+	lastTime = time.Now()
+}
 
 // holds lists of directories and files
 var site = &SiteStruct{}
@@ -96,6 +114,7 @@ func usage() {
 }
 
 func main() {
+
 	flag.Usage = usage
 	flag.Parse()
 	if *help {
@@ -103,8 +122,10 @@ func main() {
 	}
 
 	setupConfig()
+	elapsedTimer("Config Setup")
 
 	filepath.Walk(config.SourceDir, Walker)
+	elapsedTimer("File Walker")
 
 	/* ******************************************
 	 * Loop through directories and build pages
@@ -128,6 +149,7 @@ func main() {
 			pages = append(pages, page)
 		}
 	}
+	elapsedTimer("Loop and Parse")
 
 	/* ******************************************
 	 * Create any data needed from pages
@@ -140,6 +162,17 @@ func main() {
 	// category list is sorted map of pages by category
 	categoryList := getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
+
+	elapsedTimer("Recent and Category Lists")
+
+	// read and parse all template files
+	layoutsglob := config.LayoutDir + "/*.html"
+	ts, err := template.ParseGlob(layoutsglob)
+	if err != nil {
+		PrintErr("Error Parsing Templates: ", err)
+		os.Exit(1)
+	}
+	elapsedTimer("Parsed Templates")
 
 	/* ******************************************
 	 * Loop through pages and generate templates
@@ -154,17 +187,10 @@ func main() {
 
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
-		page.buildCatPrevNextLinks(recentListPtr)
 
 		// Templating - writes page data to buffer
-		// read and parse all template files
 		buffer := new(bytes.Buffer)
-		layoutsglob := config.LayoutDir + "/*.html"
-		ts, err := template.ParseGlob(layoutsglob)
-		if err != nil {
-			PrintErr("Error Parsing Templates: ", err)
-			os.Exit(1)
-		}
+
 		// pick layout based on specified in file
 		templateFile := ""
 		if page.Layout == "" {
@@ -183,6 +209,7 @@ func main() {
 		Printvln(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
+	elapsedTimer("Generate Templates")
 
 	/* ******************************************
 		 * Process Filters
@@ -204,7 +231,7 @@ func main() {
 				cmd := exec.Command(filter[0], file)
 				output, err := cmd.Output()
 				if err != nil {
-					PrintErr("Error Process Filter: " + file, err)
+					PrintErr("Error Process Filter: "+file, err)
 					continue
 				}
 
@@ -216,8 +243,124 @@ func main() {
 			}
 		}
 	}
+	elapsedTimer("Process Filters")
 
 } // main
+
+/* ************************************************
+ * Build Recent File List
+ *    - return array sorted most recent first
+ *    - array includes real link (no date)
+ *    - does not include files without date
+ * ************************************************ */
+func getRecentList(pages PagesSlice) (list PagesSlice) {
+	Printvf("Creating Recent File List")
+	for _, page := range pages {
+		// pages without dates are set to epoch
+		if page.Date.Format("2006") != "1970" {
+			list = append(list, page)
+		}
+	}
+	list.Sort()
+
+	// reverse
+	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
+		list[i], list[j] = list[j], list[i]
+	}
+
+	return list
+}
+
+/* ************************************************
+* Build Category List
+*    - return a map containing a list of pages for
+       each category, the key being category name
+* ************************************************ */
+func getCategoryList(pages *PagesSlice) CategoryList {
+	mapList := make(CategoryList)
+	// recentList is passed in which is already sorted
+	// just need to map the pages to category
+
+	// read category mash config, which allows to create
+	// a new category based on combining multiple categories
+	// this is used on my site when I want to display a list
+	// of recent items from similar categories together
+	reverseMap := make(map[string]string)
+
+	// config consists of a hash with new category being the
+	// key and a comma separated list of existing categories
+	// being the value, create a reverse map
+	for k, v := range config.CategoryMash {
+		cats := strings.Split(string(v), ",")
+		//loop through split and add to reverse map
+		for _, cat := range cats {
+			reverseMap[cat] = string(k)
+		}
+	}
+
+	for _, page := range *pages {
+
+		// create new category from category mash map
+		if reverseMap[page.Category] != page.Category {
+			thisCategory := reverseMap[page.Category]
+			mapList[thisCategory] = append(mapList[thisCategory], page)
+		}
+
+		// still want a list of regular categories
+		// simpleCategory replaces / in sub-dir categories to _
+		// this always the categorty to be referenced in template
+		simpleCategory := strings.Replace(page.Category, "/", "_", -1)
+		mapList[simpleCategory] = append(mapList[simpleCategory], page)
+	}
+	return mapList
+}
+
+/* ************************************************
+ * Add Prev Next Links to Page Object
+ * ************************************************ */
+func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
+	foundPage := false
+
+	nextPage := Page{}
+	prevPage := Page{}
+	nextPageCat := Page{}
+	prevPageCat := Page{}
+	lastPageCat := Page{}
+
+	for i, rp := range *recentList {
+		if rp.Category == page.Category {
+			if foundPage {
+				prevPageCat = rp
+				break
+			}
+		}
+
+		if rp.Title == page.Title {
+			foundPage = true
+			nextPageCat = lastPageCat
+			if i != 0 {
+				nextPage = recentList.Get(i - 1)
+			}
+			if i+1 < recentList.Len() {
+				prevPage = recentList.Get(i + 1)
+			}
+		}
+
+		if rp.Category == page.Category {
+			lastPageCat = rp // previous page
+		}
+	}
+
+	page.NextUrl = nextPage.Url
+	page.NextTitle = nextPage.Title
+	page.PrevUrl = prevPage.Url
+	page.PrevTitle = prevPage.Title
+
+	page.NextCatUrl = nextPageCat.Url
+	page.NextCatTitle = nextPageCat.Title
+	page.PrevCatUrl = prevPageCat.Url
+	page.PrevCatTitle = prevPageCat.Title
+}
 
 /* ************************************************
  * Read and Parse File
@@ -309,130 +452,6 @@ func readParseFile(filename string) (page Page) {
 	page.Content = string(output)
 
 	return page
-}
-
-/* ************************************************
- * Build Recent File List
- *    - return array sorted most recent first
- *    - array includes real link (no date)
- *    - does not include files without date
- * ************************************************ */
-func getRecentList(pages PagesSlice) (list PagesSlice) {
-	Printvf("Creating Recent File List")
-	for _, page := range pages {
-		// pages without dates are set to epoch
-		if page.Date.Format("2006") != "1970" {
-			list = append(list, page)
-		}
-	}
-	list.Sort()
-
-	// reverse
-	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
-		list[i], list[j] = list[j], list[i]
-	}
-
-	return list
-}
-
-/* ************************************************
-* Build Category List
-*    - return a map containing a list of pages for
-       each category, the key being category name
-* ************************************************ */
-func getCategoryList(pages *PagesSlice) CategoryList {
-	mapList := make(CategoryList)
-	// recentList is passed in which is already sorted
-	// just need to map the pages to category
-
-	// read category mash config, which allows to create
-	// a new category based on combining multiple categories
-	// this is used on my site when I want to display a list
-	// of recent items from similar categories together
-	reverseMap := make(map[string]string)
-
-	// config consists of a hash with new category being the
-	// key and a comma separated list of existing categories
-	// being the value, create a reverse map
-	for k, v := range config.CategoryMash {
-		cats := strings.Split(string(v), ",")
-		//loop through split and add to reverse map
-		for _, cat := range cats {
-			reverseMap[cat] = string(k)
-		}
-	}
-
-	for _, page := range *pages {
-
-		// create new category from category mash map
-		if reverseMap[page.Category] != page.Category {
-			thisCategory := reverseMap[page.Category]
-			mapList[thisCategory] = append(mapList[thisCategory], page)
-		}
-
-		// still want a list of regular categories
-		// simpleCategory replaces / in sub-dir categories to _
-		// this always the categorty to be referenced in template
-		simpleCategory := strings.Replace(page.Category, "/", "_", -1)
-		mapList[simpleCategory] = append(mapList[simpleCategory], page)
-	}
-	return mapList
-}
-
-/* ************************************************
- * Add Prev Next Links to Page Object
- * ************************************************ */
-func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
-	foundIt := false
-	nextPage := Page{}
-	prevPage := Page{}
-	pp := Page{}
-	for _, rp := range *recentList {
-
-		if foundIt {
-			prevPage = rp
-			break
-		}
-
-		if rp.Title == page.Title {
-			nextPage = pp
-			foundIt = true
-		}
-		pp = rp // previous page
-	}
-	page.NextUrl = nextPage.Url
-	page.NextTitle = nextPage.Title
-	page.PrevUrl = prevPage.Url
-	page.PrevTitle = prevPage.Title
-}
-
-/* ************************************************
- * Add Prev Next Links by Category to Page Object
- * ************************************************ */
-func (page *Page) buildCatPrevNextLinks(recentList *PagesSlice) {
-	foundIt := false
-	nextPage := Page{}
-	prevPage := Page{}
-	pp := Page{}
-
-	for _, rp := range *recentList {
-		if rp.Category == page.Category {
-			if foundIt {
-				prevPage = rp
-				break
-			}
-
-			if rp.Title == page.Title {
-				nextPage = pp
-				foundIt = true
-			}
-			pp = rp // previous page
-		}
-	}
-	page.NextCatUrl = nextPage.Url
-	page.NextCatTitle = nextPage.Title
-	page.PrevCatUrl = prevPage.Url
-	page.PrevCatTitle = prevPage.Title
 }
 
 // Holds lists of Files, Directories and Categories
