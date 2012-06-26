@@ -6,6 +6,8 @@
 
     "ProcessFilters": {
       "less": ["/usr/local/lib/node_modules/less/bin/lessc", "css"]
-    }
+    },
+
+    "BaseUrl"    : "file:///Users/mkazmier/workspace/hastie/test/public"
 
 }

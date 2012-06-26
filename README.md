@@ -153,6 +153,12 @@ So the above example any files with the extension `.less` will be converted to `
 
 ### CHANGE LOG
 
+ver 0.4.4 - March 23, 2012
+
+  * Add BaseURL config parameter
+  * Update Test Site 
+
+  
 ver 0.4.3 - March 22, 2012
   
   * Speed optimizations improved rendering of mkaz.com time by 75% from 2sec down to 500ms

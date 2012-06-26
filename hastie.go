@@ -37,9 +37,9 @@ const (
 
 // config file items
 var config struct {
-	SourceDir, LayoutDir, PublishDir string
-	CategoryMash                     map[string]string
-	ProcessFilters                   map[string][]string
+	SourceDir, LayoutDir, PublishDir, BaseUrl string
+	CategoryMash                              map[string]string
+	ProcessFilters                            map[string][]string
 }
 
 var (
@@ -47,6 +47,7 @@ var (
 	help    = flag.Bool("h", false, "show this help")
 	cfgfile = flag.String("c", cfgFiledefault, "Config file")
 	timing  = flag.Bool("t", false, "display timing")
+  nomarkdown = flag.Bool("m", false, "do not use markdown conversion")
 )
 
 type Page struct {
@@ -187,6 +188,10 @@ func main() {
 
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
+
+		if config.BaseUrl != "" {
+			page.Params["BaseUrl"] = config.BaseUrl
+		}
 
 		// Templating - writes page data to buffer
 		buffer := new(bytes.Buffer)
@@ -448,8 +453,13 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-	output := blackfriday.MarkdownCommon([]byte(content))
-	page.Content = string(output)
+  if !*nomarkdown {
+    output := blackfriday.MarkdownCommon([]byte(content))
+    page.Content = string(output)
+  } else {
+    page.Content = content
+  }
+
 
 	return page
 }
