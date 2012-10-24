@@ -18,9 +18,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	/* switched to dhconnelly fork which works with Go1
-	   "github.com/russross/blackfriday" */
-	"github.com/dhconnelly/blackfriday"
+	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"os"
 	"os/exec"
