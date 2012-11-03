@@ -41,11 +41,11 @@ var config struct {
 }
 
 var (
-	verbose = flag.Bool("v", false, "verbose output")
-	help    = flag.Bool("h", false, "show this help")
-	cfgfile = flag.String("c", cfgFiledefault, "Config file")
-	timing  = flag.Bool("t", false, "display timing")
-  nomarkdown = flag.Bool("m", false, "do not use markdown conversion")
+	verbose    = flag.Bool("v", false, "verbose output")
+	help       = flag.Bool("h", false, "show this help")
+	cfgfile    = flag.String("c", cfgFiledefault, "Config file")
+	timing     = flag.Bool("t", false, "display timing")
+	nomarkdown = flag.Bool("m", false, "do not use markdown conversion")
 )
 
 type Page struct {
@@ -451,13 +451,12 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-  if !*nomarkdown {
-    output := blackfriday.MarkdownCommon([]byte(content))
-    page.Content = string(output)
-  } else {
-    page.Content = content
-  }
-
+	if !*nomarkdown {
+		output := blackfriday.MarkdownCommon([]byte(content))
+		page.Content = string(output)
+	} else {
+		page.Content = content
+	}
 
 	return page
 }
