@@ -31,6 +31,7 @@ type Config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
+	NoMarkdown                                bool
 }
 
 type Page struct {
@@ -66,7 +67,7 @@ type Monitor interface {
 	Filtered()
 }
 
-func Compile(config Config, nomarkdown bool, monitor Monitor) error {
+func Compile(config Config, monitor Monitor) error {
 	site := SiteStruct{}
 
 	filepath.Walk(config.SourceDir, site.Walker())
@@ -88,7 +89,7 @@ func Compile(config Config, nomarkdown bool, monitor Monitor) error {
 			outfile = strings.Replace(outfile, ".md", ".html", 1)
 
 			// read & parse file for parameters
-			page, err := readParseFile(file, nomarkdown)
+			page, err := readParseFile(file, config.NoMarkdown)
 			if err != nil {
 				return err
 			}

@@ -125,7 +125,7 @@ func main() {
 	setupConfig()
 	elapsedTimer("Config Setup")
 
-	if err := hastie.Compile(config, *nomarkdown, monitor{}); err != nil {
+	if err := hastie.Compile(config, monitor{}); err != nil {
 		PrintErr(err.Error())
 	}
 }
@@ -138,6 +138,7 @@ func setupConfig() {
 		config.SourceDir = "posts"
 		config.LayoutDir = "layouts"
 		config.PublishDir = "public"
+		config.NoMarkdown = false
 	} else {
 		if err := json.Unmarshal(file, &config); err != nil {
 			fmt.Printf("Error parsing config: %s", err)
