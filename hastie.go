@@ -11,12 +11,10 @@
  *
  */
 
-package main
+package hastie
 
 import (
 	"bytes"
-	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
@@ -29,24 +27,11 @@ import (
 	"time"
 )
 
-const (
-	cfgFiledefault = "hastie.json"
-)
-
-// config file items
-var config struct {
+type Config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
 }
-
-var (
-	verbose    = flag.Bool("v", false, "verbose output")
-	help       = flag.Bool("h", false, "show this help")
-	cfgfile    = flag.String("c", cfgFiledefault, "Config file")
-	timing     = flag.Bool("t", false, "display timing")
-	nomarkdown = flag.Bool("m", false, "do not use markdown conversion")
-)
 
 type Page struct {
 	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle string
@@ -69,62 +54,23 @@ type CategoryList map[string]PagesSlice
 
 func (c CategoryList) Get(category string) PagesSlice { return c[category] }
 
-var startTime time.Time
-var lastTime time.Time
-
-func init() {
-	startTime = time.Now()
-	lastTime = time.Now()
+type Monitor interface {
+	Walked()
+	ParsingSource(file string)
+	ParsedSources()
+	Listed()
+	ParsedTemplates()
+	ParsingTemplate(file string)
+	WritingTemplate(file string)
+	GeneratedTemplates()
+	Filtered()
 }
 
-func elapsedTimer(str string) {
-	if !*timing {
-		return
-	}
-	fmt.Printf("Event: %-25s -- %9v  (%9v) \n", str, time.Since(lastTime), time.Since(startTime))
-	lastTime = time.Now()
-}
+func Compile(config Config, nomarkdown bool, monitor Monitor) error {
+	site := SiteStruct{}
 
-// holds lists of directories and files
-var site = &SiteStruct{}
-
-// Wrapper around Fprintf taking verbose flag in account.
-func Printvf(format string, a ...interface{}) {
-	if *verbose {
-		fmt.Fprintf(os.Stderr, format, a...)
-	}
-}
-
-// Wrapper around Fprintln taking verbose flag in account.
-func Printvln(a ...interface{}) {
-	if *verbose {
-		fmt.Fprintln(os.Stderr, a...)
-	}
-}
-
-func PrintErr(str string, a ...interface{}) {
-	fmt.Fprintln(os.Stderr, str, a)
-}
-
-func usage() {
-	PrintErr("usage: hastie [flags]", "")
-	flag.PrintDefaults()
-	os.Exit(2)
-}
-
-func main() {
-
-	flag.Usage = usage
-	flag.Parse()
-	if *help {
-		usage()
-	}
-
-	setupConfig()
-	elapsedTimer("Config Setup")
-
-	filepath.Walk(config.SourceDir, Walker)
-	elapsedTimer("File Walker")
+	filepath.Walk(config.SourceDir, site.Walker())
+	monitor.Walked()
 
 	/* ******************************************
 	 * Loop through directories and build pages
@@ -137,18 +83,21 @@ func main() {
 
 		// loop through files in directory
 		for _, file := range dirfiles {
-			Printvln("  File:", file)
+			monitor.ParsingSource(file)
 			outfile := filepath.Base(file)
 			outfile = strings.Replace(outfile, ".md", ".html", 1)
 
 			// read & parse file for parameters
-			page := readParseFile(file)
+			page, err := readParseFile(file, nomarkdown)
+			if err != nil {
+				return err
+			}
 
 			// create array of parsed pages
 			pages = append(pages, page)
 		}
 	}
-	elapsedTimer("Loop and Parse")
+	monitor.ParsedSources()
 
 	/* ******************************************
 	 * Create any data needed from pages
@@ -159,26 +108,24 @@ func main() {
 	recentListPtr := &recentList
 
 	// category list is sorted map of pages by category
-	categoryList := getCategoryList(recentListPtr)
+	categoryList := config.getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
-	elapsedTimer("Recent and Category Lists")
+	monitor.Listed()
 
 	// read and parse all template files
 	layoutsglob := config.LayoutDir + "/*.html"
 	ts, err := template.ParseGlob(layoutsglob)
 	if err != nil {
-		PrintErr("Error Parsing Templates: ", err)
-		os.Exit(1)
+		return fmt.Errorf("Error Parsing Templates: %s", err)
 	}
-	elapsedTimer("Parsed Templates")
+	monitor.ParsedTemplates()
 
 	/* ******************************************
 	 * Loop through pages and generate templates
 	 * ****************************************** */
 	for _, page := range pages {
-
-		Printvf("  Generating Template: ", page.OutFile)
+		monitor.ParsingTemplate(page.OutFile)
 
 		// add recent pages lists to page object
 		page.Recent = recentListPtr
@@ -205,14 +152,13 @@ func main() {
 
 		// writing out file
 		writedir := config.PublishDir + "/" + page.Category
-		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		outfile := config.PublishDir + "/" + page.OutFile
-		Printvln(" Writing File:", outfile)
+		monitor.WritingTemplate(outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
-	elapsedTimer("Generate Templates")
+	monitor.GeneratedTemplates()
 
 	/* ******************************************
 		 * Process Filters
@@ -234,8 +180,8 @@ func main() {
 				cmd := exec.Command(filter[0], file)
 				output, err := cmd.Output()
 				if err != nil {
-					PrintErr("Error Process Filter: "+file, err)
-					continue
+					fmt.Errorf("Error Process Filter: %s caused by: %s", file, err)
+					return err
 				}
 
 				// determine output file path and extension
@@ -246,8 +192,9 @@ func main() {
 			}
 		}
 	}
-	elapsedTimer("Process Filters")
+	monitor.Filtered()
 
+	return nil
 } // main
 
 /* ************************************************
@@ -257,7 +204,6 @@ func main() {
  *    - does not include files without date
  * ************************************************ */
 func getRecentList(pages PagesSlice) (list PagesSlice) {
-	Printvf("Creating Recent File List")
 	for _, page := range pages {
 		// pages without dates are set to epoch
 		if page.Date.Format("2006") != "1970" {
@@ -279,7 +225,7 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 *    - return a map containing a list of pages for
        each category, the key being category name
 * ************************************************ */
-func getCategoryList(pages *PagesSlice) CategoryList {
+func (config Config) getCategoryList(pages *PagesSlice) CategoryList {
 	mapList := make(CategoryList)
 	// recentList is passed in which is already sorted
 	// just need to map the pages to category
@@ -368,12 +314,11 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 /* ************************************************
  * Read and Parse File
  * ************************************************ */
-func readParseFile(filename string) (page Page) {
-	Printvln("Parsing File:", filename)
+func readParseFile(filename string, nomarkdown bool) (Page, error) {
 	epoch, _ := time.Parse("20060102", "19700101")
 
 	// setup default page struct
-	page = Page{
+	page := Page{
 		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename, Extension: ".html",
 		Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
 		PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
@@ -383,8 +328,7 @@ func readParseFile(filename string) (page Page) {
 	// read file
 	var data, err = ioutil.ReadFile(filename)
 	if err != nil {
-		PrintErr("Error Reading: " + filename)
-		return
+		return page, fmt.Errorf("Error Reading: %s", filename)
 	}
 
 	// go through content parse from --- to ---
@@ -451,14 +395,14 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-	if !*nomarkdown {
+	if !nomarkdown {
 		output := blackfriday.MarkdownCommon([]byte(content))
 		page.Content = string(output)
 	} else {
 		page.Content = content
 	}
 
-	return page
+	return page, nil
 }
 
 // Holds lists of Files, Directories and Categories
@@ -469,22 +413,23 @@ type SiteStruct struct {
 }
 
 // WalkFn that fills SiteStruct with data.
-func Walker(fn string, fi os.FileInfo, err error) error {
-	if err != nil {
-		PrintErr("Walker: ", err)
+func (site *SiteStruct) Walker() filepath.WalkFunc {
+	f := func(fn string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if fi.IsDir() {
+			site.Categories = append(site.Categories, fi.Name())
+			site.Directories = append(site.Directories, fn)
+			return nil
+		} else {
+			site.Files = append(site.Files, fn)
+			return nil
+		}
 		return nil
 	}
-
-	if fi.IsDir() {
-		site.Categories = append(site.Categories, fi.Name())
-		site.Directories = append(site.Directories, fn)
-		return nil
-	} else {
-		site.Files = append(site.Files, fn)
-		return nil
-	}
-	return nil
-
+	return f
 }
 
 // Check if File / Directory Exists
@@ -495,20 +440,4 @@ func exists(path string) bool {
 		return false
 	}
 	return true
-}
-
-// Read cfgfile or setup defaults.
-func setupConfig() {
-	file, err := ioutil.ReadFile(*cfgfile)
-	if err != nil {
-		// set defaults
-		config.SourceDir = "posts"
-		config.LayoutDir = "layouts"
-		config.PublishDir = "public"
-	} else {
-		if err := json.Unmarshal(file, &config); err != nil {
-			fmt.Printf("Error parsing config: %s", err)
-			os.Exit(1)
-		}
-	}
 }
