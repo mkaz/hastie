@@ -173,7 +173,6 @@ func (config Config) Compile(monitor Monitor) error {
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		outfile := config.PublishDir + "/" + page.OutFile
-		println("out: " + outfile)
 		if monitor != nil {
 			monitor.WritingTemplate(outfile)
 		}
