@@ -115,7 +115,6 @@ func usage() {
 }
 
 func main() {
-
 	flag.Usage = usage
 	flag.Parse()
 	if *help {
@@ -125,7 +124,7 @@ func main() {
 	setupConfig()
 	elapsedTimer("Config Setup")
 
-	if err := hastie.Compile(config, monitor{}); err != nil {
+	if err := config.Compile(monitor{}); err != nil {
 		PrintErr(err.Error())
 	}
 }

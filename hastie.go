@@ -67,11 +67,14 @@ type Monitor interface {
 	Filtered()
 }
 
-func Compile(config Config, monitor Monitor) error {
+func (config Config) Compile(monitor Monitor) error {
 	site := SiteStruct{}
 
+	// Need source dirs relative to their parent so can correctly extract categories
 	filepath.Walk(config.SourceDir, site.Walker())
-	monitor.Walked()
+	if monitor != nil {
+		monitor.Walked()
+	}
 
 	/* ******************************************
 	 * Loop through directories and build pages
@@ -84,12 +87,18 @@ func Compile(config Config, monitor Monitor) error {
 
 		// loop through files in directory
 		for _, file := range dirfiles {
-			monitor.ParsingSource(file)
-			outfile := filepath.Base(file)
-			outfile = strings.Replace(outfile, ".md", ".html", 1)
+			if monitor != nil {
+				monitor.ParsingSource(file)
+			}
 
+			// Make outfile relative to source dir
+			outfile, err := filepath.Rel(config.SourceDir, file)
+			if err != nil {
+				return err
+			}
+			// let parsing below work out the the extension
 			// read & parse file for parameters
-			page, err := readParseFile(file, config.NoMarkdown)
+			page, err := readParseFile(file, outfile, config.NoMarkdown)
 			if err != nil {
 				return err
 			}
@@ -98,7 +107,9 @@ func Compile(config Config, monitor Monitor) error {
 			pages = append(pages, page)
 		}
 	}
-	monitor.ParsedSources()
+	if monitor != nil {
+		monitor.ParsedSources()
+	}
 
 	/* ******************************************
 	 * Create any data needed from pages
@@ -112,7 +123,9 @@ func Compile(config Config, monitor Monitor) error {
 	categoryList := config.getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
-	monitor.Listed()
+	if monitor != nil {
+		monitor.Listed()
+	}
 
 	// read and parse all template files
 	layoutsglob := config.LayoutDir + "/*.html"
@@ -120,13 +133,17 @@ func Compile(config Config, monitor Monitor) error {
 	if err != nil {
 		return fmt.Errorf("Error Parsing Templates: %s", err)
 	}
-	monitor.ParsedTemplates()
+	if monitor != nil {
+		monitor.ParsedTemplates()
+	}
 
 	/* ******************************************
 	 * Loop through pages and generate templates
 	 * ****************************************** */
 	for _, page := range pages {
-		monitor.ParsingTemplate(page.OutFile)
+		if monitor != nil {
+			monitor.ParsingTemplate(page.OutFile)
+		}
 
 		// add recent pages lists to page object
 		page.Recent = recentListPtr
@@ -156,10 +173,15 @@ func Compile(config Config, monitor Monitor) error {
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		outfile := config.PublishDir + "/" + page.OutFile
-		monitor.WritingTemplate(outfile)
+		println("out: " + outfile)
+		if monitor != nil {
+			monitor.WritingTemplate(outfile)
+		}
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
-	monitor.GeneratedTemplates()
+	if monitor != nil {
+		monitor.GeneratedTemplates()
+	}
 
 	/* ******************************************
 		 * Process Filters
@@ -193,7 +215,9 @@ func Compile(config Config, monitor Monitor) error {
 			}
 		}
 	}
-	monitor.Filtered()
+	if monitor != nil {
+		monitor.Filtered()
+	}
 
 	return nil
 } // main
@@ -315,12 +339,12 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 /* ************************************************
  * Read and Parse File
  * ************************************************ */
-func readParseFile(filename string, nomarkdown bool) (Page, error) {
+func readParseFile(filename string, outfile string, nomarkdown bool) (Page, error) {
 	epoch, _ := time.Parse("20060102", "19700101")
 
 	// setup default page struct
 	page := Page{
-		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename, Extension: ".html",
+		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: outfile, Extension: ".html",
 		Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
 		PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
 		Params: make(map[string]string),
@@ -371,9 +395,10 @@ func readParseFile(filename string, nomarkdown bool) (Page, error) {
 
 	}
 
-	// chop off first directory, since that is the template dir
-	page.OutFile = filename[strings.Index(filename, "/")+1:]
-	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
+	// Change extension
+	if filepath.Ext(page.OutFile) == ".md" {
+		page.OutFile = page.OutFile[:len(page.OutFile)-3] + page.Extension
+	}
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
 	// TODO: allow category parameter
