@@ -98,7 +98,7 @@ func (config Config) Compile(monitor Monitor) error {
 			}
 			// let parsing below work out the the extension
 			// read & parse file for parameters
-			page, err := readParseFile(file, outfile, config.NoMarkdown)
+			page, err := config.readParseFile(file, outfile, config.NoMarkdown)
 			if err != nil {
 				return err
 			}
@@ -151,10 +151,6 @@ func (config Config) Compile(monitor Monitor) error {
 
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
-
-		if config.BaseUrl != "" {
-			page.Params["BaseUrl"] = config.BaseUrl
-		}
 
 		// Templating - writes page data to buffer
 		buffer := new(bytes.Buffer)
@@ -338,7 +334,7 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 /* ************************************************
  * Read and Parse File
  * ************************************************ */
-func readParseFile(filename string, outfile string, nomarkdown bool) (Page, error) {
+func (config Config) readParseFile(filename string, outfile string, nomarkdown bool) (Page, error) {
 	epoch, _ := time.Parse("20060102", "19700101")
 
 	// setup default page struct
@@ -425,6 +421,11 @@ func readParseFile(filename string, outfile string, nomarkdown bool) (Page, erro
 		page.Content = string(output)
 	} else {
 		page.Content = content
+	}
+
+	// add in params
+	if config.BaseUrl != "" {
+		page.Params["BaseUrl"] = config.BaseUrl
 	}
 
 	return page, nil
