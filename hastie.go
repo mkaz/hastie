@@ -62,26 +62,19 @@ type CategoryList map[string]PagesSlice
 
 func (c CategoryList) Get(category string) PagesSlice { return c[category] }
 
-type Monitor interface {
-	Walked()
-	ParsingSource(file string)
-	ParsedSources()
-	Listed()
-	ParsedTemplates()
-	ParsingTemplate(file string)
-	WritingTemplate(file string)
-	GeneratedTemplates()
-	Filtered()
-}
-
 func (config Config) Compile(monitor Monitor) error {
+	if monitor == nil {
+		monitor = DiscardMonitor
+	}
+
+	monitor.Start()
+	defer monitor.End()
+
 	site := SiteStruct{}
 
 	// Need source dirs relative to their parent so can correctly extract categories
 	filepath.Walk(config.SourceDir, site.Walker())
-	if monitor != nil {
-		monitor.Walked()
-	}
+	monitor.Walked()
 
 	/* ******************************************
 	 * Loop through directories and build pages
@@ -94,9 +87,7 @@ func (config Config) Compile(monitor Monitor) error {
 
 		// loop through files in directory
 		for _, file := range dirfiles {
-			if monitor != nil {
-				monitor.ParsingSource(file)
-			}
+			monitor.ParsingSource(file)
 
 			// Make outfile relative to source dir
 			outfile, err := filepath.Rel(config.SourceDir, file)
@@ -114,9 +105,7 @@ func (config Config) Compile(monitor Monitor) error {
 			pages = append(pages, page)
 		}
 	}
-	if monitor != nil {
-		monitor.ParsedSources()
-	}
+	monitor.ParsedSources()
 
 	/* ******************************************
 	 * Create any data needed from pages
@@ -130,9 +119,7 @@ func (config Config) Compile(monitor Monitor) error {
 	categoryList := config.getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
-	if monitor != nil {
-		monitor.Listed()
-	}
+	monitor.Listed()
 
 	// read and parse all template files
 	layoutsglob := config.LayoutDir + "/*.html"
@@ -140,17 +127,13 @@ func (config Config) Compile(monitor Monitor) error {
 	if err != nil {
 		return fmt.Errorf("Error Parsing Templates: %s", err)
 	}
-	if monitor != nil {
-		monitor.ParsedTemplates()
-	}
+	monitor.ParsedTemplates()
 
 	/* ******************************************
 	 * Loop through pages and generate templates
 	 * ****************************************** */
 	for _, page := range pages {
-		if monitor != nil {
-			monitor.ParsingTemplate(page.OutFile)
-		}
+		monitor.ParsingTemplate(page.OutFile)
 
 		// add recent pages lists to page object
 		page.Recent = recentListPtr
@@ -176,14 +159,10 @@ func (config Config) Compile(monitor Monitor) error {
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		outfile := config.PublishDir + "/" + page.OutFile
-		if monitor != nil {
-			monitor.WritingTemplate(outfile)
-		}
+		monitor.WritingTemplate(outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
-	if monitor != nil {
-		monitor.GeneratedTemplates()
-	}
+	monitor.GeneratedTemplates()
 
 	/* ******************************************
 		 * Process Filters
@@ -217,9 +196,7 @@ func (config Config) Compile(monitor Monitor) error {
 			}
 		}
 	}
-	if monitor != nil {
-		monitor.Filtered()
-	}
+	monitor.Filtered()
 
 	return nil
 } // main

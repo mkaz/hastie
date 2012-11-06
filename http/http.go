@@ -11,12 +11,13 @@ import (
 type Handler struct {
 	mx      sync.RWMutex
 	config  hastie.Config
+	monitor hastie.Monitor
 	handler http.Handler
 }
 
 // Creates an http.Handler for hastie files.
-func Handle(config hastie.Config) *Handler {
-	handler := &Handler{config: config}
+func Handle(config hastie.Config, monitor hastie.Monitor) *Handler {
+	handler := &Handler{config: config, monitor: monitor}
 	handler.Reload()
 	return handler
 }
@@ -26,7 +27,7 @@ func (h *Handler) Reload() {
 	h.mx.Lock()
 	defer h.mx.Unlock()
 
-	if err := h.config.Compile(nil); err != nil {
+	if err := h.config.Compile(h.monitor); err != nil {
 		h.handler = errorHandler{err}
 	} else {
 		h.handler = http.FileServer(http.Dir(h.config.PublishDir))
