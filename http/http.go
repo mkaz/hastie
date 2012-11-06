@@ -8,6 +8,7 @@ import (
 	"sync"
 )
 
+// Handler is a struct that can serve HTTP requests to hastie templates and reload on demand.
 type Handler struct {
 	mx      sync.RWMutex
 	config  hastie.Config
@@ -15,14 +16,15 @@ type Handler struct {
 	handler http.Handler
 }
 
-// Creates an http.Handler for hastie files.
+// Handle creates a Handler struct which implements http.Handler to serve hastie generated files
+// and can reload on demand.
 func Handle(config hastie.Config, monitor hastie.Monitor) *Handler {
 	handler := &Handler{config: config, monitor: monitor}
 	handler.Reload()
 	return handler
 }
 
-// Reload compiles the hastie files and updates the handler.
+// Reload compiles the hastie templates and updates the handler to serve them.
 func (h *Handler) Reload() {
 	h.mx.Lock()
 	defer h.mx.Unlock()
@@ -34,6 +36,7 @@ func (h *Handler) Reload() {
 	}
 }
 
+// ServeHTTP will serve a HTTP request to the hastie templates.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mx.RLock()
 	defer h.mx.RUnlock()

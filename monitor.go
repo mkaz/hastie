@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Monitor is an interface whose methods are called during hastie.Compile.
 type Monitor interface {
 	Start()
 	Walked()
@@ -21,7 +22,8 @@ type Monitor interface {
 
 type discardMonitor struct{}
 
-var DiscardMonitor = discardMonitor{}
+// DiscardMonitor implements the Monitor interface and does nothing with the events.
+var DiscardMonitor Monitor = discardMonitor{}
 
 func (discardMonitor) Start() {
 }
@@ -64,6 +66,7 @@ type logMonitor struct {
 	last    time.Time
 }
 
+// NewLogMonitor creates a Monitor implementation which simply logs the event output to the provided log method.
 func NewLogMonitor(log func(msg string), timing bool, verbose bool) Monitor {
 	return &logMonitor{log: log, timing: timing, verbose: verbose}
 }

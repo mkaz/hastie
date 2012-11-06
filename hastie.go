@@ -62,6 +62,8 @@ type CategoryList map[string]PagesSlice
 
 func (c CategoryList) Get(category string) PagesSlice { return c[category] }
 
+// Compile uses the hastie config and generates the required static files updating monitor as is goes.
+// If monitor is nil all output will be discarded by delegating to DiscardMonitor.
 func (config Config) Compile(monitor Monitor) error {
 	if monitor == nil {
 		monitor = DiscardMonitor
@@ -199,7 +201,7 @@ func (config Config) Compile(monitor Monitor) error {
 	monitor.Filtered()
 
 	return nil
-} // main
+}
 
 /* ************************************************
  * Build Recent File List
