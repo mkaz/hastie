@@ -15,11 +15,13 @@ package hastie
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -33,6 +35,11 @@ type Config struct {
 	ProcessFilters                            map[string][]string
 	NoMarkdown                                bool
 }
+
+var DefaultConfig = Config{SourceDir: "posts",
+	LayoutDir:  "layouts",
+	PublishDir: "public",
+	NoMarkdown: false}
 
 type Page struct {
 	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle string
@@ -466,4 +473,25 @@ func exists(path string) bool {
 		return false
 	}
 	return true
+}
+
+// Read cfgfile or setup defaults.
+func ReadConfig(basedir string, cfgfile string) (Config, error) {
+	var config Config
+
+	if file, err := ioutil.ReadFile(cfgfile); err != nil {
+		return config, err
+	} else {
+		if err := json.Unmarshal(file, &config); err != nil {
+			return config, err
+		}
+	}
+
+	if basedir != "" {
+		config.SourceDir = path.Join(basedir, config.SourceDir)
+		config.LayoutDir = path.Join(basedir, config.LayoutDir)
+		config.PublishDir = path.Join(basedir, config.PublishDir)
+	}
+
+	return config, nil
 }

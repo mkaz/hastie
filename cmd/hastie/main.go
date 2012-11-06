@@ -14,11 +14,9 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/mkaz/hastie"
-	"io/ioutil"
 	"os"
 	"time"
 )
@@ -121,27 +119,20 @@ func main() {
 		usage()
 	}
 
-	setupConfig()
+	var config hastie.Config
+	var err error
+
+	if _, err = os.Stat(*cfgfile); err != nil {
+		config = hastie.DefaultConfig
+	} else {
+		if config, err = hastie.ReadConfig("", *cfgfile); err != nil {
+			PrintErr("Error parsing config: ", err.Error())
+			os.Exit(1)
+		}
+	}
 	elapsedTimer("Config Setup")
 
 	if err := config.Compile(monitor{}); err != nil {
-		PrintErr(err.Error())
-	}
-}
-
-// Read cfgfile or setup defaults.
-func setupConfig() {
-	file, err := ioutil.ReadFile(*cfgfile)
-	if err != nil {
-		// set defaults
-		config.SourceDir = "posts"
-		config.LayoutDir = "layouts"
-		config.PublishDir = "public"
-		config.NoMarkdown = false
-	} else {
-		if err := json.Unmarshal(file, &config); err != nil {
-			fmt.Printf("Error parsing config: %s", err)
-			os.Exit(1)
-		}
+		PrintErr("Error compiling config: ", err.Error())
 	}
 }
