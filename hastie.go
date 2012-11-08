@@ -191,7 +191,11 @@ func (config Config) Compile(monitor Monitor) error {
 				}
 
 				// determine output file path and extension
-				outfile := file[strings.Index(file, "/")+1:]
+				// Make outfile relative to source dir
+				outfile, err := filepath.Rel(config.SourceDir, file)
+				if err != nil {
+					return err
+				}
 				outfile = config.PublishDir + "/" + outfile
 				outfile = strings.Replace(outfile, extStart, extEnd, 1)
 				ioutil.WriteFile(outfile, output, 0644)
