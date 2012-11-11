@@ -47,6 +47,7 @@ type Page struct {
 	Recent                                                                                                                                                                *PagesSlice
 	Date                                                                                                                                                                  time.Time
 	Categories                                                                                                                                                            *CategoryList
+	List                                                                                                                                                                  bool
 }
 
 type PagesSlice []Page
@@ -72,6 +73,15 @@ func (p PagesSlice) Limit(n int) PagesSlice {
 		return p[0:n]
 	}
 	return p
+}
+func (p PagesSlice) Listed() PagesSlice {
+	listed := PagesSlice{}
+	for _, page := range p {
+		if page.List {
+			listed = append(listed, page)
+		}
+	}
+	return listed
 }
 
 type CategoryList map[string]PagesSlice
@@ -132,8 +142,8 @@ func (config Config) Compile(monitor Monitor) error {
 	// Sort page into order that we want to display them
 	pages.Sort()
 
-	// recent list if a sorted list of all pages
-	recentList := getRecentList(pages)
+	// Filter out those pages that are not listed
+	recentList := pages.Listed()
 	recentListPtr := &recentList
 
 	// category list is sorted map of pages by category
@@ -224,22 +234,6 @@ func (config Config) Compile(monitor Monitor) error {
 	monitor.Filtered()
 
 	return nil
-}
-
-/* ************************************************
- * Build Recent File List
- *    - return array sorted most recent first
- *    - array includes real link (no date)
- *    - does not include files without date
- * ************************************************ */
-func getRecentList(pages PagesSlice) (list PagesSlice) {
-	for _, page := range pages {
-		// pages without dates are set to epoch
-		if page.Date.Format("2006") != "1970" {
-			list = append(list, page)
-		}
-	}
-	return list
 }
 
 /* ************************************************
@@ -345,6 +339,7 @@ func (config Config) readParseFile(filename string, outfile string, nomarkdown b
 		Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
 		PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
 		Params: make(map[string]string),
+		List:   false,
 	}
 
 	// read file
@@ -373,6 +368,8 @@ func (config Config) readParseFile(filename string, outfile string, nomarkdown b
 					page.Category = value
 				case "layout":
 					page.Layout = value
+				case "list":
+					page.List = strings.ToLower(value) == "true"
 				case "extension":
 					page.Extension = "." + value
 				default:
@@ -409,6 +406,7 @@ func (config Config) readParseFile(filename string, outfile string, nomarkdown b
 	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
 		page.Date, _ = time.Parse("2006-01-02", base[0:10])
 		page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1) // remove date from final filename
+		page.List = true                                              // If we have a date prefix then this file is always listed in recents & categories
 	}
 
 	// add url of page, which includes initial slash
