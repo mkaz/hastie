@@ -51,11 +51,22 @@ type Page struct {
 
 type PagesSlice []Page
 
-func (p PagesSlice) Get(i int) Page     { return p[i] }
-func (p PagesSlice) Len() int           { return len(p) }
-func (p PagesSlice) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Unix() }
-func (p PagesSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p PagesSlice) Sort()              { sort.Sort(p) }
+func (p PagesSlice) Get(i int) Page { return p[i] }
+func (p PagesSlice) Len() int       { return len(p) }
+
+// Less if used to sort PagesSlice by date descending then title ascending
+func (p PagesSlice) Less(i, j int) bool {
+	d := p[i].Date.Unix() - p[j].Date.Unix()
+	if d < 0 {
+		return false
+	} else if d > 0 {
+		return true
+	}
+	return p[i].Title < p[j].Title
+}
+
+func (p PagesSlice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p PagesSlice) Sort()         { sort.Sort(p) }
 func (p PagesSlice) Limit(n int) PagesSlice {
 	if n < len(p) {
 		return p[0:n]
@@ -117,6 +128,9 @@ func (config Config) Compile(monitor Monitor) error {
 	/* ******************************************
 	 * Create any data needed from pages
 	 * ****************************************** */
+
+	// Sort page into order that we want to display them
+	pages.Sort()
 
 	// recent list if a sorted list of all pages
 	recentList := getRecentList(pages)
@@ -225,13 +239,6 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 			list = append(list, page)
 		}
 	}
-	list.Sort()
-
-	// reverse
-	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
-		list[i], list[j] = list[j], list[i]
-	}
-
 	return list
 }
 
