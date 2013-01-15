@@ -423,8 +423,8 @@ func (config Config) readParseFile(filename string, outfile string, nomarkdown b
 		page.Content = content
 	}
 
-	// add in params
-	if config.BaseUrl != "" {
+	// add in default BaseUrl to params if not set in page
+	if _, ok := page.Params["BaseUrl"]; !ok {
 		page.Params["BaseUrl"] = config.BaseUrl
 	}
 
