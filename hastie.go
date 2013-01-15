@@ -406,7 +406,7 @@ func (config Config) readParseFile(filename string, outfile string, nomarkdown b
 	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
 		page.Date, _ = time.Parse("2006-01-02", base[0:10])
 		page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1) // remove date from final filename
-		page.List = true                                              // If we have a date prefix then this file is always listed in recents & categories
+		page.List = true                                                // If we have a date prefix then this file is always listed in recents & categories
 	}
 
 	// add url of page, which includes initial slash

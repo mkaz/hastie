@@ -17,6 +17,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/mkaz/hastie"
+	hhttp "github.com/mkaz/hastie/http"
+	"net/http"
 	"os"
 )
 
@@ -30,22 +32,9 @@ var (
 	cfgfile    = flag.String("c", cfgFiledefault, "Config file")
 	timing     = flag.Bool("t", false, "display timing")
 	nomarkdown = flag.Bool("m", false, "do not use markdown conversion")
+	httpAddr   = flag.String("http", "", "HTTP service address (e.g., ':8080')")
 	config     hastie.Config
 )
-
-// Wrapper around Fprintf taking verbose flag in account.
-func Printvf(format string, a ...interface{}) {
-	if *verbose {
-		fmt.Fprintf(os.Stderr, format, a...)
-	}
-}
-
-// Wrapper around Fprintln taking verbose flag in account.
-func Printvln(a ...interface{}) {
-	if *verbose {
-		fmt.Fprintln(os.Stderr, a...)
-	}
-}
 
 func PrintErr(str string, a ...interface{}) {
 	fmt.Fprintln(os.Stderr, str, a)
@@ -76,8 +65,29 @@ func main() {
 		}
 	}
 
-	monitor := hastie.NewLogMonitor(Printvln, *timing)
-	if err := config.Compile(monitor); err != nil {
-		PrintErr("Error compiling config: ", err.Error())
+	monitor := hastie.NewLogMonitor(func(msg string) {
+		fmt.Fprintln(os.Stderr, msg)
+	}, *timing, *verbose)
+
+	if *httpAddr == "" {
+		// Perform simple compile
+		if err := config.Compile(monitor); err != nil {
+			PrintErr("Error compiling config: ", err.Error())
+		}
+	} else {
+		// Start http handler
+		handler := hhttp.Handle(config, monitor)
+
+		// Watch for changes in SourceDir & LayoutDir
+		go func() {
+			if err := handler.Watch(); err != nil {
+				PrintErr("Error watching for changes: ", err.Error())
+			}
+		}()
+
+		// Start http server
+		if err := http.ListenAndServe(*httpAddr, handler); err != nil {
+			PrintErr("Error serving: ", err.Error())
+		}
 	}
 }

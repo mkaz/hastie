@@ -75,7 +75,7 @@ func (l *logMonitor) Start() {
 	now := time.Now()
 	l.start = now
 	l.last = now
-	l.log("Start")
+	l.log("Starting build")
 }
 
 func (l *logMonitor) Walked() {
@@ -129,5 +129,5 @@ func (l *logMonitor) elapsedTimer(str string) {
 }
 
 func (l *logMonitor) End() {
-	l.log("End")
+	l.log("Finished build")
 }
