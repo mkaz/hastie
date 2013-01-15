@@ -5,7 +5,13 @@ import (
 	"github.com/howeyc/fsnotify"
 	"github.com/mkaz/hastie"
 	"net/http"
+	"regexp"
 	"sync"
+	"time"
+)
+
+var (
+	WatchFilesRE = regexp.MustCompile("\\.(html)|(md)$") // Watch all .html and .md files
 )
 
 // Handler is a struct that can serve HTTP requests to hastie templates and reload on demand.
@@ -66,13 +72,22 @@ func watch(dirs []string, reload func()) error {
 	defer close(errs)
 
 	go func() {
+		tick := time.Tick(time.Second)
+		doReload := false
 		for {
 			select {
-			case _ = <-w.Event:
-				reload()
+			case e := <-w.Event:
+				if WatchFilesRE.MatchString(e.Name) {
+					doReload = true // trigger reload
+				}
 			case err := <-w.Error:
 				errs <- err
 				break
+			case _ = <-tick:
+				if doReload {
+					reload()
+					doReload = false // Reset
+				}
 			}
 		}
 	}()
