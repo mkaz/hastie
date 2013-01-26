@@ -5,6 +5,8 @@ import (
 	"github.com/howeyc/fsnotify"
 	"github.com/mkaz/hastie"
 	"net/http"
+	"os"
+	"path"
 	"regexp"
 	"sync"
 	"time"
@@ -93,7 +95,7 @@ func watch(dirs []string, reload func()) error {
 	}()
 
 	for _, d := range dirs {
-		if err := w.Watch(d); err != nil {
+		if err := watchDir(w, d, reload); err != nil {
 			return err
 		}
 	}
@@ -101,6 +103,33 @@ func watch(dirs []string, reload func()) error {
 	err = <-errs
 
 	return err
+}
+
+func watchDir(w *fsnotify.Watcher, dir string, reload func()) error {
+	if err := w.Watch(dir); err != nil {
+		return err
+	}
+
+	// And also watch subdirectories
+	if d, err := os.Open(dir); err != nil {
+		return err
+	} else {
+		defer d.Close()
+
+		if subDirs, err := d.Readdir(-1); err != nil {
+			return err
+		} else {
+			for _, f := range subDirs {
+				if !f.IsDir() {
+					continue
+				}
+				if err := watchDir(w, path.Join(dir, f.Name()), reload); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 type errorHandler struct {
