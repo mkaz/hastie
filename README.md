@@ -18,12 +18,11 @@ Note: The name Hastie also comes from the novel Dr. Jekyll and Mr. Hyde
 
 ## Install Notes
 
-Until Go v1.0 is released you need to install Go Weekly: <http://golang.org/doc/install.html#fetch>
+Install Go: <http://golang.org/doc/install.html#fetch>
 
-    $ cd $HOME
-    $ hg clone -u weekly https://go.googlecode.com/hg/ go
-    $ cd $HOME/go/src; ./all.bash
-    $ echo "GOROOT=$HOME/go" >> $HOME/.bashrc
+Get Hastie: `go get github.com/mkaz/hastie`
+
+Install Hastie: `go install ./src/github.com/mkaz/hastie/cmd/hastie`
 
 
 #### Libraries
@@ -38,6 +37,9 @@ Uses **blackfriday** for markdown conversion. `go get github.com/russross/blackf
     usage: hastie [flags]
       -c="hastie.json": Config file
       -h=false: show this help
+      -http="": HTTP service address (e.g., ':8080')
+      -m=false: do not use markdown conversion
+      -t=false: display timing
       -v=false: verbose output
 
 Configuration file format (default ./hastie.json)
@@ -46,7 +48,6 @@ Configuration file format (default ./hastie.json)
       "SourceDir" : "posts",
       "LayoutDir" : "layouts",
       "PublishDir": "public"
-
     }
 
 
@@ -99,6 +100,7 @@ Data available to templates:
     .NextCatUrl   -- Next Page Url by Category
     .NextCatTitle -- Next Page Title by Category
     .Params       -- Map of User Parameters, set in page head
+    .Params.BaseUrl -- BaseUrl as defined in hastie.json
 
     .Categories.CATEGORY -- list of most recent files for CATEGORY
 
