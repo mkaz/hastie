@@ -11,17 +11,17 @@
  *
  */
 
-package main
+package hastie
 
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -29,24 +29,17 @@ import (
 	"time"
 )
 
-const (
-	cfgFiledefault = "hastie.json"
-)
-
-// config file items
-var config struct {
+type Config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
+	NoMarkdown                                bool
 }
 
-var (
-	verbose = flag.Bool("v", false, "verbose output")
-	help    = flag.Bool("h", false, "show this help")
-	cfgfile = flag.String("c", cfgFiledefault, "Config file")
-	timing  = flag.Bool("t", false, "display timing")
-  nomarkdown = flag.Bool("m", false, "do not use markdown conversion")
-)
+var DefaultConfig = Config{SourceDir: "posts",
+	LayoutDir:  "layouts",
+	PublishDir: "public",
+	NoMarkdown: false}
 
 type Page struct {
 	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle string
@@ -54,77 +47,62 @@ type Page struct {
 	Recent                                                                                                                                                                *PagesSlice
 	Date                                                                                                                                                                  time.Time
 	Categories                                                                                                                                                            *CategoryList
+	List                                                                                                                                                                  bool
 }
 
 type PagesSlice []Page
 
-func (p PagesSlice) Get(i int) Page         { return p[i] }
-func (p PagesSlice) Len() int               { return len(p) }
-func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Date.Unix() }
-func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
-func (p PagesSlice) Sort()                  { sort.Sort(p) }
-func (p PagesSlice) Limit(n int) PagesSlice { return p[0:n] }
+func (p PagesSlice) Get(i int) Page { return p[i] }
+func (p PagesSlice) Len() int       { return len(p) }
+
+// Less if used to sort PagesSlice by date descending then title ascending
+func (p PagesSlice) Less(i, j int) bool {
+	d := p[i].Date.Unix() - p[j].Date.Unix()
+	if d < 0 {
+		return false
+	} else if d > 0 {
+		return true
+	}
+	return p[i].Title < p[j].Title
+}
+
+func (p PagesSlice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p PagesSlice) Sort()         { sort.Sort(p) }
+func (p PagesSlice) Limit(n int) PagesSlice {
+	if n < len(p) {
+		return p[0:n]
+	}
+	return p
+}
+func (p PagesSlice) Listed() PagesSlice {
+	listed := PagesSlice{}
+	for _, page := range p {
+		if page.List {
+			listed = append(listed, page)
+		}
+	}
+	return listed
+}
 
 type CategoryList map[string]PagesSlice
 
 func (c CategoryList) Get(category string) PagesSlice { return c[category] }
 
-var startTime time.Time
-var lastTime time.Time
-
-func init() {
-	startTime = time.Now()
-	lastTime = time.Now()
-}
-
-func elapsedTimer(str string) {
-	if !*timing {
-		return
-	}
-	fmt.Printf("Event: %-25s -- %9v  (%9v) \n", str, time.Since(lastTime), time.Since(startTime))
-	lastTime = time.Now()
-}
-
-// holds lists of directories and files
-var site = &SiteStruct{}
-
-// Wrapper around Fprintf taking verbose flag in account.
-func Printvf(format string, a ...interface{}) {
-	if *verbose {
-		fmt.Fprintf(os.Stderr, format, a...)
-	}
-}
-
-// Wrapper around Fprintln taking verbose flag in account.
-func Printvln(a ...interface{}) {
-	if *verbose {
-		fmt.Fprintln(os.Stderr, a...)
-	}
-}
-
-func PrintErr(str string, a ...interface{}) {
-	fmt.Fprintln(os.Stderr, str, a)
-}
-
-func usage() {
-	PrintErr("usage: hastie [flags]", "")
-	flag.PrintDefaults()
-	os.Exit(2)
-}
-
-func main() {
-
-	flag.Usage = usage
-	flag.Parse()
-	if *help {
-		usage()
+// Compile uses the hastie config and generates the required static files updating monitor as is goes.
+// If monitor is nil all output will be discarded by delegating to DiscardMonitor.
+func (config Config) Compile(monitor Monitor) error {
+	if monitor == nil {
+		monitor = DiscardMonitor
 	}
 
-	setupConfig()
-	elapsedTimer("Config Setup")
+	monitor.Start()
+	defer monitor.End()
 
-	filepath.Walk(config.SourceDir, Walker)
-	elapsedTimer("File Walker")
+	site := SiteStruct{}
+
+	// Need source dirs relative to their parent so can correctly extract categories
+	filepath.Walk(config.SourceDir, site.Walker())
+	monitor.Walked()
 
 	/* ******************************************
 	 * Loop through directories and build pages
@@ -137,48 +115,56 @@ func main() {
 
 		// loop through files in directory
 		for _, file := range dirfiles {
-			Printvln("  File:", file)
-			outfile := filepath.Base(file)
-			outfile = strings.Replace(outfile, ".md", ".html", 1)
+			monitor.ParsingSource(file)
 
+			// Make outfile relative to source dir
+			outfile, err := filepath.Rel(config.SourceDir, file)
+			if err != nil {
+				return err
+			}
+			// let parsing below work out the the extension
 			// read & parse file for parameters
-			page := readParseFile(file)
+			page, err := config.readParseFile(file, outfile, config.NoMarkdown)
+			if err != nil {
+				return err
+			}
 
 			// create array of parsed pages
 			pages = append(pages, page)
 		}
 	}
-	elapsedTimer("Loop and Parse")
+	monitor.ParsedSources()
 
 	/* ******************************************
 	 * Create any data needed from pages
 	 * ****************************************** */
 
-	// recent list if a sorted list of all pages
-	recentList := getRecentList(pages)
+	// Sort page into order that we want to display them
+	pages.Sort()
+
+	// Filter out those pages that are not listed
+	recentList := pages.Listed()
 	recentListPtr := &recentList
 
 	// category list is sorted map of pages by category
-	categoryList := getCategoryList(recentListPtr)
+	categoryList := config.getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
-	elapsedTimer("Recent and Category Lists")
+	monitor.Listed()
 
 	// read and parse all template files
 	layoutsglob := config.LayoutDir + "/*.html"
 	ts, err := template.ParseGlob(layoutsglob)
 	if err != nil {
-		PrintErr("Error Parsing Templates: ", err)
-		os.Exit(1)
+		return fmt.Errorf("Error Parsing Templates: %s", err)
 	}
-	elapsedTimer("Parsed Templates")
+	monitor.ParsedTemplates()
 
 	/* ******************************************
 	 * Loop through pages and generate templates
 	 * ****************************************** */
 	for _, page := range pages {
-
-		Printvf("  Generating Template: ", page.OutFile)
+		monitor.ParsingTemplate(page.OutFile)
 
 		// add recent pages lists to page object
 		page.Recent = recentListPtr
@@ -186,10 +172,6 @@ func main() {
 
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
-
-		if config.BaseUrl != "" {
-			page.Params["BaseUrl"] = config.BaseUrl
-		}
 
 		// Templating - writes page data to buffer
 		buffer := new(bytes.Buffer)
@@ -205,14 +187,13 @@ func main() {
 
 		// writing out file
 		writedir := config.PublishDir + "/" + page.Category
-		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		outfile := config.PublishDir + "/" + page.OutFile
-		Printvln(" Writing File:", outfile)
+		monitor.WritingTemplate(outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
-	elapsedTimer("Generate Templates")
+	monitor.GeneratedTemplates()
 
 	/* ******************************************
 		 * Process Filters
@@ -234,44 +215,25 @@ func main() {
 				cmd := exec.Command(filter[0], file)
 				output, err := cmd.Output()
 				if err != nil {
-					PrintErr("Error Process Filter: "+file, err)
-					continue
+					fmt.Errorf("Error Process Filter: %s caused by: %s", file, err)
+					return err
 				}
 
 				// determine output file path and extension
-				outfile := file[strings.Index(file, "/")+1:]
+				// Make outfile relative to source dir
+				outfile, err := filepath.Rel(config.SourceDir, file)
+				if err != nil {
+					return err
+				}
 				outfile = config.PublishDir + "/" + outfile
 				outfile = strings.Replace(outfile, extStart, extEnd, 1)
 				ioutil.WriteFile(outfile, output, 0644)
 			}
 		}
 	}
-	elapsedTimer("Process Filters")
+	monitor.Filtered()
 
-} // main
-
-/* ************************************************
- * Build Recent File List
- *    - return array sorted most recent first
- *    - array includes real link (no date)
- *    - does not include files without date
- * ************************************************ */
-func getRecentList(pages PagesSlice) (list PagesSlice) {
-	Printvf("Creating Recent File List")
-	for _, page := range pages {
-		// pages without dates are set to epoch
-		if page.Date.Format("2006") != "1970" {
-			list = append(list, page)
-		}
-	}
-	list.Sort()
-
-	// reverse
-	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
-		list[i], list[j] = list[j], list[i]
-	}
-
-	return list
+	return nil
 }
 
 /* ************************************************
@@ -279,7 +241,7 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 *    - return a map containing a list of pages for
        each category, the key being category name
 * ************************************************ */
-func getCategoryList(pages *PagesSlice) CategoryList {
+func (config Config) getCategoryList(pages *PagesSlice) CategoryList {
 	mapList := make(CategoryList)
 	// recentList is passed in which is already sorted
 	// just need to map the pages to category
@@ -368,23 +330,22 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 /* ************************************************
  * Read and Parse File
  * ************************************************ */
-func readParseFile(filename string) (page Page) {
-	Printvln("Parsing File:", filename)
+func (config Config) readParseFile(filename string, outfile string, nomarkdown bool) (Page, error) {
 	epoch, _ := time.Parse("20060102", "19700101")
 
 	// setup default page struct
-	page = Page{
-		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: filename, Extension: ".html",
+	page := Page{
+		Title: "", Category: "", SimpleCategory: "", Content: "", Layout: "", Date: epoch, OutFile: outfile, Extension: ".html",
 		Url: "", PrevUrl: "", PrevTitle: "", NextUrl: "", NextTitle: "",
 		PrevCatUrl: "", PrevCatTitle: "", NextCatUrl: "", NextCatTitle: "",
 		Params: make(map[string]string),
+		List:   false,
 	}
 
 	// read file
 	var data, err = ioutil.ReadFile(filename)
 	if err != nil {
-		PrintErr("Error Reading: " + filename)
-		return
+		return page, fmt.Errorf("Error Reading: %s", filename)
 	}
 
 	// go through content parse from --- to ---
@@ -407,6 +368,8 @@ func readParseFile(filename string) (page Page) {
 					page.Category = value
 				case "layout":
 					page.Layout = value
+				case "list":
+					page.List = strings.ToLower(value) == "true"
 				case "extension":
 					page.Extension = "." + value
 				default:
@@ -426,9 +389,10 @@ func readParseFile(filename string) (page Page) {
 
 	}
 
-	// chop off first directory, since that is the template dir
-	page.OutFile = filename[strings.Index(filename, "/")+1:]
-	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
+	// Change extension
+	if filepath.Ext(page.OutFile) == ".md" {
+		page.OutFile = page.OutFile[:len(page.OutFile)-3] + page.Extension
+	}
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
 	// TODO: allow category parameter
@@ -442,6 +406,7 @@ func readParseFile(filename string) (page Page) {
 	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
 		page.Date, _ = time.Parse("2006-01-02", base[0:10])
 		page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1) // remove date from final filename
+		page.List = true                                                // If we have a date prefix then this file is always listed in recents & categories
 	}
 
 	// add url of page, which includes initial slash
@@ -451,15 +416,19 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-  if !*nomarkdown {
-    output := blackfriday.MarkdownCommon([]byte(content))
-    page.Content = string(output)
-  } else {
-    page.Content = content
-  }
+	if !nomarkdown {
+		output := blackfriday.MarkdownCommon([]byte(content))
+		page.Content = string(output)
+	} else {
+		page.Content = content
+	}
 
+	// add in default BaseUrl to params if not set in page
+	if _, ok := page.Params["BaseUrl"]; !ok {
+		page.Params["BaseUrl"] = config.BaseUrl
+	}
 
-	return page
+	return page, nil
 }
 
 // Holds lists of Files, Directories and Categories
@@ -470,22 +439,23 @@ type SiteStruct struct {
 }
 
 // WalkFn that fills SiteStruct with data.
-func Walker(fn string, fi os.FileInfo, err error) error {
-	if err != nil {
-		PrintErr("Walker: ", err)
+func (site *SiteStruct) Walker() filepath.WalkFunc {
+	f := func(fn string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if fi.IsDir() {
+			site.Categories = append(site.Categories, fi.Name())
+			site.Directories = append(site.Directories, fn)
+			return nil
+		} else {
+			site.Files = append(site.Files, fn)
+			return nil
+		}
 		return nil
 	}
-
-	if fi.IsDir() {
-		site.Categories = append(site.Categories, fi.Name())
-		site.Directories = append(site.Directories, fn)
-		return nil
-	} else {
-		site.Files = append(site.Files, fn)
-		return nil
-	}
-	return nil
-
+	return f
 }
 
 // Check if File / Directory Exists
@@ -499,17 +469,22 @@ func exists(path string) bool {
 }
 
 // Read cfgfile or setup defaults.
-func setupConfig() {
-	file, err := ioutil.ReadFile(*cfgfile)
-	if err != nil {
-		// set defaults
-		config.SourceDir = "posts"
-		config.LayoutDir = "layouts"
-		config.PublishDir = "public"
+func ReadConfig(basedir string, cfgfile string) (Config, error) {
+	var config Config
+
+	if file, err := ioutil.ReadFile(cfgfile); err != nil {
+		return config, err
 	} else {
 		if err := json.Unmarshal(file, &config); err != nil {
-			fmt.Printf("Error parsing config: %s", err)
-			os.Exit(1)
+			return config, err
 		}
 	}
+
+	if basedir != "" {
+		config.SourceDir = path.Join(basedir, config.SourceDir)
+		config.LayoutDir = path.Join(basedir, config.LayoutDir)
+		config.PublishDir = path.Join(basedir, config.PublishDir)
+	}
+
+	return config, nil
 }

@@ -8,13 +8,13 @@
 
   <br clear="both"/>
   <div class="archive_link">
-    Archive: <a href="/{{ .Category }}/">{{ .Category }}</a>
+    Archive: <a href="{{ .Params.BaseUrl }}/{{ .Category }}/">{{ .Category }}</a>
   </div>
 </div>
 
 
-<div class="prev">Previous: <a href="{{ .PrevUrl }}">{{ .PrevTitle }}</a></div>
-<div class="next">Next: <a href="{{ .NextUrl }}">{{ .NextTitle }}</a></div>
+<div class="prev">Previous: <a href="{{ .Params.BaseUrl }}/{{ .PrevUrl }}">{{ .PrevTitle }}</a></div>
+<div class="next">Next: <a href="{{ .Params.BaseUrl }}/{{ .NextUrl }}">{{ .NextTitle }}</a></div>
 
 
 <p><hr/></p>
@@ -22,7 +22,7 @@
 <p>Recent Posts</p>
 <ul>
   {{ range .Recent }}
-    <li> <a href="{{ .Url }}">{{.Title}}</a></li>
+    <li> <a href="{{ .Params.BaseUrl }}/{{ .Url }}">{{.Title}}</a></li>
   {{ end }}
 </ul>
 
