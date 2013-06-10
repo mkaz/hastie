@@ -8,9 +8,11 @@ Author :
 Started: Feb 13, 2012
 Project: https://github.com/mkaz/hastie
 
-Hastie is intended as replacement of jekyll (for myself), but jekyll has a robust plugin, extensibility and community that I do not expect to even attempt.  If you are looking for a flexible tool to publish your site use jekyll.
+Hastie is a simple static site generator in Go, I'm using it as a replacement of jekyll because I wanted a project to play with and learn Go and jekyll was getting slow and dependencies were giving me a headache. However, jekyll has a robust plugin system, extensibility and community none of which hastie will ever have. 
 
-If you are looking for a tool to tweek and play with the Go language, then this might be your choice. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm publishing to hopefully help others with playing with the language.
+If you are looking for a tool to tweek and play with the Go language, then this might be fun. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm publishing to hopefully help others
+
+If you just want simple blogging and no headaches, setup a hosted blog on WordPress.com it couldn't be easier. 
 
 Note: The name Hastie also comes from the novel Dr. Jekyll and Mr. Hyde
 
@@ -144,7 +146,7 @@ So the above example any files with the extension `.less` will be converted to `
 * Add ability to support rss.xml
 
 * Read .html files and apply template, no markdown
-
+* Add Less and Filter processing of static files
 
 #### Bugs
 * Add nicer error message/detection when no config found
@@ -154,6 +156,27 @@ So the above example any files with the extension `.less` will be converted to `
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
+
+ver 0.5.0 - June 2013
+ 
+ * Change LayoutDir to ThemeDir parameter
+
+ * Add copying of {ThemeDir}/static directory to {PublishDir}/static
+   This allows you to create a theme with static assets, such as css
+
+ * Use category if specified in file
+
+
+
+ver 0.?.? - June 2013
+
+  * Reverted branch changes which monitor and served the site
+    This was adding too much complexity and not core to the tool
+
+  * If you want a web server to test, do the following from public directory
+		$ python -m SimpleHTTPServer
+		$ open http://localhost:8000/
+
 
 ver 0.4.4 - March 23, 2012
 

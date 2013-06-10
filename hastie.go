@@ -321,7 +321,7 @@ func getCategoryList(pages *PagesSlice) CategoryList {
 
 		// still want a list of regular categories
 		// simpleCategory replaces / in sub-dir categories to _
-		// this always the categorty to be referenced in template
+		// this always the category to be referenced in template
 		simpleCategory := strings.Replace(page.Category, "/", "_", -1)
 		mapList[simpleCategory] = append(mapList[simpleCategory], page)
 	}
@@ -441,10 +441,11 @@ func readParseFile(filename string) (page Page) {
 	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
-	// TODO: allow category parameter
-	if strings.Contains(page.OutFile, "/") {
-		page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
-		page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
+	if page.Category  == "" {
+		if strings.Contains(page.OutFile, "/") {
+			page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
+			page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
+		}
 	}
 
 	// parse date from filename
