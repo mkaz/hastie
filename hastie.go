@@ -462,7 +462,7 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-	if !*nomarkdown {
+	if (!*nomarkdown) && (page.Params["markdown"] != "no") {
 		output := blackfriday.MarkdownCommon([]byte(content))
 		page.Content = string(output)
 	} else {
