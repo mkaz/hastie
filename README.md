@@ -157,6 +157,15 @@ So the above example any files with the extension `.less` will be converted to `
 
 ### CHANGE LOG
 
+ver 0.5.1 - Feb 2014
+
+ * Rename ThemeDir back to LayoutDir
+    - wrong direction, confusing name
+
+ * Alter markdown rendering so allows `<script>` tags
+    - hastie is used on personal site, so does not need to be so strict
+
+
 ver 0.5.0 - June 2013
  
  * Change LayoutDir to ThemeDir parameter

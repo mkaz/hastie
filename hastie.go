@@ -31,7 +31,7 @@ import (
 
 // config file items
 var config struct {
-	SourceDir, ThemeDir, PublishDir, BaseUrl string
+	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                             map[string]string
 	ProcessFilters                           map[string][]string
 }
@@ -161,7 +161,7 @@ func main() {
 	elapsedTimer("Recent and Category Lists")
 
 	// read and parse all template files
-	layoutsglob := config.ThemeDir + "/*.html"
+	layoutsglob := config.LayoutDir + "/*.html"
 	ts, err := template.ParseGlob(layoutsglob)
 	if err != nil {
 		PrintErr("Error Parsing Templates: ", err)
@@ -249,9 +249,9 @@ func main() {
 	 * if a static directory exists in the theme, copy to publish/static
 	 * TODO: process less files within theme
 	 * ****************************************** */
-	static_dir := config.ThemeDir + "/static"
+	static_dir := config.LayoutDir + "/static"
 	if exists(static_dir) {
-		cmd := exec.Command("cp", "-rf", config.ThemeDir+"/static", config.PublishDir)
+		cmd := exec.Command("cp", "-rf", config.LayoutDir+"/static", config.PublishDir)
 		cmd_err := cmd.Run()
 		if cmd_err != nil {
 			PrintErr("Error copying theme's static dir")
@@ -463,7 +463,7 @@ func readParseFile(filename string) (page Page) {
 	// convert markdown content
 	content := strings.Join(lines, "\n")
 	if (!*nomarkdown) && (page.Params["markdown"] != "no") {
-		output := blackfriday.MarkdownCommon([]byte(content))
+		output := markdownRender([]byte(content))
 		page.Content = string(output)
 	} else {
 		page.Content = content
@@ -471,6 +471,27 @@ func readParseFile(filename string) (page Page) {
 
 	return page
 }
+
+func markdownRender(content []byte) []byte {
+    htmlFlags := 0
+    //htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
+    htmlFlags |= blackfriday.HTML_USE_XHTML
+    htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+    htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+    htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+    renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
+
+    extensions := 0
+    extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
+    extensions |= blackfriday.EXTENSION_TABLES
+    extensions |= blackfriday.EXTENSION_FENCED_CODE
+    extensions |= blackfriday.EXTENSION_AUTOLINK
+    extensions |= blackfriday.EXTENSION_STRIKETHROUGH
+    extensions |= blackfriday.EXTENSION_SPACE_HEADERS
+
+    return blackfriday.Markdown(content, renderer, extensions)
+}
+
 
 // Holds lists of Files, Directories and Categories
 type SiteStruct struct {
@@ -513,7 +534,7 @@ func setupConfig() {
 	if err != nil {
 		// set defaults
 		config.SourceDir = "_source"
-		config.ThemeDir = "_themes"
+		config.LayoutDir = "_layout"
 		config.PublishDir = "public"
 	} else {
 		if err := json.Unmarshal(file, &config); err != nil {
