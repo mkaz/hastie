@@ -4,7 +4,7 @@ Created by [Marcus Kazmierczak](http://mkaz.com/) and contributions by [Fredrik 
 
 Started: Feb 13, 2012
 
-License: MIT, see [LICENSE](http://github.com/mkaz/hastiea/blob/master/LICENSE)
+License: MIT, see [LICENSE](https://github.com/mkaz/hastie/blob/master/LICENSE)
 
 **About** 
 
