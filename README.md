@@ -1,20 +1,20 @@
 ## Hastie - Static Site Generator in Go
 
-Author :
-
- - Marcus Kazmierczak, http://mkaz.com/
- - Fredrik Steen, http://github.com/stone
+Created by [Marcus Kazmierczak](http://mkaz.com/) and contributions by [Fredrik Steen](http://github.com/stone)
 
 Started: Feb 13, 2012
-Project: https://github.com/mkaz/hastie
 
-Hastie is a simple static site generator in Go, I'm using it as a replacement of jekyll because I wanted a project to play with and learn Go and jekyll was getting slow and dependencies were giving me a headache. However, jekyll has a robust plugin system, extensibility and community none of which hastie will ever have. 
+License: MIT, see [LICENSE](http://github.com/mkaz/hastiea/blob/master/LICENSE)
 
-If you are looking for a tool to tweek and play with the Go language, then this might be fun. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm publishing to hopefully help others
+**About** 
 
-If you just want simple blogging and no headaches, setup a hosted blog on WordPress.com it couldn't be easier. 
+Hastie is a simple static site generator in Go. I use it as a replacement of jekyll on [mkaz.com](http://mkaz.com/). I wanted a project to play with and learn Go and jekyll was starting to slow and ruby dependencies give me a headache. I think I switched systems and everything broke and I couldn't publish. The Go binary is completely portable and all includes all dependencies.
 
-Note: The name Hastie also comes from the novel Dr. Jekyll and Mr. Hyde
+If you are looking for a tool to tweek and play with the Go language, then this might be fun. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm open sourcing to hopefully help others play with Go.
+
+If you just want simple blogging and no headaches, setup a hosted blog on [WordPress.com](http://wordpress.com) easiest platform and you'll be up in minutes.
+
+Note: The name Hastie is from a character in the novel Dr. Jekyll and Mr. Hyde
 
 --------------------------------------------------------------------------------
 
