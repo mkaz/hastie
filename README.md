@@ -24,8 +24,17 @@ Install Go: <http://golang.org/doc/install.html#fetch>
 
 Get Hastie: `go get github.com/mkaz/hastie`
 
-Install Hastie: `go install ./src/github.com/mkaz/hastie/cmd/hastie`
+If you have your Go environment setup, `go get` will automatically create the binary in $GOPATH/bin.
 
+My setup is
+
+```bash
+mkdir -p $HOME/gocode/src
+mkdir -p $HOME/gocode/bin
+
+export GOPATH="$HOME/gocode"
+export PATH="$GOPATH/bin:$PATH"
+```
 
 #### Libraries
 
