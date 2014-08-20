@@ -32,8 +32,8 @@ import (
 // config file items
 var config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
-	CategoryMash                             map[string]string
-	ProcessFilters                           map[string][]string
+	CategoryMash                              map[string]string
+	ProcessFilters                            map[string][]string
 }
 
 var (
@@ -245,7 +245,7 @@ func main() {
 	elapsedTimer("Process Filters")
 
 	/* ******************************************
-	 * Copy Theme Static Folder 
+	 * Copy Theme Static Folder
 	 * if a static directory exists in the theme, copy to publish/static
 	 * TODO: process less files within theme
 	 * ****************************************** */
@@ -441,7 +441,7 @@ func readParseFile(filename string) (page Page) {
 	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
-	if page.Category  == "" {
+	if page.Category == "" {
 		if strings.Contains(page.OutFile, "/") {
 			page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
 			page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
@@ -473,25 +473,24 @@ func readParseFile(filename string) (page Page) {
 }
 
 func markdownRender(content []byte) []byte {
-    htmlFlags := 0
-    //htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
-    htmlFlags |= blackfriday.HTML_USE_XHTML
-    htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-    htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
-    htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-    renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
+	htmlFlags := 0
+	//htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
+	htmlFlags |= blackfriday.HTML_USE_XHTML
+	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
-    extensions := 0
-    extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
-    extensions |= blackfriday.EXTENSION_TABLES
-    extensions |= blackfriday.EXTENSION_FENCED_CODE
-    extensions |= blackfriday.EXTENSION_AUTOLINK
-    extensions |= blackfriday.EXTENSION_STRIKETHROUGH
-    extensions |= blackfriday.EXTENSION_SPACE_HEADERS
+	extensions := 0
+	extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
+	extensions |= blackfriday.EXTENSION_TABLES
+	extensions |= blackfriday.EXTENSION_FENCED_CODE
+	extensions |= blackfriday.EXTENSION_AUTOLINK
+	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
+	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 
-    return blackfriday.Markdown(content, renderer, extensions)
+	return blackfriday.Markdown(content, renderer, extensions)
 }
-
 
 // Holds lists of Files, Directories and Categories
 type SiteStruct struct {
