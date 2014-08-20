@@ -127,22 +127,8 @@ func main() {
 	 * ****************************************** */
 	var pages PagesSlice
 	for _, dir := range site.Directories {
-
-		readglob := dir + "/*.md"
-		var dirfiles, _ = filepath.Glob(readglob)
-
-		// loop through files in directory
-		for _, file := range dirfiles {
-			Printvln("  File:", file)
-			outfile := filepath.Base(file)
-			outfile = strings.Replace(outfile, ".md", ".html", 1)
-
-			// read & parse file for parameters
-			page := readParseFile(file)
-
-			// create array of parsed pages
-			pages = append(pages, page)
-		}
+		pages = buildPagesSlice(dir, "/*.md", pages)
+		pages = buildPagesSlice(dir, "/*.html", pages)
 	}
 	elapsedTimer("Loop and Parse")
 
@@ -490,6 +476,25 @@ func markdownRender(content []byte) []byte {
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 
 	return blackfriday.Markdown(content, renderer, extensions)
+}
+
+func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
+	readglob := dir + globstr
+	var dirfiles, _ = filepath.Glob(readglob)
+
+	// loop through files in directory
+	for _, file := range dirfiles {
+		Printvln("  File:", file)
+		outfile := filepath.Base(file)
+		outfile = strings.Replace(outfile, ".md", ".html", 1)
+
+		// read & parse file for parameters
+		page := readParseFile(file)
+
+		// create array of parsed pages
+		pages = append(pages, page)
+	}
+	return pages
 }
 
 // Holds lists of Files, Directories and Categories
