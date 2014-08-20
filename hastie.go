@@ -34,6 +34,7 @@ var config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
+	UseMarkdown                               bool
 }
 
 var (
@@ -448,7 +449,7 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-	if (!*nomarkdown) && (page.Params["markdown"] != "no") {
+	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
 		output := markdownRender([]byte(content))
 		page.Content = string(output)
 	} else {
@@ -536,14 +537,22 @@ func exists(path string) bool {
 func setupConfig() {
 	file, err := ioutil.ReadFile(*cfgfile)
 	if err != nil {
-		// set defaults
+		// set defaults, no config file
 		config.SourceDir = "_source"
 		config.LayoutDir = "_layout"
 		config.PublishDir = "public"
+		config.UseMarkdown = true
 	} else {
+		// not required in config file, set default
+		config.UseMarkdown = true
 		if err := json.Unmarshal(file, &config); err != nil {
 			fmt.Printf("Error parsing config: %s", err)
 			os.Exit(1)
 		}
+	}
+
+	// // command line overrides config file
+	if *nomarkdown {
+		config.UseMarkdown = false
 	}
 }
