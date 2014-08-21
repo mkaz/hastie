@@ -59,8 +59,12 @@ Configuration file format (default ./hastie.json)
       "SourceDir" : "posts",
       "LayoutDir" : "layouts",
       "PublishDir": "public"
+      "UseMarkdown": true
     }
 
+UseMarkdown is optional parameter, by default it will convert documents to
+markdown. If you don't want documents to be converted globally, you can specify
+it false on the command-line or here in the config. If you want to disable markdown on a per document basis, you can put "markdown: no" in the front matter of the document.
 
 Hastie walks through a templates directory and generates HTML files to a publish directory. It uses Go's template language for templates and markdown for content.
 
@@ -86,7 +90,7 @@ This will generate:
 
 A few current limitations:
 
-  * all files must be have .md extension
+  * all files must be have .md or .html extension
 
 The usage of hastie is just as a template engine, it does not copy over any images, does not have a built-in web server or any of the other features that jekyll has.
 
@@ -165,6 +169,13 @@ So the above example any files with the extension `.less` will be converted to `
 --------------------------------------------------------------------------------
 
 ### CHANGE LOG
+
+ver 0.5.2 - Aug 2014
+
+ * Add ability to parse all .html files in source directory
+
+ * Add global flag to config file to skip markdown
+
 
 ver 0.5.1 - Feb 2014
 
