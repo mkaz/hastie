@@ -1,7 +1,7 @@
 {
   
     "SourceDir"  : "posts",
-    "ThemeDir"   : "layouts",
+    "LayoutDir"   : "layouts",
     "PublishDir" : "public",
 
     "ProcessFilters": {
