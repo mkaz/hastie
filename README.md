@@ -58,7 +58,7 @@ Configuration file format (default ./hastie.json)
     {
       "SourceDir" : "posts",
       "LayoutDir" : "layouts",
-      "PublishDir": "public"
+      "PublishDir": "public",
       "UseMarkdown": true
     }
 
