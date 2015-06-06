@@ -257,7 +257,7 @@ ver 0.3.4 - March 10, 2012
 
 ver 0.3.3 - March 9, 2012
 
-  * Add Limit function to PagesSlice, availabe in templates
+  * Add Limit function to PagesSlice, available in templates
   * Removed Pages data, since duplicated
 
 
