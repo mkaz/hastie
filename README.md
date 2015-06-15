@@ -10,7 +10,7 @@ License: MIT, see [LICENSE](https://github.com/mkaz/hastie/blob/master/LICENSE)
 
 Hastie is a simple static site generator in Go. I use it as a replacement of jekyll on [mkaz.com](http://mkaz.com/). I wanted a project to play with and learn Go and jekyll was starting to slow and ruby dependencies give me a headache. I think I switched systems and everything broke and I couldn't publish. The Go binary is completely portable and all includes all dependencies.
 
-If you are looking for a tool to tweek and play with the Go language, then this might be fun. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm open sourcing to hopefully help others play with Go.
+If you are looking for a tool to tweak and play with the Go language, then this might be fun. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm open sourcing to hopefully help others play with Go.
 
 If you just want simple blogging and no headaches, setup a hosted blog on [WordPress.com](http://wordpress.com) easiest platform and you'll be up in minutes.
 
