@@ -185,6 +185,11 @@ func main() {
 		} else {
 			templateFile = page.Layout + ".html"
 		}
+
+		if !exists(config.LayoutDir + "/" + templateFile) {
+			PrintErr(" Missing template file:", templateFile)
+			continue
+		}
 		ts.ExecuteTemplate(buffer, templateFile, page)
 
 		// writing out file
