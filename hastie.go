@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -27,6 +26,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/russross/blackfriday"
 )
 
 // config file items
