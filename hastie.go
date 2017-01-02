@@ -218,9 +218,17 @@ func main() {
 		for _, dir := range site.Directories {
 			readglob := dir + "/*" + extStart
 			var dirfiles, _ = filepath.Glob(readglob)
+
 			for _, file := range dirfiles {
+				var cmd *exec.Cmd
 				// apply process filter command, capture output
-				cmd := exec.Command(filter[0], file)
+				if len(filter) > 2 {
+					opts := append(filter[2:], file)
+					cmd = exec.Command(filter[0], opts...)
+				} else {
+					cmd = exec.Command(filter[0], file)
+				}
+
 				output, err := cmd.Output()
 				if err != nil {
 					PrintErr("Error Process Filter: "+file, err)
