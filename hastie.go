@@ -412,6 +412,8 @@ func readParseFile(filename string) (page Page) {
 					page.Layout = value
 				case "extension":
 					page.Extension = "." + value
+				case "date":
+					page.Date, _ = time.Parse("2006-01-02", value[0:10])
 				default:
 					page.Params[key] = value
 				}
