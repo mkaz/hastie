@@ -400,7 +400,7 @@ func readParseFile(filename string) (page Page) {
 			// parse line for param
 			colonIndex := strings.Index(line, ":")
 			if colonIndex > 0 {
-				key := strings.TrimSpace(line[:colonIndex])
+				key := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
 				value := strings.TrimSpace(line[colonIndex+1:])
 				value = strings.Trim(value, "\"") //remove quotes
 				switch key {
