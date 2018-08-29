@@ -186,18 +186,18 @@ func main() {
 			templateFile = page.Layout + ".html"
 		}
 
-		if !exists(config.LayoutDir + "/" + templateFile) {
+		if !exists( filepath.Join( config.LayoutDir, templateFile) ) {
 			PrintErr(" Missing template file:", templateFile)
 			continue
 		}
 		ts.ExecuteTemplate(buffer, templateFile, page)
 
 		// writing out file
-		writedir := config.PublishDir + "/" + page.Category
+		writedir := filepath.Join( config.PublishDir, page.Category )
 		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
-		outfile := config.PublishDir + "/" + page.OutFile
+		outfile := filepath.Join( config.PublishDir, page.OutFile )
 		Printvln(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
@@ -236,8 +236,8 @@ func main() {
 				}
 
 				// determine output file path and extension
-				outfile := file[strings.Index(file, "/")+1:]
-				outfile = config.PublishDir + "/" + outfile
+				outfile := file[strings.Index(file, string(os.PathSeparator))+1:]
+				outfile = filepath.Join( config.PublishDir, outfile )
 				outfile = strings.Replace(outfile, extStart, extEnd, 1)
 				ioutil.WriteFile(outfile, output, 0644)
 			}
@@ -268,7 +268,7 @@ func main() {
  *    - does not include files without date
  * ************************************************ */
 func getRecentList(pages PagesSlice) (list PagesSlice) {
-	Printvf("Creating Recent File List")
+	Printvln("Creating Recent File List")
 	for _, page := range pages {
 		// pages without dates are set to epoch
 		if page.Date.Format("2006") != "1970" {
@@ -323,7 +323,7 @@ func getCategoryList(pages *PagesSlice) CategoryList {
 		// still want a list of regular categories
 		// simpleCategory replaces / in sub-dir categories to _
 		// this always the category to be referenced in template
-		simpleCategory := strings.Replace(page.Category, "/", "_", -1)
+		simpleCategory := strings.Replace(page.Category, string(os.PathSeparator), "_", -1)
 		mapList[simpleCategory] = append(mapList[simpleCategory], page)
 	}
 	return mapList
@@ -440,17 +440,19 @@ func readParseFile(filename string) (page Page) {
 	}
 
 	// chop off first directory, since that is the template dir
-	page.OutFile = filename[strings.Index(filename, "/")+1:]
+	Printvln( "Filename", filename)
+	page.OutFile = filename[strings.Index(filename, string(os.PathSeparator))+1:]
 	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
+	Printvln( "page.Outfile", page.OutFile)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
 	if page.Category == "" {
-		if strings.Contains(page.OutFile, "/") {
-			page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, "/")]
-			page.SimpleCategory = strings.Replace(page.Category, "/", "_", -1)
+		if strings.Contains(page.OutFile, string(os.PathSeparator)) {
+			page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, string(os.PathSeparator))]
+			page.SimpleCategory = strings.Replace(page.Category, string(os.PathSeparator), "_", -1)
 		}
 	}
-
+	Printvln( "page.Category", page.Category)
 	// parse date from filename
 	base := filepath.Base(page.OutFile)
 	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
@@ -571,4 +573,8 @@ func setupConfig() {
 	if *nomarkdown {
 		config.UseMarkdown = false
 	}
+
+	Printvln("SourceDir", config.SourceDir)
+	Printvln("LayoutDir", config.LayoutDir)
+	Printvln("PublishDir", config.PublishDir)
 }
