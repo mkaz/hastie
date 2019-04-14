@@ -47,11 +47,26 @@ var (
 )
 
 type Page struct {
-	Content, Title, Category, SimpleCategory, Layout, OutFile, Extension, Url, PrevUrl, PrevTitle, NextUrl, NextTitle, PrevCatUrl, PrevCatTitle, NextCatUrl, NextCatTitle string
-	Params                                                                                                                                                                map[string]string
-	Recent                                                                                                                                                                *PagesSlice
-	Date                                                                                                                                                                  time.Time
-	Categories                                                                                                                                                            *CategoryList
+	Content        string
+	Title          string
+	Category       string
+	SimpleCategory string
+	Layout         string
+	OutFile        string
+	Extension      string
+	Url            string
+	PrevUrl        string
+	PrevTitle      string
+	NextUrl        string
+	NextTitle      string
+	PrevCatUrl     string
+	PrevCatTitle   string
+	NextCatUrl     string
+	NextCatTitle   string
+	Params         map[string]string
+	Recent         *PagesSlice
+	Date           time.Time
+	Categories     *CategoryList
 }
 
 type PagesSlice []Page
@@ -62,6 +77,13 @@ func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Dat
 func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
 func (p PagesSlice) Sort()                  { sort.Sort(p) }
 func (p PagesSlice) Limit(n int) PagesSlice { return p[0:n] }
+func (p PagesSlice) Reverse() PagesSlice {
+	var rev PagesSlice
+	for i := len(p) - 1; i >= 0; i-- {
+		rev = append(rev, p[i])
+	}
+	return rev
+}
 
 type CategoryList map[string]PagesSlice
 
@@ -186,18 +208,18 @@ func main() {
 			templateFile = page.Layout + ".html"
 		}
 
-		if !exists( filepath.Join( config.LayoutDir, templateFile) ) {
+		if !exists(filepath.Join(config.LayoutDir, templateFile)) {
 			PrintErr(" Missing template file:", templateFile)
 			continue
 		}
 		ts.ExecuteTemplate(buffer, templateFile, page)
 
 		// writing out file
-		writedir := filepath.Join( config.PublishDir, page.Category )
+		writedir := filepath.Join(config.PublishDir, page.Category)
 		Printvln(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
-		outfile := filepath.Join( config.PublishDir, page.OutFile )
+		outfile := filepath.Join(config.PublishDir, page.OutFile)
 		Printvln(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
 	}
@@ -237,7 +259,7 @@ func main() {
 
 				// determine output file path and extension
 				outfile := file[strings.Index(file, string(os.PathSeparator))+1:]
-				outfile = filepath.Join( config.PublishDir, outfile )
+				outfile = filepath.Join(config.PublishDir, outfile)
 				outfile = strings.Replace(outfile, extStart, extEnd, 1)
 				ioutil.WriteFile(outfile, output, 0644)
 			}
@@ -440,10 +462,10 @@ func readParseFile(filename string) (page Page) {
 	}
 
 	// chop off first directory, since that is the template dir
-	Printvln( "Filename", filename)
+	Printvln("Filename", filename)
 	page.OutFile = filename[strings.Index(filename, string(os.PathSeparator))+1:]
 	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
-	Printvln( "page.Outfile", page.OutFile)
+	Printvln("page.Outfile", page.OutFile)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
 	if page.Category == "" {
@@ -452,7 +474,7 @@ func readParseFile(filename string) (page Page) {
 			page.SimpleCategory = strings.Replace(page.Category, string(os.PathSeparator), "_", -1)
 		}
 	}
-	Printvln( "page.Category", page.Category)
+	Printvln("page.Category", page.Category)
 	// parse date from filename
 	base := filepath.Base(page.OutFile)
 	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
