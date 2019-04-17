@@ -67,6 +67,7 @@ type Page struct {
 	Recent         *PagesSlice
 	Date           time.Time
 	Categories     *CategoryList
+	SourceFile     string
 }
 
 type PagesSlice []Page
@@ -531,6 +532,7 @@ func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
 
 		// read & parse file for parameters
 		page := readParseFile(file)
+		page.SourceFile = file
 
 		// create array of parsed pages
 		pages = append(pages, page)
