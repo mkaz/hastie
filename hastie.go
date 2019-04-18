@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -89,6 +90,7 @@ var site = &SiteStruct{}
 func main() {
 
 	var helpFlag = flag.Bool("help", false, "show this help")
+	var versionFlag = flag.Bool("version", false, "Display version and quit")
 	var noMarkdown = flag.Bool("nomarkdown", false, "do not use markdown conversion")
 	var configFile = flag.String("config", "hastie.json", "Config file")
 	flag.BoolVar(&log.DebugLevel, "debug", false, "Debug output (verbose)")
@@ -97,6 +99,11 @@ func main() {
 
 	if *helpFlag {
 		flag.Usage()
+		os.Exit(0)
+	}
+
+	if *versionFlag {
+		fmt.Println("hastie v0.7.0")
 		os.Exit(0)
 	}
 
