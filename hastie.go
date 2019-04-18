@@ -135,9 +135,13 @@ func main() {
 	categoryList := getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
+	funcMap := template.FuncMap{
+		"trim": TrimSlash,
+	}
+
 	// read and parse all template files
 	layoutsglob := config.LayoutDir + "/*.html"
-	ts, err := template.ParseGlob(layoutsglob)
+	ts, err := template.New("master").Funcs(funcMap).ParseGlob(layoutsglob)
 	if err != nil {
 		log.Fatal("Error Parsing Templates: ", err)
 	}
@@ -535,6 +539,10 @@ func exists(path string) bool {
 		return false
 	}
 	return true
+}
+
+func TrimSlash(path string) string {
+	return strings.Trim(path, "/")
 }
 
 // Read cfgfile or setup defaults.
