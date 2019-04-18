@@ -1,12 +1,8 @@
 {
-  
+
     "SourceDir"  : "posts",
     "LayoutDir"   : "layouts",
     "PublishDir" : "public",
-
-    "ProcessFilters": {
-      "less": ["/usr/local/lib/node_modules/less/bin/lessc", "css"]
-    },
 
     "BaseUrl"    : "file:///work/mkaz/apps/hastie/test/public"
 
