@@ -27,7 +27,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/russross/blackfriday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 // config file items
@@ -455,33 +455,13 @@ func readParseFile(filename string) (page Page) {
 	// convert markdown content
 	content := strings.Join(lines, "\n")
 	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
-		output := markdownRender([]byte(content))
+		output := blackfriday.Run([]byte(content))
 		page.Content = string(output)
 	} else {
 		page.Content = content
 	}
 
 	return page
-}
-
-func markdownRender(content []byte) []byte {
-	htmlFlags := 0
-	//htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
-	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
-
-	extensions := 0
-	extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
-	extensions |= blackfriday.EXTENSION_TABLES
-	extensions |= blackfriday.EXTENSION_FENCED_CODE
-	extensions |= blackfriday.EXTENSION_AUTOLINK
-	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
-	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
-
-	return blackfriday.Markdown(content, renderer, extensions)
 }
 
 func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
