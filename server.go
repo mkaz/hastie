@@ -6,9 +6,7 @@ import "time"
 
 import "github.com/radovskyb/watcher"
 
-const port = 3333
-
-func (h *Hastie) liveReload(log Logger) {
+func (h *Hastie) liveReload(log Logger, port int) {
 
 	w := watcher.New()
 
@@ -23,10 +21,13 @@ func (h *Hastie) liveReload(log Logger) {
 		for {
 			select {
 			case event := <-w.Event:
-				log.Warn("File changed: %v", event)
+				log.Warn(fmt.Sprintf("File changed: %v", event))
 				log.Warn("Regenerating content ...")
+
+				// Note: Regenerating all content, keeping it simple
 				h.generate()
-				log.Warn("Done.")
+
+				log.Warn("Done")
 			case err := <-w.Error:
 				log.Fatal(err)
 			case <-w.Closed:
@@ -43,7 +44,7 @@ func (h *Hastie) liveReload(log Logger) {
 
 	log.Warn("Watching Hastie content.")
 
-	log.Warn("Listening on http://localhost:%d...\n", port)
+	log.Warn(fmt.Sprintf("Listening on http://localhost:%d...\n", port))
 
 	// Start the web server and listens until killed
 
