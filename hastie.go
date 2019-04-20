@@ -130,6 +130,8 @@ type Hastie struct {
 }
 
 func (h *Hastie) generate() {
+	site =  &SiteStruct{}
+
 	config := h.config
 
 	filepath.Walk(config.SourceDir, Walker)
