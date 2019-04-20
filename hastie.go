@@ -32,7 +32,7 @@ import (
 
 // config file items
 type config struct {
-	ConfigFile, SourceDir, LayoutDir, PublishDir, BaseUrl string
+	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                                          map[string]string
 	ProcessFilters                                        map[string][]string
 	UseMarkdown                                           bool

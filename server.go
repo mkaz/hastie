@@ -12,9 +12,6 @@ func (h *Hastie) liveReload(log Logger) {
 
 	w := watcher.New()
 
-	if err := w.Add(h.config.ConfigFile); err != nil {
-		log.Fatal(err)
-	}
 	if err := w.AddRecursive(h.config.SourceDir); err != nil {
 		log.Fatal(err)
 	}
