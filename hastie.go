@@ -33,9 +33,11 @@ import (
 // config file items
 type config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
-	CategoryMash                                          map[string]string
-	ProcessFilters                                        map[string][]string
-	UseMarkdown                                           bool
+	CategoryMash                              map[string]string
+	ProcessFilters                            map[string][]string
+	UseMarkdown                               bool
+	RunServer                                 bool
+	ServerPort                                int
 }
 
 var log Logger
@@ -93,6 +95,8 @@ func main() {
 	var versionFlag = flag.Bool("version", false, "Display version and quit")
 	var noMarkdown = flag.Bool("nomarkdown", false, "do not use markdown conversion")
 	var configFile = flag.String("config", "hastie.json", "Config file")
+	var serverFlag = flag.Bool("server", false, "Start live reloading server")
+	var serverPort = flag.Int("server_port", 3000, "Server port")
 	flag.BoolVar(&log.DebugLevel, "debug", false, "Debug output (verbose)")
 	flag.BoolVar(&log.Verbose, "verbose", false, "Show info level")
 	flag.Parse()
@@ -107,7 +111,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	config := setupConfig(*configFile)
+	config := setupConfig(*configFile, *serverFlag, *serverPort)
 	if *noMarkdown {
 		config.UseMarkdown = false
 	}
@@ -116,7 +120,9 @@ func main() {
 
 	hastie.generate()
 
-	hastie.liveReload(log)
+	if config.RunServer {
+		hastie.liveReload(log, config.ServerPort)
+	}
 }
 
 type Hastie struct {
@@ -540,10 +546,11 @@ func TrimSlash(path string) string {
 }
 
 // Read cfgfile or setup defaults.
-func setupConfig(filename string) *config {
+func setupConfig(filename string, serverFlag bool, serverPort int) *config {
 	file, err := ioutil.ReadFile(filename)
 	config := config{
-		ConfigFile: filename,
+		RunServer:  serverFlag,
+		ServerPort: serverPort,
 	}
 	if err != nil {
 		// set defaults, no config file
