@@ -86,7 +86,7 @@ public/zebra/hastie-intro.html
 
 ### Static  Directory
 
-If a directory named `static` exists in the LayoutDir, Hastie will copy it as is to the root of the PublishDir as `static`.
+If a directory named `static` exists in the LayoutDir, Hastie will copy it as-is to the root of the PublishDir as `static`.
 
 
 ### Template Variables
@@ -167,7 +167,7 @@ This is my content...
 
 Hastie supports user-defined parameters and makes them available to the templates using `.Params.YOURPARAM`
 
-Example setting and using a parameter.
+#### Example setting and using a parameter.
 
 Setting parameter:
 ```
@@ -203,7 +203,7 @@ The above example sets any file with the extension `.less` will be converted to 
 
 ### Disable Markdown
 
-UseMarkdown is optional parameter in the config. By default, Hastie will convert documents to markdown. If you don't want documents to be converted globally, you can specify it false on the command-line or here in the config.
+`UseMarkdown` is optional parameter in the config. By default, Hastie will convert documents to markdown. If you don't want documents to be converted globally, you can specify it false on the command-line or `UseMarkdown: false` in the JSON config.
 
 If you want to disable markdown on a per document basis, you can put `markdown: no` in the front matter of the document.
 
