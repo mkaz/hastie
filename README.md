@@ -43,6 +43,10 @@ Flags:
         show this help
   -nomarkdown
         do not use markdown conversion
+  -server
+        Start live reloading server
+  -server_port int
+        Server port (default 3000)
   -verbose
         Show info level
   -version
