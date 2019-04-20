@@ -27,7 +27,7 @@ import (
 	"text/template"
 	"time"
 
-	"gopkg.in/russross/blackfriday.v2"
+	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
 // config file items
@@ -112,6 +112,10 @@ func main() {
 		config.UseMarkdown = false
 	}
 
+	generate()
+}
+
+func generate() {
 	filepath.Walk(config.SourceDir, Walker)
 
 	/* ******************************************
