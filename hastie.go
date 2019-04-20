@@ -31,7 +31,7 @@ import (
 )
 
 // config file items
-var config struct {
+type config struct {
 	SourceDir, LayoutDir, PublishDir, BaseUrl string
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
@@ -107,15 +107,23 @@ func main() {
 		os.Exit(0)
 	}
 
-	setupConfig(*configFile)
+	config := setupConfig(*configFile)
 	if *noMarkdown {
 		config.UseMarkdown = false
 	}
 
-	generate()
+	hastie := Hastie{config}
+
+	hastie.generate()
 }
 
-func generate() {
+type Hastie struct {
+	config *config
+}
+
+func (h *Hastie) generate() {
+	config := h.config
+
 	filepath.Walk(config.SourceDir, Walker)
 
 	/* ******************************************
@@ -123,8 +131,8 @@ func generate() {
 	 * ****************************************** */
 	var pages PagesSlice
 	for _, dir := range site.Directories {
-		pages = buildPagesSlice(dir, "/*.md", pages)
-		pages = buildPagesSlice(dir, "/*.html", pages)
+		pages = h.buildPagesSlice(dir, "/*.md", pages)
+		pages = h.buildPagesSlice(dir, "/*.html", pages)
 	}
 
 	/* ******************************************
@@ -132,11 +140,11 @@ func generate() {
 	 * ****************************************** */
 
 	// recent list if a sorted list of all pages
-	recentList := getRecentList(pages)
+	recentList := h.getRecentList(pages)
 	recentListPtr := &recentList
 
 	// category list is sorted map of pages by category
-	categoryList := getCategoryList(recentListPtr)
+	categoryList := h.getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
 	funcMap := template.FuncMap{
@@ -258,7 +266,7 @@ func generate() {
  *    - array includes real link (no date)
  *    - does not include files without date
  * ************************************************ */
-func getRecentList(pages PagesSlice) (list PagesSlice) {
+func (h *Hastie) getRecentList(pages PagesSlice) (list PagesSlice) {
 	log.Debug("Creating Recent File List")
 	for _, page := range pages {
 		// pages without dates are set to epoch
@@ -281,7 +289,7 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 *    - return a map containing a list of pages for
        each category, the key being category name
 * ************************************************ */
-func getCategoryList(pages *PagesSlice) CategoryList {
+func (h *Hastie) getCategoryList(pages *PagesSlice) CategoryList {
 	mapList := make(CategoryList)
 	// recentList is passed in which is already sorted
 	// just need to map the pages to category
@@ -295,7 +303,7 @@ func getCategoryList(pages *PagesSlice) CategoryList {
 	// config consists of a hash with new category being the
 	// key and a comma separated list of existing categories
 	// being the value, create a reverse map
-	for k, v := range config.CategoryMash {
+	for k, v := range h.config.CategoryMash {
 		cats := strings.Split(string(v), ",")
 		//loop through split and add to reverse map
 		for _, cat := range cats {
@@ -370,7 +378,7 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 /* ************************************************
  * Read and Parse File
  * ************************************************ */
-func readParseFile(filename string) (page Page) {
+func (h *Hastie) readParseFile(filename string) (page Page) {
 	log.Debug("Parsing File:", filename)
 	epoch, _ := time.Parse("20060102", "19700101")
 
@@ -458,7 +466,7 @@ func readParseFile(filename string) (page Page) {
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
-	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
+	if (h.config.UseMarkdown) && (page.Params["markdown"] != "no") {
 		output := blackfriday.Run([]byte(content))
 		page.Content = string(output)
 	} else {
@@ -468,7 +476,7 @@ func readParseFile(filename string) (page Page) {
 	return page
 }
 
-func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
+func (h *Hastie) buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
 	readglob := dir + globstr
 	var dirfiles, _ = filepath.Glob(readglob)
 
@@ -479,7 +487,7 @@ func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
 		outfile = strings.Replace(outfile, ".md", ".html", 1)
 
 		// read & parse file for parameters
-		page := readParseFile(file)
+		page := h.readParseFile(file)
 		page.SourceFile = file
 
 		// create array of parsed pages
@@ -530,8 +538,9 @@ func TrimSlash(path string) string {
 }
 
 // Read cfgfile or setup defaults.
-func setupConfig(filename string) {
+func setupConfig(filename string) *config {
 	file, err := ioutil.ReadFile(filename)
+	var config config
 	if err != nil {
 		// set defaults, no config file
 		config.SourceDir = "_source"
@@ -549,4 +558,6 @@ func setupConfig(filename string) {
 	log.Debug("SourceDir", config.SourceDir)
 	log.Debug("LayoutDir", config.LayoutDir)
 	log.Debug("PublishDir", config.PublishDir)
+
+	return &config
 }
