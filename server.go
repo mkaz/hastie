@@ -48,7 +48,7 @@ func (h *Hastie) liveReload(log Logger, port int) {
 
 	// Start the web server and listens until killed
 
-	fs := http.FileServer(http.Dir("public"))
+	fs := http.FileServer(http.Dir(h.config.PublishDir))
 	http.Handle("/", fs)
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
