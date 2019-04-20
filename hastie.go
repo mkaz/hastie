@@ -32,10 +32,10 @@ import (
 
 // config file items
 type config struct {
-	SourceDir, LayoutDir, PublishDir, BaseUrl string
-	CategoryMash                              map[string]string
-	ProcessFilters                            map[string][]string
-	UseMarkdown                               bool
+	ConfigFile, SourceDir, LayoutDir, PublishDir, BaseUrl string
+	CategoryMash                                          map[string]string
+	ProcessFilters                                        map[string][]string
+	UseMarkdown                                           bool
 }
 
 var log Logger
@@ -115,6 +115,8 @@ func main() {
 	hastie := Hastie{config}
 
 	hastie.generate()
+
+	hastie.liveReload(log)
 }
 
 type Hastie struct {
@@ -540,7 +542,9 @@ func TrimSlash(path string) string {
 // Read cfgfile or setup defaults.
 func setupConfig(filename string) *config {
 	file, err := ioutil.ReadFile(filename)
-	var config config
+	config := config{
+		ConfigFile: filename,
+	}
 	if err != nil {
 		// set defaults, no config file
 		config.SourceDir = "_source"
