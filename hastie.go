@@ -137,7 +137,10 @@ func main() {
 	categoryListPtr := &categoryList
 
 	funcMap := template.FuncMap{
-		"trim": TrimSlash,
+		"trim":    TrimSlash,
+		"Title":   strings.Title,
+		"ToLower": strings.ToLower,
+		"ToUpper": strings.ToUpper,
 	}
 
 	// read and parse all template files
