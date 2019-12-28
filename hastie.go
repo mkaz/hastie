@@ -457,7 +457,8 @@ func readParseFile(filename string) (page Page) {
 	// add url of page, which includes initial slash
 	// this is needed to get correct links for multi
 	// level directories
-	page.Url = "/" + page.OutFile
+
+	page.Url = "/" + removeIndexHtml(page.OutFile)
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
@@ -561,4 +562,8 @@ func filterPages(allPages PagesSlice, page Page) (filteredPages PagesSlice) {
 		}
 	}
 	return filteredPages
+}
+
+func removeIndexHtml(str string) string {
+	return strings.Replace(str, "index.html", "", 1)
 }
