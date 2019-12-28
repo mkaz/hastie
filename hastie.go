@@ -127,7 +127,7 @@ func main() {
 	 * Create any data needed from pages
 	 * ****************************************** */
 
-	// recent list if a sorted list of all pages
+	// recent list is a sorted list of all pages
 	recentList := getRecentList(pages)
 	recentListPtr := &recentList
 
