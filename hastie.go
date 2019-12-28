@@ -59,6 +59,7 @@ type Page struct {
 	NextCatTitle   string
 	Params         map[string]string
 	Recent         *PagesSlice
+	AllPages       PagesSlice
 	Date           time.Time
 	Categories     *CategoryList
 	SourceFile     string
@@ -156,6 +157,9 @@ func main() {
 		// add recent pages lists to page object
 		page.Recent = recentListPtr
 		page.Categories = categoryListPtr
+
+		// add all pages except current page
+		page.AllPages = filterPages(pages, page)
 
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
@@ -545,4 +549,13 @@ func setupConfig(filename string) {
 	log.Debug("SourceDir", config.SourceDir)
 	log.Debug("LayoutDir", config.LayoutDir)
 	log.Debug("PublishDir", config.PublishDir)
+}
+
+func filterPages(allPages PagesSlice, page Page) (filteredPages PagesSlice) {
+	for _, p := range allPages {
+		if p.Url != page.Url {
+			filteredPages = append(filteredPages, p)
+		}
+	}
+	return filteredPages
 }
