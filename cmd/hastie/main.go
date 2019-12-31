@@ -19,7 +19,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/gomarkdown/markdown"
 	"github.com/mkaz/hastie/pkg/logger"
 	"github.com/mkaz/hastie/pkg/utils"
 )
@@ -61,13 +60,15 @@ type Page struct {
 
 type PagesSlice []Page
 
-func (p PagesSlice) Get(i int) Page         { return p[i] }
-func (p PagesSlice) Len() int               { return len(p) }
-func (p PagesSlice) Less(i, j int) bool     { return p[i].Date.Unix() < p[j].Date.Unix() }
-func (p PagesSlice) Swap(i, j int)          { p[i], p[j] = p[j], p[i] }
-func (p PagesSlice) Sort()                  { sort.Sort(p) }
+func (p PagesSlice) Get(i int) Page     { return p[i] }
+func (p PagesSlice) Len() int           { return len(p) }
+func (p PagesSlice) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Unix() }
+func (p PagesSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PagesSlice) Sort()              { sort.Sort(p) }
 func (p PagesSlice) Limit(n int) PagesSlice {
-	if len(p) > n { return p[0:n] }
+	if len(p) > n {
+		return p[0:n]
+	}
 	return p
 }
 func (p PagesSlice) Reverse() PagesSlice {
@@ -82,11 +83,7 @@ type CategoryList map[string]PagesSlice
 
 func (c CategoryList) Get(category string) PagesSlice { return c[category] }
 
-// holds lists of directories and files
-var site = &SiteStruct{}
-
 func main() {
-
 	var helpFlag = flag.Bool("help", false, "show this help")
 	var versionFlag = flag.Bool("version", false, "Display version and quit")
 	var noMarkdown = flag.Bool("nomarkdown", false, "do not use markdown conversion")
@@ -101,7 +98,7 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("hastie v0.8.0")
+		fmt.Println("hastie v0.9.0")
 		os.Exit(0)
 	}
 
@@ -110,13 +107,12 @@ func main() {
 		config.UseMarkdown = false
 	}
 
-	filepath.Walk(config.SourceDir, Walker)
+	siteDirs := buildSiteDirectories(config.SourceDir)
 
-	/* ******************************************
-	 * Loop through directories and build pages
-	 * ****************************************** */
+	// loop through directories and build out pages
+	// @TODO can this be combined with buildSiteDirectories?
 	var pages PagesSlice
-	for _, dir := range site.Directories {
+	for _, dir := range siteDirs {
 		pages = buildPagesSlice(dir, "/*.md", pages)
 		pages = buildPagesSlice(dir, "/*.html", pages)
 	}
@@ -207,7 +203,7 @@ func main() {
 		extStart := "." + ext
 		extEnd := "." + filter[1]
 
-		for _, dir := range site.Directories {
+		for _, dir := range siteDirs {
 			readglob := dir + "/*" + extStart
 			var dirfiles, _ = filepath.Glob(readglob)
 
@@ -365,156 +361,6 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 	page.NextCatTitle = nextPageCat.Title
 	page.PrevCatUrl = prevPageCat.Url
 	page.PrevCatTitle = prevPageCat.Title
-}
-
-/* ************************************************
- * Read and Parse File
- * ************************************************ */
-func readParseFile(filename string) (page Page) {
-	log.Debug("Parsing File:", filename)
-	epoch, _ := time.Parse("20060102", "19700101")
-
-	// setup default page struct
-	page = Page{
-		Date:      epoch,
-		OutFile:   filename,
-		Extension: ".html",
-		Params:    make(map[string]string),
-	}
-
-	// read file
-	var data, err = ioutil.ReadFile(filename)
-	if err != nil {
-		log.Warn("Error Reading: " + filename)
-		return
-	}
-
-	// go through content parse from --- to ---
-	var lines = strings.Split(string(data), "\n")
-	var found = 0
-	for i, line := range lines {
-		line = strings.TrimSpace(line)
-
-		if found == 1 {
-			// parse line for param
-			colonIndex := strings.Index(line, ":")
-			if colonIndex > 0 {
-				key := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
-				value := strings.TrimSpace(line[colonIndex+1:])
-				value = strings.Trim(value, "\"") //remove quotes
-				switch key {
-				case "title":
-					page.Title = value
-				case "category":
-					page.Category = value
-				case "layout":
-					page.Layout = value
-				case "extension":
-					page.Extension = "." + value
-				case "date":
-					page.Date, _ = time.Parse("2006-01-02", value[0:10])
-				default:
-					page.Params[key] = value
-				}
-			}
-
-		} else if found >= 2 {
-			// params over
-			lines = lines[i:]
-			break
-		}
-
-		if line == "---" {
-			found++
-		}
-
-	}
-
-	// generate the public-file's path based on the source-file's path
-	log.Debug("Filename", filename)
-	page.OutFile = filename[strings.Index(filename, config.SourceDir) + len(config.SourceDir):]
-	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
-	log.Debug("page.Outfile", page.OutFile)
-
-	// next directory(s) category, category includes sub-dir = solog/webdev
-	if page.Category == "" {
-		if strings.Contains(page.OutFile, string(os.PathSeparator)) {
-			page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, string(os.PathSeparator))]
-			page.SimpleCategory = strings.Replace(page.Category, string(os.PathSeparator), "_", -1)
-		}
-	}
-	log.Debug("page.Category", page.Category)
-	// parse date from filename
-	base := filepath.Base(page.OutFile)
-	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
-		page.Date, _ = time.Parse("2006-01-02", base[0:10])
-		page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1) // remove date from final filename
-	}
-
-	// add url of page, which includes initial slash
-	// this is needed to get correct links for multi
-	// level directories
-
-	page.Url = "/" + utils.RemoveIndexHTML(page.OutFile)
-
-	// convert markdown content
-	content := strings.Join(lines, "\n")
-	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
-		output := markdown.ToHTML([]byte(content), nil, nil)
-		page.Content = string(output)
-	} else {
-		page.Content = content
-	}
-
-	return page
-}
-
-func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
-	readglob := dir + globstr
-	var dirfiles, _ = filepath.Glob(readglob)
-
-	// loop through files in directory
-	for _, file := range dirfiles {
-		log.Debug("  File:", file)
-		outfile := filepath.Base(file)
-		outfile = strings.Replace(outfile, ".md", ".html", 1)
-
-		// read & parse file for parameters
-		page := readParseFile(file)
-		page.SourceFile = file
-
-		// create array of parsed pages
-		pages = append(pages, page)
-	}
-	return pages
-}
-
-// SiteStruct holds the lists of files, directories and categories
-type SiteStruct struct {
-	Files       []string
-	Directories []string
-	Categories  []string
-}
-
-// Walker function to fill SiteStruct with data.
-func Walker(fn string, fi os.FileInfo, err error) error {
-	if err != nil {
-		log.Warn("Walker: ", err)
-		return nil
-	}
-
-	if fi.IsDir() {
-		// ignore directories starting with _
-		if strings.HasPrefix(fi.Name(), "_") {
-			return filepath.SkipDir
-		}
-		site.Categories = append(site.Categories, fi.Name())
-		site.Directories = append(site.Directories, fn)
-		return nil
-	} else {
-		site.Files = append(site.Files, fn)
-		return nil
-	}
 }
 
 // Read cfgfile or setup defaults.
