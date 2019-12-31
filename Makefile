@@ -9,7 +9,7 @@ MAKEFLAGS += --no-builtin-rules
 
 build:
 > echo "Building Hastie..."
-> go build cmd/hastie
+> go build ./cmd/hastie
 > cp hastie $(HOME)/bin/
 .PHONY: build
 
