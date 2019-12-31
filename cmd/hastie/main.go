@@ -33,6 +33,7 @@ var config struct {
 
 var log logger.Logger
 
+// Page main page object
 type Page struct {
 	Content        string
 	Title          string
@@ -51,37 +52,40 @@ type Page struct {
 	NextCatUrl     string
 	NextCatTitle   string
 	Params         map[string]string
-	Recent         *PagesSlice
-	AllPages       PagesSlice
+	Recent         *PageList
+	AllPages       PageList
 	Date           time.Time
 	Categories     *CategoryList
 	SourceFile     string
 }
 
-type PagesSlice []Page
+// PageList is an array of Page objects
+type PageList []Page
 
-func (p PagesSlice) Get(i int) Page     { return p[i] }
-func (p PagesSlice) Len() int           { return len(p) }
-func (p PagesSlice) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Unix() }
-func (p PagesSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p PagesSlice) Sort()              { sort.Sort(p) }
-func (p PagesSlice) Limit(n int) PagesSlice {
+func (p PageList) Get(i int) Page     { return p[i] }
+func (p PageList) Len() int           { return len(p) }
+func (p PageList) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Unix() }
+func (p PageList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PageList) Sort()              { sort.Sort(p) }
+func (p PageList) Limit(n int) PageList {
 	if len(p) > n {
 		return p[0:n]
 	}
 	return p
 }
-func (p PagesSlice) Reverse() PagesSlice {
-	var rev PagesSlice
+func (p PageList) Reverse() PageList {
+	var rev PageList
 	for i := len(p) - 1; i >= 0; i-- {
 		rev = append(rev, p[i])
 	}
 	return rev
 }
 
-type CategoryList map[string]PagesSlice
+// CategoryList is a map of category to PageList
+type CategoryList map[string]PageList
 
-func (c CategoryList) Get(category string) PagesSlice { return c[category] }
+// Get returns the PageList for given category
+func (c CategoryList) Get(category string) PageList { return c[category] }
 
 func main() {
 	var helpFlag = flag.Bool("help", false, "show this help")
@@ -98,7 +102,7 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("hastie v0.9.0")
+		fmt.Println("hastie v0.9.a")
 		os.Exit(0)
 	}
 
@@ -107,21 +111,10 @@ func main() {
 		config.UseMarkdown = false
 	}
 
-	siteDirs := buildSiteDirectories(config.SourceDir)
+	// get pages and directories
+	pages, dirs := getSiteFiles(config.SourceDir)
 
-	// loop through directories and build out pages
-	// @TODO can this be combined with buildSiteDirectories?
-	var pages PagesSlice
-	for _, dir := range siteDirs {
-		pages = buildPagesSlice(dir, "/*.md", pages)
-		pages = buildPagesSlice(dir, "/*.html", pages)
-	}
-
-	/* ******************************************
-	 * Create any data needed from pages
-	 * ****************************************** */
-
-	// recent list is a sorted list of all pages
+	// recent list is a sorted list of all pages with dates
 	recentList := getRecentList(pages)
 	recentListPtr := &recentList
 
@@ -129,6 +122,7 @@ func main() {
 	categoryList := getCategoryList(recentListPtr)
 	categoryListPtr := &categoryList
 
+	// functions made available to templates
 	funcMap := template.FuncMap{
 		"trim":    utils.TrimSlash,
 		"Title":   strings.Title,
@@ -143,12 +137,10 @@ func main() {
 		log.Fatal("Error Parsing Templates: ", err)
 	}
 
-	/* ******************************************
-	 * Loop through pages and generate templates
-	 * ****************************************** */
+	// loop through each page
+	// add extra data to page to be available to template
+	// apply templates and write out generated files
 	for _, page := range pages {
-
-		log.Debug("  Generating Template: ", page.OutFile)
 
 		// add recent pages lists to page object
 		page.Recent = recentListPtr
@@ -160,32 +152,20 @@ func main() {
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
 
-		if config.BaseURL != "" {
-			page.Params["BaseURL"] = config.BaseURL
-		}
+		page.Params["BaseURL"] = config.BaseURL
 
-		// Templating - writes page data to buffer
-		buffer := new(bytes.Buffer)
-
-		// pick layout based on specified in file
-		templateFile := ""
-		if page.Layout == "" {
-			templateFile = "post.html"
-		} else {
-			templateFile = page.Layout + ".html"
-		}
-
-		if !utils.FileExists(filepath.Join(config.LayoutDir, templateFile)) {
-			log.Warn(" Missing template file:", templateFile)
+		// applyTemplate to page
+		buffer, err := applyTemplate(ts, page)
+		if err != nil {
+			log.Warn("Error applying template", err)
 			continue
 		}
-		ts.ExecuteTemplate(buffer, templateFile, page)
 
-		// writing out file
+		// confirm directory exists
 		writedir := filepath.Join(config.PublishDir, page.Category)
-		log.Debug(" Write Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
+		// write out file
 		outfile := filepath.Join(config.PublishDir, page.OutFile)
 		log.Debug(" Writing File:", outfile)
 		ioutil.WriteFile(outfile, []byte(buffer.String()), 0644)
@@ -203,7 +183,7 @@ func main() {
 		extStart := "." + ext
 		extEnd := "." + filter[1]
 
-		for _, dir := range siteDirs {
+		for _, dir := range dirs {
 			readglob := dir + "/*" + extStart
 			var dirfiles, _ = filepath.Glob(readglob)
 
@@ -254,7 +234,7 @@ func main() {
  *    - array includes real link (no date)
  *    - does not include files without date
  * ************************************************ */
-func getRecentList(pages PagesSlice) (list PagesSlice) {
+func getRecentList(pages PageList) (list PageList) {
 	log.Debug("Creating Recent File List")
 	for _, page := range pages {
 		// pages without dates are set to epoch
@@ -277,7 +257,7 @@ func getRecentList(pages PagesSlice) (list PagesSlice) {
 *    - return a map containing a list of pages for
        each category, the key being category name
 * ************************************************ */
-func getCategoryList(pages *PagesSlice) CategoryList {
+func getCategoryList(pages *PageList) CategoryList {
 	mapList := make(CategoryList)
 	// recentList is passed in which is already sorted
 	// just need to map the pages to category
@@ -319,7 +299,7 @@ func getCategoryList(pages *PagesSlice) CategoryList {
 /* ************************************************
  * Add Prev Next Links to Page Object
  * ************************************************ */
-func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
+func (page *Page) buildPrevNextLinks(recentList *PageList) {
 	foundPage := false
 
 	nextPage := Page{}
@@ -363,6 +343,24 @@ func (page *Page) buildPrevNextLinks(recentList *PagesSlice) {
 	page.PrevCatTitle = prevPageCat.Title
 }
 
+func applyTemplate(ts *template.Template, page Page) (*bytes.Buffer, error) {
+	buffer := new(bytes.Buffer)
+
+	// pick layout based on specified in file
+	templateFile := ""
+	if page.Layout == "" {
+		templateFile = "post.html"
+	} else {
+		templateFile = page.Layout + ".html"
+	}
+
+	if !utils.FileExists(filepath.Join(config.LayoutDir, templateFile)) {
+		return nil, fmt.Errorf("Missing template file %s", templateFile)
+	}
+	ts.ExecuteTemplate(buffer, templateFile, page)
+	return buffer, nil
+}
+
 // Read cfgfile or setup defaults.
 func setupConfig(filename string) {
 	file, err := ioutil.ReadFile(filename)
@@ -385,7 +383,7 @@ func setupConfig(filename string) {
 	log.Debug("PublishDir", config.PublishDir)
 }
 
-func filterPages(allPages PagesSlice, page Page) (filteredPages PagesSlice) {
+func filterPages(allPages PageList, page Page) (filteredPages PageList) {
 	for _, p := range allPages {
 		if p.Url != page.Url {
 			filteredPages = append(filteredPages, p)

@@ -6,10 +6,11 @@ import (
 	"strings"
 )
 
-// buildSiteDirecrtories walks down the path and builds
-// an array of directories for the site, ignoring dirs
-// starting with _ underscopre
-func buildSiteDirectories(path string) (dirs []string) {
+// getSiteFiles walks down the path given and builds the
+// arrays of pages and directories for the site. Ignores
+// dirs starting with _ underscopre
+func getSiteFiles(path string) (pages PageList, dirs []string) {
+
 	filepath.Walk(path, func(fn string, fi os.FileInfo, err error) error {
 		if err != nil {
 			log.Fatal("Error building site directories", err)
@@ -24,27 +25,16 @@ func buildSiteDirectories(path string) (dirs []string) {
 			dirs = append(dirs, fn)
 			return nil
 		}
+
+		// Not directory so a file
+		if filepath.Ext(fn) == ".md" || filepath.Ext(fn) == ".html" {
+			page := readParseFile(fn)
+			page.SourceFile = fn
+			pages = append(pages, page)
+		}
 		return nil
-	})
-	return dirs
-}
 
-func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
-	readglob := dir + globstr
-	var dirfiles, _ = filepath.Glob(readglob)
+	}) // end walk
 
-	// loop through files in directory
-	for _, file := range dirfiles {
-		log.Debug("  File:", file)
-		outfile := filepath.Base(file)
-		outfile = strings.Replace(outfile, ".md", ".html", 1)
-
-		// read & parse file for parameters
-		page := readParseFile(file)
-		page.SourceFile = file
-
-		// create array of parsed pages
-		pages = append(pages, page)
-	}
-	return pages
+	return pages, dirs
 }

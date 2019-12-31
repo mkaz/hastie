@@ -33,7 +33,8 @@ func readParseFile(filename string) (page Page) {
 		return
 	}
 
-	// go through content parse from --- to ---
+	// go through content parse frontmatter
+	// params from --- to ---
 	var lines = strings.Split(string(data), "\n")
 	var found = 0
 	for i, line := range lines {
@@ -63,7 +64,8 @@ func readParseFile(filename string) (page Page) {
 			}
 
 		} else if found >= 2 {
-			// params over
+			// frontmatter over
+			// slurp up the rest
 			lines = lines[i:]
 			break
 		}
