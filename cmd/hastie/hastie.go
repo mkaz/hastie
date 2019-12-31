@@ -27,7 +27,7 @@ import (
 	"text/template"
 	"time"
 
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/gomarkdown/markdown"
 )
 
 // config file items
@@ -466,7 +466,7 @@ func readParseFile(filename string) (page Page) {
 	// convert markdown content
 	content := strings.Join(lines, "\n")
 	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
-		output := blackfriday.Run([]byte(content))
+		output := markdown.ToHTML([]byte(content), nil, nil)
 		page.Content = string(output)
 	} else {
 		page.Content = content

@@ -1,0 +1,5 @@
+github.com/gomarkdown/markdown v0.0.0-20191229055418-359dc4b9d66b h1:ZodsBXcms+0AapIcegMJ4zfcAzjqUbA50YWhYq8M48w=
+github.com/gomarkdown/markdown v0.0.0-20191229055418-359dc4b9d66b/go.mod h1:aii0r/K0ZnHv7G0KF7xy1v0A7s2Ljrb5byB7MO5p6TU=
+github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31 h1:OXcKh35JaYsGMRzpvFkLv/MEyPuL49CThT1pZ8aSml4=
+github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31/go.mod h1:onvgF043R+lC5RZ8IT9rBXDaEDnpnw/Cl+HFiw+v/7Q=
+golang.org/dl v0.0.0-20190829154251-82a15e2f2ead/go.mod h1:IUMfjQLJQd4UTqG1Z90tenwKoCX93Gn3MAQJMOSBsDQ=
