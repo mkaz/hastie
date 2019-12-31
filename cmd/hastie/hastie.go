@@ -1,14 +1,6 @@
 /**
- *  _               _   _
- * | |             | | (_)
- * | |__   __ _ ___| |_ _  ___
- * | '_ \ / _` / __| __| |/ _ \
- * | | | | (_| \__ \ |_| |  __/
- * |_| |_|\__,_|___/\__|_|\___|
- *
  * Hastie - Static Site Generator
  * https://github.com/mkaz/hastie
- *
  */
 
 package main
@@ -28,17 +20,19 @@ import (
 	"time"
 
 	"github.com/gomarkdown/markdown"
+	"github.com/mkaz/hastie/pkg/logger"
+	"github.com/mkaz/hastie/pkg/utils"
 )
 
 // config file items
 var config struct {
-	SourceDir, LayoutDir, PublishDir, BaseUrl string
+	SourceDir, LayoutDir, PublishDir, BaseURL string
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
 	UseMarkdown                               bool
 }
 
-var log Logger
+var log logger.Logger
 
 type Page struct {
 	Content        string
@@ -140,7 +134,7 @@ func main() {
 	categoryListPtr := &categoryList
 
 	funcMap := template.FuncMap{
-		"trim":    TrimSlash,
+		"trim":    utils.TrimSlash,
 		"Title":   strings.Title,
 		"ToLower": strings.ToLower,
 		"ToUpper": strings.ToUpper,
@@ -170,8 +164,8 @@ func main() {
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
 
-		if config.BaseUrl != "" {
-			page.Params["BaseUrl"] = config.BaseUrl
+		if config.BaseURL != "" {
+			page.Params["BaseURL"] = config.BaseURL
 		}
 
 		// Templating - writes page data to buffer
@@ -185,7 +179,7 @@ func main() {
 			templateFile = page.Layout + ".html"
 		}
 
-		if !exists(filepath.Join(config.LayoutDir, templateFile)) {
+		if !utils.FileExists(filepath.Join(config.LayoutDir, templateFile)) {
 			log.Warn(" Missing template file:", templateFile)
 			continue
 		}
@@ -247,11 +241,11 @@ func main() {
 	 * if a static directory exists in the theme, copy to publish/static
 	 * TODO: process less files within theme
 	 * ****************************************** */
-	static_dir := config.LayoutDir + "/static"
-	if exists(static_dir) {
+	staticDir := config.LayoutDir + "/static"
+	if utils.FileExists(staticDir) {
 		cmd := exec.Command("cp", "-rf", config.LayoutDir+"/static", config.PublishDir)
-		cmd_err := cmd.Run()
-		if cmd_err != nil {
+		cmdErr := cmd.Run()
+		if cmdErr != nil {
 			log.Warn("Error copying theme's static dir")
 		}
 	}
@@ -431,7 +425,7 @@ func readParseFile(filename string) (page Page) {
 		}
 
 		if line == "---" {
-			found += 1
+			found++
 		}
 
 	}
@@ -461,7 +455,7 @@ func readParseFile(filename string) (page Page) {
 	// this is needed to get correct links for multi
 	// level directories
 
-	page.Url = "/" + removeIndexHtml(page.OutFile)
+	page.Url = "/" + utils.RemoveIndexHTML(page.OutFile)
 
 	// convert markdown content
 	content := strings.Join(lines, "\n")
@@ -495,14 +489,14 @@ func buildPagesSlice(dir string, globstr string, pages PagesSlice) PagesSlice {
 	return pages
 }
 
-// Holds lists of Files, Directories and Categories
+// SiteStruct holds the lists of files, directories and categories
 type SiteStruct struct {
 	Files       []string
 	Directories []string
 	Categories  []string
 }
 
-// WalkFn that fills SiteStruct with data.
+// Walker function to fill SiteStruct with data.
 func Walker(fn string, fi os.FileInfo, err error) error {
 	if err != nil {
 		log.Warn("Walker: ", err)
@@ -521,19 +515,6 @@ func Walker(fn string, fi os.FileInfo, err error) error {
 		site.Files = append(site.Files, fn)
 		return nil
 	}
-	return nil
-}
-
-// Check if File / Directory Exists
-func exists(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-func TrimSlash(path string) string {
-	return strings.Trim(path, "/")
 }
 
 // Read cfgfile or setup defaults.
@@ -565,8 +546,4 @@ func filterPages(allPages PagesSlice, page Page) (filteredPages PagesSlice) {
 		}
 	}
 	return filteredPages
-}
-
-func removeIndexHtml(str string) string {
-	return strings.Replace(str, "index.html", "", 1)
 }
