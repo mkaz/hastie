@@ -1,4 +1,4 @@
-package main
+package logger // import github.com/mkaz/hastie/pkg/logger
 
 import (
 	"fmt"
