@@ -24,3 +24,20 @@ func TestBuildOutFile(t *testing.T) {
 		}
 	}
 }
+
+func TestGetDateFromFilename(t *testing.T) {
+	var testData = []struct {
+		filename string
+		expected string
+	}{
+		{"pages/subdir/2006-01-04-test.md", "2006-01-04"},
+		{"pages/subdir/test.md", "0001-01-01"},
+	}
+
+	for _, td := range testData {
+		result := getDateFromFilename(td.filename)
+		if result.Format("2006-01-02") != td.expected {
+			t.Errorf("Expected %s but received %s", td.expected, result.Format("2006-01-02"))
+		}
+	}
+}

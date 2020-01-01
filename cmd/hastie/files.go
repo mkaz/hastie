@@ -48,6 +48,7 @@ func buildOutFile(filename, ext string) (outfile string) {
 
 	base := filepath.Base(outfile)
 	// HACK: if file starts with 20 or 19 assume date
+	// TODO: deprecate setting date via filename
 	if base[0:2] == "20" || base[0:2] == "19" {
 		// remove date from filename
 		outfile = strings.Replace(outfile, base[0:11], "", 1)
@@ -58,7 +59,9 @@ func buildOutFile(filename, ext string) (outfile string) {
 // getDateFromFilename parses a filename of 2010-03-25-file.md
 func getDateFromFilename(filename string) (dt time.Time) {
 	base := filepath.Base(filename)
-	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
+	// HACK: if file starts with 20 or 19 assume date
+	// TODO: deprecate setting date via filename
+	if base[0:2] == "20" || base[0:2] == "19" {
 		dt, _ = time.Parse("2006-01-02", base[0:10])
 	}
 	return dt

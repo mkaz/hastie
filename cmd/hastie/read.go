@@ -14,11 +14,9 @@ import (
  * ************************************************ */
 func readParseFile(filename string) (page Page) {
 	log.Debug("Parsing File:", filename)
-	epoch, _ := time.Parse("20060102", "19700101")
 
 	// setup default page struct
 	page = Page{
-		Date:      epoch,
 		OutFile:   filename,
 		Extension: ".html",
 		Params:    make(map[string]string),

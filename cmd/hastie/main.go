@@ -237,8 +237,8 @@ func main() {
 func getRecentList(pages PageList) (list PageList) {
 	log.Debug("Creating Recent File List")
 	for _, page := range pages {
-		// pages without dates are set to epoch
-		if page.Date.Format("2006") != "1970" {
+		// dont include dates from year 1
+		if page.Date.Format("2006") != "0001" {
 			list = append(list, page)
 		}
 	}
