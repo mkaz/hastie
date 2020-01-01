@@ -2,8 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -76,25 +74,16 @@ func readParseFile(filename string) (page Page) {
 
 	}
 
-	// generate the public-file's path based on the source-file's path
-	log.Debug("Filename", filename)
-	page.OutFile = filename[strings.Index(filename, config.SourceDir)+len(config.SourceDir):]
-	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
-	log.Debug("page.Outfile", page.OutFile)
+	// only parse date from filename if not already set
+	if page.Date.Format("2006") == "1970" {
+		page.Date = getDateFromFilename(filename)
+	}
+
+	page.OutFile = buildOutFile(filename, page.Extension)
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
 	if page.Category == "" {
-		if strings.Contains(page.OutFile, string(os.PathSeparator)) {
-			page.Category = page.OutFile[0:strings.LastIndex(page.OutFile, string(os.PathSeparator))]
-			page.SimpleCategory = strings.Replace(page.Category, string(os.PathSeparator), "_", -1)
-		}
-	}
-	log.Debug("page.Category", page.Category)
-	// parse date from filename
-	base := filepath.Base(page.OutFile)
-	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
-		page.Date, _ = time.Parse("2006-01-02", base[0:10])
-		page.OutFile = strings.Replace(page.OutFile, base[0:11], "", 1) // remove date from final filename
+		page.Category = getCategoryFromFilename(filename)
 	}
 
 	// add url of page, which includes initial slash

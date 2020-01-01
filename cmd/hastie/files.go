@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // getSiteFiles walks down the path given and builds the
@@ -37,4 +38,36 @@ func getSiteFiles(path string) (pages PageList, dirs []string) {
 	}) // end walk
 
 	return pages, dirs
+}
+
+// buildOutFile for where to save the page
+// generate the public file path based on the source file path
+func buildOutFile(filename, ext string) (outfile string) {
+	outfile = filename[strings.Index(filename, config.SourceDir)+len(config.SourceDir)+1:]
+	outfile = strings.Replace(outfile, ".md", ext, 1)
+
+	base := filepath.Base(outfile)
+	// HACK: if file starts with 20 or 19 assume date
+	if base[0:2] == "20" || base[0:2] == "19" {
+		// remove date from filename
+		outfile = strings.Replace(outfile, base[0:11], "", 1)
+	}
+	return outfile
+}
+
+// getDateFromFilename parses a filename of 2010-03-25-file.md
+func getDateFromFilename(filename string) (dt time.Time) {
+	base := filepath.Base(filename)
+	if base[0:2] == "20" || base[0:2] == "19" { //HACK: if file starts with 20 or 19 assume date
+		dt, _ = time.Parse("2006-01-02", base[0:10])
+	}
+	return dt
+}
+
+// getCategoryFromFilename parses a filename of foo/bar/file.md into a category of foo_bar
+func getCategoryFromFilename(filename string) (category string) {
+	if strings.Contains(filename, string(os.PathSeparator)) {
+		category = filename[0:strings.LastIndex(filename, string(os.PathSeparator))]
+	}
+	return category
 }

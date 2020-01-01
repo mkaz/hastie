@@ -102,7 +102,7 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("hastie v0.9.a")
+		fmt.Println("hastie v0.8.5")
 		os.Exit(0)
 	}
 
