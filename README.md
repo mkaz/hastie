@@ -1,11 +1,23 @@
 
-## Hastie - Static Site Generator in Go
+# Hastie - Static Site Generator
 
-Hastie is a simple static site generator in Go. I created it as a replacement of Jekyll. I wanted a project to play with and learn Go and Jekyll was slow and Ruby dependencies give me a headache. The Go binary is completely portable and includes all dependencies, so once built makes it easy in the future.
+Hastie is a simple static site generator in Go.
 
-If you are looking for a tool to tweak and play with the Go language, then this might be fun. Most customizations will probably require code changes.  The reason I created the tool was to learn Go, I'm open sourcing to hopefully help others play with Go.
+## Example Sites
 
-If you just want simple blogging and no headaches, setup a hosted blog on [WordPress.com](http://wordpress.com) it's an easy platform and you'll be up in minutes.
+* [Working with Go](https://mkaz.github.io/working-with-go/)
+* [Working with Vim](https://mkaz.github.io/working-with-vim/)
+* [My Recipes site](http://kazmierczaks.com/)
+
+Do you use Hastie? Submit your site via PR.
+
+## Background
+
+I created Hastie as a blogging centric replacement for Jekyll. I wanted a project to play with and learn Go, I'm a firm believer the best way to learn something is to build something. At the time, I upgraded OSX and it broke my Ruby dependencies giving me a headache. The beauty of Go is it produces a binary that is completely portable, once built there are no dependencies.
+
+I've tweaked Hastie over the years to be less blogging and more documentation focused. If you want a great blogging tool just use WordPress; and the easiest WordPress setup is a hosted site on [WordPress.com](http://wordpress.com) it's great and you'll be up in minutes. Disclaimer: I'm biased, I contribute to WordPress and work for WordPress.com.
+
+If you are looking for a tool to generate docs, probably requires tweaking, playing with and maybe learning some golang, then Hastie might be it. The reason I created the tool was to learn Go, I open sourced to hopefully help others to learn and something to play with. Please fork and tweak.
 
 Note: The name Hastie is from a character in the novel Dr. Jekyll and Mr. Hyde
 
@@ -121,6 +133,9 @@ Functions Available:
     .Reverse            -- reverse sort order of list
     .Recent.Limit n     -- limit recent list to n items
     .Trim               -- trim leading/trailing slashes (relative links)
+	.Title              -- convert string to title case
+	.ToLower            -- convert string to lower case
+	.ToUpper            -- convert string to upper case
 
 
 #### Examples:
