@@ -433,9 +433,9 @@ func readParseFile(filename string) (page Page) {
 
 	}
 
-	// chop off first directory, since that is the template dir
+	// generate the public-file's path based on the source-file's path
 	log.Debug("Filename", filename)
-	page.OutFile = filename[strings.Index(filename, string(os.PathSeparator))+1:]
+	page.OutFile = filename[strings.Index(filename, config.SourceDir) + len(config.SourceDir):]
 	page.OutFile = strings.Replace(page.OutFile, ".md", page.Extension, 1)
 	log.Debug("page.Outfile", page.OutFile)
 
