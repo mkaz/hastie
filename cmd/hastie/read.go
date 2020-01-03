@@ -12,26 +12,48 @@ import (
 /* ************************************************
  * Read and Parse File
  * ************************************************ */
-func readParseFile(filename string) (page Page) {
-	log.Debug("Parsing File:", filename)
+func readParseFile(filename string) Page {
+	data, _ := ioutil.ReadFile(filename)
 
 	// setup default page struct
-	page = Page{
+	page := Page{
 		OutFile:   filename,
 		Extension: ".html",
 		Params:    make(map[string]string),
 	}
 
-	// read file
-	var data, err = ioutil.ReadFile(filename)
-	if err != nil {
-		log.Warn("Error Reading: " + filename)
-		return
+	page = parseContent(string(data), page)
+
+	// only parse date from filename if not already set
+	if page.Date.Format("2006") == "1970" {
+		page.Date = getDateFromFilename(filename)
 	}
 
-	// go through content parse frontmatter
-	// params from --- to ---
-	var lines = strings.Split(string(data), "\n")
+	page.OutFile = buildOutFile(filename, page.Extension)
+
+	// next directory(s) category, category includes sub-dir = solog/webdev
+	if page.Category == "" {
+		page.Category = getCategoryFromFilename(filename)
+	}
+
+	// add url of page, which includes initial slash
+	// this is needed to get correct links for multi
+	// level directories
+	page.Url = "/" + utils.RemoveIndexHTML(page.OutFile)
+
+	// convert content to markdown
+	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
+		output := markdown.ToHTML([]byte(page.Content), nil, nil)
+		page.Content = string(output)
+	}
+
+	return page
+}
+
+// parseContent front matter
+func parseContent(content string, page Page) Page {
+
+	var lines = strings.Split(content, "\n")
 	var found = 0
 	for i, line := range lines {
 		line = strings.TrimSpace(line)
@@ -71,33 +93,6 @@ func readParseFile(filename string) (page Page) {
 		}
 
 	}
-
-	// only parse date from filename if not already set
-	if page.Date.Format("2006") == "1970" {
-		page.Date = getDateFromFilename(filename)
-	}
-
-	page.OutFile = buildOutFile(filename, page.Extension)
-
-	// next directory(s) category, category includes sub-dir = solog/webdev
-	if page.Category == "" {
-		page.Category = getCategoryFromFilename(filename)
-	}
-
-	// add url of page, which includes initial slash
-	// this is needed to get correct links for multi
-	// level directories
-
-	page.Url = "/" + utils.RemoveIndexHTML(page.OutFile)
-
-	// convert markdown content
-	content := strings.Join(lines, "\n")
-	if (config.UseMarkdown) && (page.Params["markdown"] != "no") {
-		output := markdown.ToHTML([]byte(content), nil, nil)
-		page.Content = string(output)
-	} else {
-		page.Content = content
-	}
-
+	page.Content = strings.Join(lines, "\n")
 	return page
 }
