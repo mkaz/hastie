@@ -13,6 +13,11 @@ build:
 > cp hastie $(HOME)/bin/
 .PHONY: build
 
+test:
+> echo "Testing..."
+> go test ./cmd/hastie
+.PHONY: test
+
 multiarch: build
 > VERSION=`hastie -version | sed -e 's/hastie v//'`
 > echo "Building multiarch for $(VERSION)..."
