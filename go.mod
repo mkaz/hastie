@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/gomarkdown/markdown v0.0.0-20191229055418-359dc4b9d66b
 	github.com/google/pprof v0.0.0-20191218002539-d4f498aebedc // indirect
+	github.com/stretchr/testify v1.4.0
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	golang.org/x/arch v0.0.0-20191126211547-368ea8f32fff // indirect
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876 // indirect
