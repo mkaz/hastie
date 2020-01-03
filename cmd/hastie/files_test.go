@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestBuildOutFile(t *testing.T) {
 	var testData = []struct {
@@ -19,9 +23,7 @@ func TestBuildOutFile(t *testing.T) {
 	for _, td := range testData {
 		config.SourceDir = td.sourceDir // global used in function
 		result := buildOutFile(td.filename, td.ext)
-		if td.expected != result {
-			t.Errorf("Expected %s but received %s", td.expected, result)
-		}
+		assert.Equal(t, result, td.expected, "Filename should match")
 	}
 }
 
@@ -36,8 +38,7 @@ func TestGetDateFromFilename(t *testing.T) {
 
 	for _, td := range testData {
 		result := getDateFromFilename(td.filename)
-		if result.Format("2006-01-02") != td.expected {
-			t.Errorf("Expected %s but received %s", td.expected, result.Format("2006-01-02"))
-		}
+		assert.Equal(t, result.Format("2006-01-02"), td.expected, "Date should match")
+
 	}
 }
