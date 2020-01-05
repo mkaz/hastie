@@ -1,12 +1,10 @@
 ---
 title: Home
-layout: indexpage
+layout: page
 ---
 
-# Welcome to the Test Site for Hastie
+# Welcome to Hastie
 
-Hastie is a static site generator based on the ideas and format of [Jekyll](https://github.com/mojombo/jekyll) a site generator I was using for my personal site.
+Hastie is a static site generator similar to [Jekyll](https://github.com/mojombo/jekyll). Hastie can be used to generate blogs, documentation sites, or customized to whatever suits your needs. 
 
-I started the Hastie project to learn the [Go Language](http://golang.org)
-I enjoyed, I continued developing until Hastie could replace Jekyll for my personal site.
 
