@@ -1,0 +1,27 @@
+// Layouts
+
+.container {
+	display: flex;
+	flex-flow: row wrap;
+}
+  
+.container > * {
+	flex: 1 100%;
+}
+  
+/* Medium screens */
+@media all and (min-width: 600px) {
+	.aside { flex: 1 auto; }
+}
+  
+/* Large screens */
+@media all and (min-width: 800px) {
+
+	.main { flex: 2 0px; }
+
+	.aside { order: 1; }
+
+	.main    { order: 2; }
+
+	.footer  { order: 3; }
+}

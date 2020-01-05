@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+		<title> {{ .Title }} - {{ .SiteName }}</title>
+
+		<link rel="stylesheet" href="/style.css"/>
+	</head>
+	<body>
+		
+		<div class="container">
+			<aside>
+				<header>
+					{{ .SiteName }}
+				</header>
+
+				<nav>
+					<h3> Contents </h3>
+					{{ .TOC }}
+				</nav>
+
+			</aside>
+			<main>
+				<h1> {{ .Title }} </h1>
+				<article>
+					{{ .Content }}
+				</article>
+			</main>
+			<footer>
+				Built using <a href="https://github.com/mkaz/hastie" rel="generator">Hastie</a>
+			</footer>
+		</div>
+
+	</body>
+</html>

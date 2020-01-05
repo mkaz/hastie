@@ -1,0 +1,14 @@
+// Main scss file
+
+// Fonts
+$main: 'Droid Serif', Georgia, serif;
+$mono: 'Droid Sans Mono', Consolas, Menlo, Monaco, monospace;
+
+// Colors
+$bgcolor: #FFFFFF;
+$text: #333333;
+
+
+@import 'base';
+@import 'layout';
+@import 'elements';
