@@ -3,21 +3,25 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-		<title> {{ .Title }} - {{ .SiteName }}</title>
+		<title> {{ .Title }} - {{ .Params.SiteName }}</title>
 
-		<link rel="stylesheet" href="/style.css"/>
+		<link rel="stylesheet" href="/static/style.css"/>
 	</head>
 	<body>
 		
 		<div class="container">
 			<aside>
 				<header>
-					{{ .SiteName }}
+					<h3>{{ .Params.SiteName }}</h3>
 				</header>
 
 				<nav>
 					<h3> Contents </h3>
-					{{ .TOC }}
+					<ul>
+						{{ range .AllPages }}
+						<li><a href="{{ .Url }}">{{ .Title }}</a></li>
+						{{ end }}
+					</ul>			
 				</nav>
 
 			</aside>

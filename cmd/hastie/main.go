@@ -139,7 +139,7 @@ func main() {
 		page.Categories = categoryListPtr
 
 		// add all pages except current page
-		page.AllPages = filterPages(pages, page)
+		page.AllPages = orderPages(pages)
 
 		// add prev-next links
 		page.buildPrevNextLinks(recentListPtr)
@@ -353,11 +353,8 @@ func applyTemplate(ts *template.Template, page Page) (*bytes.Buffer, error) {
 	return buffer, nil
 }
 
-func filterPages(allPages PageList, page Page) (filteredPages PageList) {
-	for _, p := range allPages {
-		if p.Url != page.Url {
-			filteredPages = append(filteredPages, p)
-		}
-	}
-	return filteredPages
+func orderPages(allPages PageList) (orderedPages PageList) {
+	// TODO: sort by order
+	orderedPages = allPages
+	return orderedPages
 }

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+		<title> Templates - Hastie</title>
+
+		<link rel="stylesheet" href="/static/style.css"/>
+	</head>
+	<body>
+		
+		<div class="container">
+			<aside>
+				<header>
+					<h3>Hastie</h3>
+				</header>
+
+				<nav>
+					<h3> Contents </h3>
+					<ul>
+						
+						<li><a href="/getting-started.html">Getting Started</a></li>
+						
+						<li><a href="/">Welcome to Hastie</a></li>
+						
+						<li><a href="/templates.html">Templates</a></li>
+						
+					</ul>			
+				</nav>
+
+			</aside>
+			<main>
+				<h1> Templates </h1>
+				<article>
+					<p>Hastie uses Go&rsquo;s <a href="https://golang.org/pkg/text/template/">standard template package</a> to provide templating. See Go&rsquo;s documentation for the format and capabilities.</p>
+
+<p>Hastie looks for the template files in the <code>LayoutDir</code> defined in hastie.json config. The default template file is <code>post.html</code> or specify the <code>layout</code> parameter in the front-matter. For example, the following front matter uses the <code>page.html</code> template:</p>
+
+<pre><code>---
+title: Templates
+layout: page
+---
+</code></pre>
+
+<h2>Template Variables</h2>
+
+<p>The variables available to each template:</p>
+
+<pre><code>.Title          -- Page Title
+.Date           -- Page Date format using .Date.Format &quot;Jan 2, 2006&quot;
+.Content        -- Converted HTML Content
+.Category       -- Category (directory)
+.OutFile        -- file path
+.Recent         -- list most recent files, latest first
+.Url            -- Url for this page
+.PrevUrl        -- Previous Page Url
+.PrevTitle      -- Previous Page Title
+.NextUrl        -- Next Page Url
+.NextTitle      -- Next Page Title
+.PrevCatUrl     -- Previous Page Url by Category
+.PrevCatTitle   -- Previous Page Title by Category
+.NextCatUrl     -- Next Page Url by Category
+.NextCatTitle   -- Next Page Title by Category
+.Params         -- Map of User Parameters set in front matter
+.Params.BaseUrl -- BaseUrl as defined in hastie.json
+
+.Categories.CATEGORY -- list of most recent files for CATEGORY
+</code></pre>
+
+<p>The functions available to each template:</p>
+
+<pre><code>.Reverse            -- reverse sort order of list
+.Recent.Limit n     -- limit recent list to n items
+.Trim               -- trim leading/trailing slashes (relative links)
+.Title              -- convert string to title case
+.ToLower            -- convert string to lower case
+.ToUpper            -- convert string to upper case
+</code></pre>
+
+<h2>Examples:</h2>
+
+<p>Show 3 most recent titles:</p>
+
+<pre><code>{{ range .Recent.Limit 3 }}
+    {{ .Title }}
+{{ end }}
+</code></pre>
+
+<p>Show 3 most recent from math category:</p>
+
+<pre><code>{{ range .CategoryList.math }}
+    {{ .Title }}
+{{ end }}
+</code></pre>
+
+<p>Show oldest items first:</p>
+
+<pre><code>{{ range .Recent.Reverse }}
+    {{.Title }}
+{{ end }}
+</code></pre>
+
+<p>Trim leading slash to make links relative:</p>
+
+<pre><code>&lt;a href=&quot;{{ .Url | trim }}&quot;&gt; Relative link &lt;/a&gt;
+</code></pre>
+
+				</article>
+			</main>
+			<footer>
+				Built using <a href="https://github.com/mkaz/hastie" rel="generator">Hastie</a>
+			</footer>
+		</div>
+
+	</body>
+</html>

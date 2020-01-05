@@ -1,16 +1,12 @@
-/**
- * Base configuration 
- * > it is preferred to make changes here 
- * > better than extra rules to override
- * 
+/* base.scss 
  * Uses code from:
  * normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css
- */
+*/
 
 html {
 	box-sizing: border-box;
 	height: 100%;
-	line-height: 1.15;
+	line-height: 1.5;
 	-webkit-text-size-adjust: 100%;
 }
 
@@ -19,7 +15,7 @@ html {
 }
 
 body {
-	background: $bgcolor;
+	background: #EEEEEE;
 	color: $text;
 	font-family: $main;
 	margin: 0;
@@ -31,8 +27,8 @@ main {
 }
   
 h1 {
-	font-size: 2em;
-	margin: 0.67em 0;
+	font-size: 2rem;
+	margin: 0.6667rem 0;
 }
   
 hr {
@@ -42,14 +38,23 @@ hr {
 }
   
 pre {
-	font-family: monospace, monospace;
-	font-size: 1em;
+	font-family: $mono;
+	font-size: 0.8889rem;
+}
+code {
+	font-family: $mono;
+	font-size: 0.8889rem;
 }
 
-a {
+a, a:visited {
 	background-color: transparent;
+	color: $link;
 }
-  
+
+a:hover {
+	color: $hover;
+}
+
 abbr[title] {
 	border-bottom: none;
 	text-decoration: underline;
