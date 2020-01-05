@@ -16,10 +16,11 @@ func readParseFile(filename string) Page {
 	data, _ := ioutil.ReadFile(filename)
 
 	// setup default page struct
+	// inherit paramters from config
 	page := Page{
 		OutFile:   filename,
 		Extension: ".html",
-		Params:    make(map[string]string),
+		Params:    config.Params,
 	}
 
 	page = parseContent(string(data), page)

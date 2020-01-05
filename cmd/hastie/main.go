@@ -7,7 +7,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -23,15 +22,8 @@ import (
 	"github.com/mkaz/hastie/pkg/utils"
 )
 
-// config file items
-var config struct {
-	SourceDir, LayoutDir, PublishDir, BaseURL string
-	CategoryMash                              map[string]string
-	ProcessFilters                            map[string][]string
-	UseMarkdown                               bool
-}
-
 var log logger.Logger
+var config Config
 
 // Page main page object
 type Page struct {
@@ -102,11 +94,11 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("hastie v0.8.5")
+		fmt.Println("hastie v0.9.0")
 		os.Exit(0)
 	}
 
-	setupConfig(*configFile)
+	config = setupConfig(*configFile)
 	if *noMarkdown {
 		config.UseMarkdown = false
 	}
@@ -359,28 +351,6 @@ func applyTemplate(ts *template.Template, page Page) (*bytes.Buffer, error) {
 	}
 	ts.ExecuteTemplate(buffer, templateFile, page)
 	return buffer, nil
-}
-
-// Read cfgfile or setup defaults.
-func setupConfig(filename string) {
-	file, err := ioutil.ReadFile(filename)
-	if err != nil {
-		// set defaults, no config file
-		config.SourceDir = "_source"
-		config.LayoutDir = "_layout"
-		config.PublishDir = "public"
-		config.UseMarkdown = true
-	} else {
-		// not required in config file, set default
-		config.UseMarkdown = true
-		if err := json.Unmarshal(file, &config); err != nil {
-			log.Fatal("Error parsing config: %s", err)
-		}
-	}
-
-	log.Debug("SourceDir", config.SourceDir)
-	log.Debug("LayoutDir", config.LayoutDir)
-	log.Debug("PublishDir", config.PublishDir)
 }
 
 func filterPages(allPages PageList, page Page) (filteredPages PageList) {
