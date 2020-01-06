@@ -86,7 +86,7 @@ template { display: none; }
 
 aside { background-color: #232946; color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Droid Sans", Roboto, Cantarell, "Helvetica Neue", sans-serif; max-width: 16rem; }
 
-aside header { background-color: #eebbc3; color: #232946; padding: 0.7778rem 0.5rem; }
+aside header { background-color: #eebbc3; color: #232946; padding: 1.0rem; }
 
 aside nav { padding: 1.0rem; }
 
