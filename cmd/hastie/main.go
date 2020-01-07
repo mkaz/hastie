@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
 	"strings"
 	"text/template"
 	"time"
@@ -27,8 +26,9 @@ var config Config
 
 // Page main page object
 type Page struct {
-	Content        string
 	Title          string
+	Content        string
+	Date           time.Time
 	Category       string
 	SimpleCategory string
 	Layout         string
@@ -43,41 +43,14 @@ type Page struct {
 	PrevCatTitle   string
 	NextCatUrl     string
 	NextCatTitle   string
+	Order          int
 	Params         map[string]string
+	AllPages       *PageList
 	Recent         *PageList
-	AllPages       PageList
-	Date           time.Time
 	Categories     *CategoryList
+	Unlisted       bool
 	SourceFile     string
 }
-
-// PageList is an array of Page objects
-type PageList []Page
-
-func (p PageList) Get(i int) Page     { return p[i] }
-func (p PageList) Len() int           { return len(p) }
-func (p PageList) Less(i, j int) bool { return p[i].Date.Unix() < p[j].Date.Unix() }
-func (p PageList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p PageList) Sort()              { sort.Sort(p) }
-func (p PageList) Limit(n int) PageList {
-	if len(p) > n {
-		return p[0:n]
-	}
-	return p
-}
-func (p PageList) Reverse() PageList {
-	var rev PageList
-	for i := len(p) - 1; i >= 0; i-- {
-		rev = append(rev, p[i])
-	}
-	return rev
-}
-
-// CategoryList is a map of category to PageList
-type CategoryList map[string]PageList
-
-// Get returns the PageList for given category
-func (c CategoryList) Get(category string) PageList { return c[category] }
 
 func main() {
 	var helpFlag = flag.Bool("help", false, "show this help")
@@ -106,13 +79,18 @@ func main() {
 	// get pages and directories
 	pages, dirs := getSiteFiles(config.SourceDir)
 
+	allPages := filterUnlisted(pages)
+	By(orderOrder).Sort(allPages)
+	allPagesPointer := &allPages
+
 	// recent list is a sorted list of all pages with dates
-	recentList := getRecentList(pages)
-	recentListPtr := &recentList
+	By(dateOrder).Sort(pages)
+	recentList := pages.Reverse()
+	recentListPointer := &recentList
 
 	// category list is sorted map of pages by category
-	categoryList := getCategoryList(recentListPtr)
-	categoryListPtr := &categoryList
+	categoryList := getCategoryList(recentListPointer)
+	categoryListPointer := &categoryList
 
 	// functions made available to templates
 	funcMap := template.FuncMap{
@@ -135,14 +113,12 @@ func main() {
 	for _, page := range pages {
 
 		// add recent pages lists to page object
-		page.Recent = recentListPtr
-		page.Categories = categoryListPtr
-
-		// add all pages except current page
-		page.AllPages = orderPages(pages)
+		page.AllPages = allPagesPointer
+		page.Recent = recentListPointer
+		page.Categories = categoryListPointer
 
 		// add prev-next links
-		page.buildPrevNextLinks(recentListPtr)
+		page.buildPrevNextLinks(recentListPointer)
 
 		page.Params["BaseURL"] = config.BaseURL
 
@@ -219,30 +195,6 @@ func main() {
 	}
 
 } // main
-
-/* ************************************************
- * Build Recent File List
- *    - return array sorted most recent first
- *    - array includes real link (no date)
- *    - does not include files without date
- * ************************************************ */
-func getRecentList(pages PageList) (list PageList) {
-	log.Debug("Creating Recent File List")
-	for _, page := range pages {
-		// dont include dates from year 1
-		if page.Date.Format("2006") != "0001" {
-			list = append(list, page)
-		}
-	}
-	list.Sort()
-
-	// reverse
-	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
-		list[i], list[j] = list[j], list[i]
-	}
-
-	return list
-}
 
 /* ************************************************
 * Build Category List
@@ -353,8 +305,11 @@ func applyTemplate(ts *template.Template, page Page) (*bytes.Buffer, error) {
 	return buffer, nil
 }
 
-func orderPages(allPages PageList) (orderedPages PageList) {
-	// TODO: sort by order
-	orderedPages = allPages
-	return orderedPages
+func filterUnlisted(pages PageList) (filtered PageList) {
+	for _, page := range pages {
+		if !page.Unlisted {
+			filtered = append(filtered, page)
+		}
+	}
+	return filtered
 }

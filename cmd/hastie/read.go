@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +22,7 @@ func readParseFile(filename string) Page {
 		OutFile:   filename,
 		Extension: ".html",
 		Params:    config.Params,
+		Unlisted:  false,
 	}
 
 	page = parseContent(string(data), page)
@@ -77,6 +79,12 @@ func parseContent(content string, page Page) Page {
 					page.Extension = "." + value
 				case "date":
 					page.Date, _ = time.Parse("2006-01-02", value[0:10])
+				case "order":
+					page.Order, _ = strconv.Atoi(value)
+				case "unlisted":
+					if value == "yes" {
+						page.Unlisted = true
+					}
 				default:
 					page.Params[key] = value
 				}
