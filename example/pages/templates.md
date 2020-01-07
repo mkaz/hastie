@@ -1,6 +1,7 @@
 ---
 title: Templates
 layout: page
+order: 2
 ---
 
 Hastie uses Go's [standard template package](https://golang.org/pkg/text/template/) to provide templating. See Go's documentation for the format and capabilities.

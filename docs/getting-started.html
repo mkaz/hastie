@@ -19,11 +19,13 @@
 					<h3> Contents </h3>
 					<ul>
 						
-						<li><a href="/getting-started.html">Getting Started</a></li>
-						
 						<li><a href="/">Welcome to Hastie</a></li>
 						
+						<li><a href="/getting-started.html">Getting Started</a></li>
+						
 						<li><a href="/templates.html">Templates</a></li>
+						
+						<li><a href="/filters.html">Using Filters</a></li>
 						
 					</ul>			
 				</nav>
@@ -65,100 +67,17 @@ Flags:
 }
 </code></pre>
 
-<p>Hastie walks through the SourceDir and finds all <code>.md</code> or <code>.html</code>. It applies the template from LayoutDir and generates HTML copying to PublishDir. It uses Go&rsquo;s template language for templates and markdown for content.</p>
+<p>Hastie walks through the <code>SourceDir</code> and finds all <code>.md</code> and <code>.html</code> files. It applies the templates from <code>LayoutDir</code> and generates HTML copying to <code>PublishDir</code>. It uses Go&rsquo;s template language for templates and markdown for content.</p>
 
-<p>Here is sample site layout: (see test directory)</p>
-
-<pre><code>layouts/footer.html
-layouts/header.html
-layouts/indexpage.html
-layouts/post.html
-posts/2011-03-02-angelica.html
-posts/index.md
-posts/zebra/2009-12-12-sample-post.md
-posts/zebra/2012-02-14-hastie-intro.md
-</code></pre>
-
-<p>This will generate:</p>
-
-<pre><code>public/angelica.html
-public/index.html
-public/zebra/sample-post.html
-public/zebra/hastie-intro.html
-</code></pre>
+<p>The <a href="https://mkaz.github.io/hastie/">Hastie documentation site</a> is generated using Hastie. See the <a href="https://github.com/mkaz/hastie/tree/master/example">github example directory</a> for configuration and pages and the <a href="https://github.com/mkaz/hastie/tree/master/themes/docs">themes/docs</a> for templates files.</p>
 
 <h3>Static  Directory</h3>
 
-<p>If a directory named <code>static</code> exists in the LayoutDir, Hastie will copy it as-is to the root of the PublishDir as <code>static</code>.</p>
-
-<h3>Template Variables</h3>
-
-<p>Hastie uses Go&rsquo;s <a href="https://golang.org/pkg/text/template/">standard template package</a>, see Go&rsquo;s documentation for the format and capabilities.</p>
-
-<p>Data fields available to templates:</p>
-
-<pre><code>.Title          -- Page Title
-.Date           -- Page Date format using .Date.Format &quot;Jan 2, 2006&quot;
-.Content        -- Converted HTML Content
-.Category       -- Category (directory)
-.OutFile        -- file path
-.Recent         -- list most recent files, latest first
-.Url            -- Url for this page
-.PrevUrl        -- Previous Page Url
-.PrevTitle      -- Previous Page Title
-.NextUrl        -- Next Page Url
-.NextTitle      -- Next Page Title
-.PrevCatUrl     -- Previous Page Url by Category
-.PrevCatTitle   -- Previous Page Title by Category
-.NextCatUrl     -- Next Page Url by Category
-.NextCatTitle   -- Next Page Title by Category
-.Params         -- Map of User Parameters set in front matter
-.Params.BaseUrl -- BaseUrl as defined in hastie.json
-
-.Categories.CATEGORY -- list of most recent files for CATEGORY
-</code></pre>
-
-<p>Functions Available:</p>
-
-<pre><code>.Reverse            -- reverse sort order of list
-.Recent.Limit n     -- limit recent list to n items
-.Trim               -- trim leading/trailing slashes (relative links)
-.Title              -- convert string to title case
-.ToLower            -- convert string to lower case
-.ToUpper            -- convert string to upper case
-</code></pre>
-
-<h4>Examples:</h4>
-
-<p>Show 3 most recent titles:</p>
-
-<pre><code>{{ range .Recent.Limit 3 }}
-    {{ .Title }}
-{{ end }}
-</code></pre>
-
-<p>Show 3 most recent from math category:</p>
-
-<pre><code>{{ range .CategoryList.math }}
-    {{ .Title }}
-{{ end }}
-</code></pre>
-
-<p>Show oldest items first:</p>
-
-<pre><code>{{ range .Recent.Reverse }}
-    {{.Title }}
-{{ end }}
-</code></pre>
-
-<p>Trim leading slash to make links relative:</p>
-
-<pre><code>&lt;a href=&quot;{{ .Url | trim }}&quot;&gt; Relative link &lt;/a&gt;
-</code></pre>
+<p>If a directory named <code>static</code> exists in the <code>LayoutDir</code>, Hastie will copy it as-is to the root of the <code>PublishDir</code>.</p>
 
 <h3>Markdown Front Matter</h3>
 
-<p>Hastie uses the same format for specifying fields as Jekyll, front matter. The parameters are specified at the top of the markdown document in a section delimited with <code>---</code>.</p>
+<p>Hastie uses front matter to specify custom parameters. The parameters are specified at the top of the markdown document in a section delimited with <code>---</code>.</p>
 
 <p>Example top of markdown document:</p>
 
@@ -194,34 +113,11 @@ guest: Hemingway
 {{ end }}
 </code></pre>
 
-<h3>Using Filters (Example: Less CSS, CoffeeScript)</h3>
-
-<p>Hastie allows for the use of command-line processing of files, provided the process takes the filename as input and spits out the results. It does so using <code>processFilters</code> configuration. You set a file extension mapped to the utility to process and the final extension.</p>
-
-<p>Configuration in hastie.json</p>
-
-<pre><code class="language-json">&quot;processFilters&quot;: {
-    &quot;less&quot;: [&quot;/usr/local/bin/lessc&quot;, &quot;css&quot;]
-}
-</code></pre>
-
-<p>The above example sets any file with the extension <code>.less</code> will be converted to <code>.css</code> using lessc binary and copied to the public directory at the same spot in the directory tree as the original less file.</p>
-
 <h3>Disable Markdown</h3>
 
-<p><code>UseMarkdown</code> is optional parameter in the config. By default, Hastie will convert documents to markdown. If you don&rsquo;t want documents to be converted globally, you can specify it false on the command-line or <code>UseMarkdown: false</code> in the JSON config.</p>
+<p><code>UseMarkdown</code> is optional parameter in the config. By default, Hastie will convert documents from markdown to HTML. If you don&rsquo;t want documents to be converted globally, you can specify it false on the command-line or <code>UseMarkdown: false</code> in the JSON config.</p>
 
 <p>If you want to disable markdown on a per document basis, you can put <code>markdown: no</code> in the front matter of the document.</p>
-
-<h2>Contributions</h2>
-
-<p>Thanks to all <a href="https://github.com/mkaz/hastie/graphs/contributors">the contributors</a>!</p>
-
-<p>Any contributions are welcome, be it in feature requests, bug reports, documentation, or pull requests.</p>
-
-<h2>License</h2>
-
-<p>Licensed under MIT see <a href="https://github.com/mkaz/hastie/blob/master/LICENSE">LICENSE</a> file.</p>
 
 				</article>
 			</main>
