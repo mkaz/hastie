@@ -15,7 +15,7 @@ build:
 
 test:
 > echo "Testing..."
-> go test ./cmd/hastie
+> go test --cover -v ./cmd/hastie
 .PHONY: test
 
 multiarch: build
