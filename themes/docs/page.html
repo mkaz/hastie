@@ -19,7 +19,7 @@
 					<h3> Contents </h3>
 					<ul>
 						{{ range .AllPages }}
-						<li><a href="{{ .Url }}">{{ .Title }}</a></li>
+						<li><a href="{{ .Params.BaseURL }}{{ .Url }}">{{ .Title }}</a></li>
 						{{ end }}
 					</ul>			
 				</nav>

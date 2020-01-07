@@ -3,6 +3,8 @@
     "LayoutDir"   : "../themes/docs/",
     "PublishDir" : "../docs/",
 
+	"BaseURL": "/hastie",
+
 	"Params": {
 		"SiteName": "Hastie"
 	}
