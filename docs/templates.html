@@ -6,6 +6,7 @@
 		<title> Templates - Hastie</title>
 
 		<link rel="stylesheet" href="static/style.css"/>
+		<link rel="stylesheet" href="static/prism.css"/>
 	</head>
 	<body>
 		
@@ -40,7 +41,7 @@
 
 <p>Hastie looks for the template files in the <code>LayoutDir</code> defined in hastie.json config. The default template file is <code>post.html</code> or specify the <code>layout</code> parameter in the front-matter. For example, the following front matter uses the <code>page.html</code> template:</p>
 
-<pre><code>---
+<pre><code class="language-markdown">---
 title: Templates
 layout: page
 ---
@@ -85,28 +86,28 @@ layout: page
 
 <p>Show 3 most recent titles:</p>
 
-<pre><code>{{ range .Recent.Limit 3 }}
-    {{ .Title }}
-{{ end }}
+<pre><code class="language-html">    {{ range .Recent.Limit 3 }}
+        {{ .Title }}
+    {{ end }}
 </code></pre>
 
 <p>Show 3 most recent from math category:</p>
 
-<pre><code>{{ range .CategoryList.math }}
-    {{ .Title }}
-{{ end }}
+<pre><code class="language-html">    {{ range .CategoryList.math }}
+        {{ .Title }}
+    {{ end }}
 </code></pre>
 
 <p>Show oldest items first:</p>
 
-<pre><code>{{ range .Recent.Reverse }}
-    {{.Title }}
-{{ end }}
+<pre><code class="language-html">    {{ range .Recent.Reverse }}
+        {{.Title }}
+    {{ end }}
 </code></pre>
 
 <p>Trim leading slash to make links relative:</p>
 
-<pre><code>&lt;a href=&quot;{{ .Url | trim }}&quot;&gt; Relative link &lt;/a&gt;
+<pre><code class="language-html">    &lt;a href=&quot;{{ .Url | trim }}&quot;&gt; Relative link &lt;/a&gt;
 </code></pre>
 
 <h2>Static  Directory</h2>
@@ -120,5 +121,6 @@ layout: page
 			</footer>
 		</div>
 
+		<script src="static/prism.js"></script>
 	</body>
 </html>

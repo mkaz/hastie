@@ -8,7 +8,7 @@ Hastie uses front matter to specify parameters for each page. The parameters are
 
 Example top of markdown document:
 
-```
+```markdown
 ---
 title: Blog carefully my friend
 layout: post
@@ -44,13 +44,13 @@ unlisted
 
 ## User-defined Parameters
 
-Hastie supports user-defined parameters. These aremade available to the templates using `.Params.YOURPARAM`
+Hastie supports user-defined parameters. These are made available to the templates using `.Params.YOURPARAM`
 
 ### Example parameter for an individual page
 
 Setting parameter in front matter:
 
-```
+```markdown
 ---
 title: Blog carefully my friend
 layout: post
@@ -61,7 +61,7 @@ guest: Hemingway
 
 Using parameter in a template:
 
-```
+```html
 {{ if .Params.guest }}
     Guest Author: {{ .Params.guest }}
 {{ end }}

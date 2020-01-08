@@ -8,7 +8,7 @@ Hastie uses Go's [standard template package](https://golang.org/pkg/text/templat
 
 Hastie looks for the template files in the `LayoutDir` defined in hastie.json config. The default template file is `post.html` or specify the `layout` parameter in the front-matter. For example, the following front matter uses the `page.html` template:
 
-```
+```markdown
 ---
 title: Templates
 layout: page
@@ -54,26 +54,33 @@ The functions available to each template:
 
 Show 3 most recent titles:
 
+```html
     {{ range .Recent.Limit 3 }}
         {{ .Title }}
     {{ end }}
+```
 
 Show 3 most recent from math category:
 
+```html
     {{ range .CategoryList.math }}
         {{ .Title }}
     {{ end }}
+```
 
 Show oldest items first:
 
+```html
     {{ range .Recent.Reverse }}
         {{.Title }}
     {{ end }}
+```
 
 Trim leading slash to make links relative:
 
+```html
     <a href="{{ .Url | trim }}"> Relative link </a>
-
+```
 
 ## Static  Directory
 

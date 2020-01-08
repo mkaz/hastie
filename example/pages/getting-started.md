@@ -11,7 +11,7 @@ Download binaries for Linux, Mac, and Windows from [Github releases tab](https:/
 
 ## Usage
 
-```
+```bash
 $ hastie [-flags]
 
 Flags:

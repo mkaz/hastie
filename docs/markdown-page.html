@@ -6,6 +6,7 @@
 		<title> Markdown Page - Hastie</title>
 
 		<link rel="stylesheet" href="static/style.css"/>
+		<link rel="stylesheet" href="static/prism.css"/>
 	</head>
 	<body>
 		
@@ -40,7 +41,7 @@
 
 <p>Example top of markdown document:</p>
 
-<pre><code>---
+<pre><code class="language-markdown">---
 title: Blog carefully my friend
 layout: post
 date: 2012-02-14
@@ -70,13 +71,13 @@ Page content here...
 
 <h2>User-defined Parameters</h2>
 
-<p>Hastie supports user-defined parameters. These aremade available to the templates using <code>.Params.YOURPARAM</code></p>
+<p>Hastie supports user-defined parameters. These are made available to the templates using <code>.Params.YOURPARAM</code></p>
 
 <h3>Example parameter for an individual page</h3>
 
 <p>Setting parameter in front matter:</p>
 
-<pre><code>---
+<pre><code class="language-markdown">---
 title: Blog carefully my friend
 layout: post
 date: 2012-02-14
@@ -86,7 +87,7 @@ guest: Hemingway
 
 <p>Using parameter in a template:</p>
 
-<pre><code>{{ if .Params.guest }}
+<pre><code class="language-html">{{ if .Params.guest }}
     Guest Author: {{ .Params.guest }}
 {{ end }}
 </code></pre>
@@ -120,5 +121,6 @@ guest: Hemingway
 			</footer>
 		</div>
 
+		<script src="static/prism.js"></script>
 	</body>
 </html>
