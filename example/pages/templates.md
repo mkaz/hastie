@@ -50,7 +50,7 @@ The functions available to each template:
 	.ToUpper            -- convert string to upper case
 
 
-## Examples:
+### Examples:
 
 Show 3 most recent titles:
 
@@ -73,3 +73,8 @@ Show oldest items first:
 Trim leading slash to make links relative:
 
     <a href="{{ .Url | trim }}"> Relative link </a>
+
+
+## Static  Directory
+
+If a directory named `static` exists in the `LayoutDir`, Hastie will copy it as-is to the root of the `PublishDir`.

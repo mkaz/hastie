@@ -79,7 +79,7 @@ layout: page
 .ToUpper            -- convert string to upper case
 </code></pre>
 
-<h2>Examples:</h2>
+<h3>Examples:</h3>
 
 <p>Show 3 most recent titles:</p>
 
@@ -106,6 +106,10 @@ layout: page
 
 <pre><code>&lt;a href=&quot;{{ .Url | trim }}&quot;&gt; Relative link &lt;/a&gt;
 </code></pre>
+
+<h2>Static  Directory</h2>
+
+<p>If a directory named <code>static</code> exists in the <code>LayoutDir</code>, Hastie will copy it as-is to the root of the <code>PublishDir</code>.</p>
 
 				</article>
 			</main>

@@ -71,13 +71,9 @@ Flags:
 
 <p>The <a href="https://mkaz.github.io/hastie/">Hastie documentation site</a> is generated using Hastie. See the <a href="https://github.com/mkaz/hastie/tree/master/example">github example directory</a> for configuration and pages and the <a href="https://github.com/mkaz/hastie/tree/master/themes/docs">themes/docs</a> for templates files.</p>
 
-<h3>Static  Directory</h3>
+<h2>Markdown Page</h2>
 
-<p>If a directory named <code>static</code> exists in the <code>LayoutDir</code>, Hastie will copy it as-is to the root of the <code>PublishDir</code>.</p>
-
-<h3>Markdown Front Matter</h3>
-
-<p>Hastie uses front matter to specify custom parameters. The parameters are specified at the top of the markdown document in a section delimited with <code>---</code>.</p>
+<p>Hastie uses front matter to specify parameters for each page. The parameters are specified at the top of the markdown document in a section delimited with <code>---</code>.</p>
 
 <p>Example top of markdown document:</p>
 
@@ -87,16 +83,35 @@ layout: post
 date: 2012-02-14
 ---
 
-This is my content...
+Page content here...
 </code></pre>
+
+<p>The list of standard parameters are:</p>
+
+<dl>
+<dt>title</dt>
+<dd>Page Title</dd>
+<dt>Category</dt>
+<dd>Page Category</dd>
+<dt>layout</dt>
+<dd>Layout template file, without .html extension, default post</dd>
+<dt>extension</dt>
+<dd>Page extension to save, default .html</dd>
+<dt>date</dt>
+<dd>Page date, YYYY-mm-dd format</dd>
+<dt>order</dt>
+<dd>Page order in AllPages list</dd>
+<dt>unlisted</dt>
+<dd>Do not include in AllPages list</dd>
+</dl>
 
 <h3>User-defined Parameters</h3>
 
-<p>Hastie supports user-defined parameters and makes them available to the templates using <code>.Params.YOURPARAM</code></p>
+<p>Hastie supports user-defined parameters. These aremade available to the templates using <code>.Params.YOURPARAM</code></p>
 
-<h4>Example setting and using a parameter.</h4>
+<h4>Example parameter for an individual page</h4>
 
-<p>Setting parameter:</p>
+<p>Setting parameter in front matter:</p>
 
 <pre><code>---
 title: Blog carefully my friend
@@ -113,9 +128,25 @@ guest: Hemingway
 {{ end }}
 </code></pre>
 
+<h4>Example parameter in global config</h4>
+
+<p>In <code>hastie.json</code></p>
+
+<pre><code class="language-json">{
+  &quot;Params&quot;: {
+    &quot;SiteName&quot;: &quot;Hastie&quot;
+  }
+}
+</code></pre>
+
+<p>Usage in template is the same:</p>
+
+<pre><code class="language-html">&lt;title&gt; {{ .Title }} - {{ .Params.SiteName }} &lt;/title&gt;
+</code></pre>
+
 <h3>Disable Markdown</h3>
 
-<p><code>UseMarkdown</code> is optional parameter in the config. By default, Hastie will convert documents from markdown to HTML. If you don&rsquo;t want documents to be converted globally, you can specify it false on the command-line or <code>UseMarkdown: false</code> in the JSON config.</p>
+<p><code>UseMarkdown</code> is an optional parameter in the config. By default, Hastie will convert documents from markdown to HTML. If you don&rsquo;t want documents to be converted globally, you can specify it false on the command-line or <code>UseMarkdown: false</code> in the JSON config.</p>
 
 <p>If you want to disable markdown on a per document basis, you can put <code>markdown: no</code> in the front matter of the document.</p>
 

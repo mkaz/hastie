@@ -45,14 +45,9 @@ Hastie walks through the `SourceDir` and finds all `.md` and `.html` files. It a
 The [Hastie documentation site](https://mkaz.github.io/hastie/) is generated using Hastie. See the [github example directory](https://github.com/mkaz/hastie/tree/master/example) for configuration and pages and the [themes/docs](https://github.com/mkaz/hastie/tree/master/themes/docs) for templates files.
 
 
-### Static  Directory
+## Markdown Page
 
-If a directory named `static` exists in the `LayoutDir`, Hastie will copy it as-is to the root of the `PublishDir`.
-
-
-### Markdown Front Matter
-
-Hastie uses front matter to specify custom parameters. The parameters are specified at the top of the markdown document in a section delimited with `---`.
+Hastie uses front matter to specify parameters for each page. The parameters are specified at the top of the markdown document in a section delimited with `---`.
 
 Example top of markdown document:
 
@@ -63,16 +58,41 @@ layout: post
 date: 2012-02-14
 ---
 
-This is my content...
+Page content here...
 ```
+
+The list of standard parameters are:
+
+title
+: Page Title
+
+Category
+: Page Category
+
+layout
+: Layout template file, without .html extension, default post
+
+extension
+: Page extension to save, default .html
+
+date
+: Page date, YYYY-mm-dd format
+
+order
+: Page order in AllPages list
+
+unlisted
+: Do not include in AllPages list
+
 
 ### User-defined Parameters
 
-Hastie supports user-defined parameters and makes them available to the templates using `.Params.YOURPARAM`
+Hastie supports user-defined parameters. These aremade available to the templates using `.Params.YOURPARAM`
 
-#### Example setting and using a parameter.
+#### Example parameter for an individual page
 
-Setting parameter:
+Setting parameter in front matter:
+
 ```
 ---
 title: Blog carefully my friend
@@ -90,8 +110,26 @@ Using parameter in a template:
 {{ end }}
 ```
 
+#### Example parameter in global config
+
+In `hastie.json`
+
+```json
+{
+  "Params": {
+    "SiteName": "Hastie"
+  }
+}
+```
+
+Usage in template is the same:
+
+```html
+<title> {{ .Title }} - {{ .Params.SiteName }} </title>
+```
+
 ### Disable Markdown
 
-`UseMarkdown` is optional parameter in the config. By default, Hastie will convert documents from markdown to HTML. If you don't want documents to be converted globally, you can specify it false on the command-line or `UseMarkdown: false` in the JSON config.
+`UseMarkdown` is an optional parameter in the config. By default, Hastie will convert documents from markdown to HTML. If you don't want documents to be converted globally, you can specify it false on the command-line or `UseMarkdown: false` in the JSON config.
 
 If you want to disable markdown on a per document basis, you can put `markdown: no` in the front matter of the document.
