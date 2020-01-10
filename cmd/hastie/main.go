@@ -67,7 +67,7 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("hastie v0.9.0")
+		fmt.Println("hastie v0.9.1")
 		os.Exit(0)
 	}
 
@@ -131,6 +131,7 @@ func main() {
 
 		// confirm directory exists
 		writedir := filepath.Join(config.PublishDir, page.Category)
+		log.Debug(" Writing Directory:", writedir)
 		os.MkdirAll(writedir, 0755) // does nothing if already exists
 
 		// write out file

@@ -43,7 +43,8 @@ func getSiteFiles(path string) (pages PageList, dirs []string) {
 // buildOutFile for where to save the page
 // generate the public file path based on the source file path
 func buildOutFile(filename, ext string) (outfile string) {
-	outfile = filename[strings.Index(filename, config.SourceDir)+len(config.SourceDir)+1:]
+	sourceDir := strings.TrimRight(config.SourceDir, "/")
+	outfile = filename[strings.Index(filename, sourceDir)+len(sourceDir)+1:]
 	outfile = strings.Replace(outfile, ".md", ext, 1)
 
 	base := filepath.Base(outfile)

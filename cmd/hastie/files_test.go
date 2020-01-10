@@ -13,9 +13,9 @@ func TestBuildOutFile(t *testing.T) {
 		ext       string
 		expected  string
 	}{
-		{"pages", "pages/index.md", ".html", "index.html"},
-		{"pages", "pages/subdir/index.md", ".html", "subdir/index.html"},
-		{"pages", "pages/subdir/2006-01-04-test.md", ".html", "subdir/test.html"},
+		{"pages/", "pages/index.md", ".html", "index.html"},
+		{"pages/", "pages/subdir/index.md", ".html", "subdir/index.html"},
+		{"pages/", "pages/subdir/2006-01-04-test.md", ".html", "subdir/test.html"},
 		{"/tmp/posts", "/tmp/posts/index.md", ".html", "index.html"},
 		{"/tmp/posts", "/tmp/posts/subdir/index.md", ".html", "subdir/index.html"},
 		{"/tmp/posts", "/tmp/posts/subdir/2006-01-04-test.md", ".html", "subdir/test.html"},
@@ -23,7 +23,7 @@ func TestBuildOutFile(t *testing.T) {
 	for _, td := range testData {
 		config.SourceDir = td.sourceDir // global used in function
 		result := buildOutFile(td.filename, td.ext)
-		assert.Equal(t, result, td.expected, "Filename should match")
+		assert.Equal(t, td.expected, result, "Filename should match")
 	}
 }
 
@@ -38,7 +38,23 @@ func TestGetDateFromFilename(t *testing.T) {
 
 	for _, td := range testData {
 		result := getDateFromFilename(td.filename)
-		assert.Equal(t, result.Format("2006-01-02"), td.expected, "Date should match")
+		assert.Equal(t, td.expected, result.Format("2006-01-02"), "Date should match")
+	}
+}
 
+func TestGetCategoryFromFilename(t *testing.T) {
+	var testData = []struct {
+		filename string
+		expected string
+	}{
+		{"subdir/2006-01-04-test.md", "subdir"},
+		{"subdir/test.md", "subdir"},
+		{"subdir/math/2006-01-04-test.md", "subdir/math"},
+		{"subdir/math/test.md", "subdir/math"},
+	}
+
+	for _, td := range testData {
+		result := getCategoryFromFilename(td.filename)
+		assert.Equal(t, td.expected, result, "Category should match")
 	}
 }

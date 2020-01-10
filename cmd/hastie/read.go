@@ -36,7 +36,7 @@ func readParseFile(filename string) Page {
 
 	// next directory(s) category, category includes sub-dir = solog/webdev
 	if page.Category == "" {
-		page.Category = getCategoryFromFilename(filename)
+		page.Category = getCategoryFromFilename(page.OutFile)
 	}
 
 	// add url of page, which includes initial slash
