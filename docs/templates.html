@@ -37,9 +37,9 @@
 			<main>
 				<h1> Templates </h1>
 				<article>
-					<p>Hastie uses Go&rsquo;s <a href="https://golang.org/pkg/text/template/">standard template package</a> to provide templating. See Go&rsquo;s documentation for the format and capabilities.</p>
+					<p>Hastie uses Go&rsquo;s standard template package to provide templating. See the <a href="https://github.com/mkaz/hastie/tree/master/themes">two themes in the repository</a> for an example of template files.</p>
 
-<p>Hastie looks for the template files in the <code>LayoutDir</code> defined in hastie.json config. The default template file is <code>post.html</code> or specify the <code>layout</code> parameter in the front-matter. For example, the following front matter uses the <code>page.html</code> template:</p>
+<p>Hastie looks for the template files in the <code>LayoutDir</code> defined in hastie.json config. When parsing a markdown page, the default template file is <code>post.html</code>. You can specify the <code>layout</code> parameter in the front-matter to use a different template. For example, the following front matter uses the <code>page.html</code> template:</p>
 
 <pre><code class="language-markdown">---
 title: Templates
@@ -51,36 +51,61 @@ layout: page
 
 <p>The variables available to each template:</p>
 
-<pre><code>.Title          -- Page Title
-.Date           -- Page Date format using .Date.Format &quot;Jan 2, 2006&quot;
-.Content        -- Converted HTML Content
-.Category       -- Category (directory)
-.OutFile        -- file path
-.Recent         -- list most recent files, latest first
-.Url            -- Url for this page
-.PrevUrl        -- Previous Page Url
-.PrevTitle      -- Previous Page Title
-.NextUrl        -- Next Page Url
-.NextTitle      -- Next Page Title
-.PrevCatUrl     -- Previous Page Url by Category
-.PrevCatTitle   -- Previous Page Title by Category
-.NextCatUrl     -- Next Page Url by Category
-.NextCatTitle   -- Next Page Title by Category
-.Params         -- Map of User Parameters set in front matter
-.Params.BaseUrl -- BaseUrl as defined in hastie.json
+<dl>
+<dt>.Title</dt>
+<dd>Page Title</dd>
+<dt>.Date</dt>
+<dd>Page Date format using .Date.Format &ldquo;Jan 2, 2006&rdquo;</dd>
+<dt>.Content</dt>
+<dd>Converted HTML Content</dd>
+<dt>.Category</dt>
+<dd>Category (directory)</dd>
+<dt>.OutFile</dt>
+<dd>file path</dd>
+<dt>.Recent</dt>
+<dd>list most recent files, latest first</dd>
+<dt>.Url</dt>
+<dd>Url for this page</dd>
+<dt>.PrevUrl</dt>
+<dd>Previous Page Url</dd>
+<dt>.PrevTitle</dt>
+<dd>Previous Page Title</dd>
+<dt>.NextUrl</dt>
+<dd>Next Page Url</dd>
+<dt>.NextTitle</dt>
+<dd>Next Page Title</dd>
+<dt>.PrevCatUrl</dt>
+<dd>Previous Page Url by Category</dd>
+<dt>.PrevCatTitle</dt>
+<dd>Previous Page Title by Category</dd>
+<dt>.NextCatUrl</dt>
+<dd>Next Page Url by Category</dd>
+<dt>.NextCatTitle</dt>
+<dd>Next Page Title by Category</dd>
+<dt>.Params</dt>
+<dd>Map of User Parameters set in front matter</dd>
+<dt>.Params.BaseUrl</dt>
+<dd>BaseUrl as defined in hastie.json</dd>
+<dt>.Categories.CATEGORY</dt>
+<dd>list of most recent files for CATEGORY</dd>
+</dl>
 
-.Categories.CATEGORY -- list of most recent files for CATEGORY
-</code></pre>
+<h2>Template functions</h2>
 
-<p>The functions available to each template:</p>
-
-<pre><code>.Reverse            -- reverse sort order of list
-.Recent.Limit n     -- limit recent list to n items
-.Trim               -- trim leading/trailing slashes (relative links)
-.Title              -- convert string to title case
-.ToLower            -- convert string to lower case
-.ToUpper            -- convert string to upper case
-</code></pre>
+<dl>
+<dt>.Reverse</dt>
+<dd>reverse sort order of list</dd>
+<dt>.Recent.Limit n</dt>
+<dd>limit recent list to n items</dd>
+<dt>.Trim</dt>
+<dd>trim leading/trailing slashes (relative links)</dd>
+<dt>.Title</dt>
+<dd>convert string to title case</dd>
+<dt>.ToLower</dt>
+<dd>convert string to lower case</dd>
+<dt>.ToUpper</dt>
+<dd>convert string to upper case</dd>
+</dl>
 
 <h3>Examples:</h3>
 
