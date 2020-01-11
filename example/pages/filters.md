@@ -14,4 +14,4 @@ Configuration in hastie.json
 }
 ```
 
-The above example sets any file with the extension `.less` will be converted to `.css` using lessc binary and copied to the public directory at the same spot in the directory tree as the original less file.
+The above example processes files with the extension `.less` and converts to `.css` using the lessc binary. The generated file is copied to the public directory at the same spot in the directory tree as the original less file.

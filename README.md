@@ -14,7 +14,7 @@ Do you use Hastie? Submit your site via PR.
 
 ## Using Hastie
 
-To use Hastie, you create a directory of source files in markdown. You use a set of templates in a layout directory, and run hastie to smash the two together.
+To use Hastie, first create a directory of source files in markdown, and specify templates to use, either pre-built or create your own. You then run hastie to smash the two together producing a site of HTML files. Upload and serve.
 
 For the [Hastie documentation site](https://mkaz.github.io/hastie), the template files are available at [themes/docs](https://github.com/mkaz/hastie/tree/master/themes/docs) and the pages and config are in the [example directory](https://github.com/mkaz/hastie/tree/master/example).
 
