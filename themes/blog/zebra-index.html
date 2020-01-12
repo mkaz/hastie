@@ -6,7 +6,7 @@
 <p>Recent Posts in Zebra Category</p>
 <ul>
   {{ range .Categories.zebra }}
-    <li><a href="{{ .Params.BaseUrl }}/{{ .Url }}">{{ .Title }}</a></li>
+    <li><a href="{{ .Params.BaseURL }}/{{ .Url }}">{{ .Title }}</a></li>
   {{ end }}
 </ul>
 

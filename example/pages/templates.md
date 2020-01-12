@@ -67,8 +67,8 @@ The variables available to each template:
 .Params
 : Map of User Parameters set in front matter
 
-.Params.BaseUrl
-: BaseUrl as defined in hastie.json
+.Params.BaseURL
+: BaseURL as defined in hastie.json
 
 .Categories.CATEGORY
 : list of most recent files for CATEGORY
