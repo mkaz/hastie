@@ -22,6 +22,7 @@ func readParseFile(filename string) Page {
 		OutFile:   filename,
 		Extension: ".html",
 		Params:    config.Params,
+		Config:    config,
 		Unlisted:  false,
 	}
 

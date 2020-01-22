@@ -6,37 +6,47 @@
 		<title> {{ .Title }} - {{ .Params.SiteName }}</title>
 
 		<link rel="stylesheet" href="static/style.css"/>
-		<link rel="stylesheet" href="static/prism.css"/>
+		{{ if .Config.UsePrism }}
+			<link rel="stylesheet" href="static/prism.css"/>
+		{{ end }}
+		{{ if .Config.UseAsciinema }}
+			<link rel="stylesheet" href="static/asciinema/asciinema-player.css"/>
+		{{ end }}
 	</head>
 	<body>
-		
-		<div class="container">
-			<aside>
-				<header>
-					<h3>{{ .Params.SiteName }}</h3>
-				</header>
 
+		<div class="container">
+			<header>
+				<h3><a href="{{ .Params.BaseURL }}">{{ .Params.SiteName }}</a></h3>
+			</header>
+
+			<aside>
 				<nav>
 					<h3> Contents </h3>
 					<ul>
 						{{ range .AllPages }}
 						<li><a href="{{ .Params.BaseURL }}{{ .Url }}">{{ .Title }}</a></li>
 						{{ end }}
-					</ul>			
+					</ul>
 				</nav>
-
 			</aside>
+
 			<main>
-				<h1> {{ .Title }} </h1>
 				<article>
 					{{ .Content }}
 				</article>
 			</main>
 			<footer>
-				Built using <a href="https://github.com/mkaz/hastie" rel="generator">Hastie</a>
+				<span>An <a href="https://mkaz.blog/">mkaz</a> joint </span> ·
+				<span>Built using <a href="https://github.com/mkaz/hastie" rel="generator">Hastie</a></span>
 			</footer>
 		</div>
 
-		<script src="static/prism.js"></script>
+		{{ if .Config.UsePrism }}
+			<script src="static/prism.js"></script>
+		{{ end }}
+		{{ if .Config.UseAsciinema }}
+			<script src="static/asciinema/asciinema-player.js"></script>
+		{{ end }}
 	</body>
 </html>

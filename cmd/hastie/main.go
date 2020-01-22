@@ -50,12 +50,15 @@ type Page struct {
 	Categories     *CategoryList
 	Unlisted       bool
 	SourceFile     string
+	Config         Config
 }
 
 func main() {
 	var helpFlag = flag.Bool("help", false, "show this help")
 	var versionFlag = flag.Bool("version", false, "Display version and quit")
 	var noMarkdown = flag.Bool("nomarkdown", false, "do not use markdown conversion")
+	var noPrism = flag.Bool("noprism", false, "do not use Prism syntax highlighting")
+	var useAsciinema = flag.Bool("asciinema", false, "do use Asciinema player")
 	var configFile = flag.String("config", "hastie.json", "Config file")
 	flag.BoolVar(&log.DebugLevel, "debug", false, "Debug output (verbose)")
 	flag.BoolVar(&log.Verbose, "verbose", false, "Show info level")
@@ -67,13 +70,21 @@ func main() {
 	}
 
 	if *versionFlag {
-		fmt.Println("hastie v0.9.1")
+		fmt.Println("hastie v0.9.2")
 		os.Exit(0)
 	}
 
 	config = setupConfig(*configFile)
 	if *noMarkdown {
 		config.UseMarkdown = false
+	}
+
+	if *noPrism {
+		config.UsePrism = false
+	}
+
+	if *useAsciinema {
+		config.UseAsciinema = true
 	}
 
 	// get pages and directories

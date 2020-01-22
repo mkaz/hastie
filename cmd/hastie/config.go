@@ -13,6 +13,8 @@ type Config struct {
 	CategoryMash                              map[string]string
 	ProcessFilters                            map[string][]string
 	UseMarkdown                               bool
+	UsePrism                                  bool
+	UseAsciinema                              bool
 	Params                                    map[string]string
 }
 
@@ -40,6 +42,8 @@ func parseConfig(jsonConfig string) (config Config) {
 	config.LayoutDir = "_layout"
 	config.PublishDir = "public"
 	config.UseMarkdown = true
+	config.UsePrism = true
+	config.UseAsciinema = false
 	config.Params = make(map[string]string)
 
 	// if no config file, than data is empty
