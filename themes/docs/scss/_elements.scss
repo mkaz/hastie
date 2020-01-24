@@ -22,6 +22,7 @@ aside {
 		a, a:visited {
 			color: $aside-fgcolor;
 		}
+
 		a:hover {
 			color: $aside-hover;
 		}
@@ -34,7 +35,6 @@ aside {
 
 main {
 	background: $bgcolor;
-	padding: 1.7778rem 2.6667rem;
 }
 
 footer {
@@ -58,5 +58,22 @@ span.sidenote {
 	margin: 8px 0 8px 8px;
 	max-width: 9rem;
 	padding: 8px;
+}
+
+#sidebar-toggle button {
+	width: 36px;
+	height: 36px;
+	background: url(menu-close.svg) no-repeat center center #FFFFFF;
+	background-size: contain;
+	border: none;
+	outline: inherit;
+	border-radius: 18px;
+}
+
+#sidebar-toggle button.open {
+	width: 36px;
+	height: 36px;
+	background: url(menu-open.svg) no-repeat center center #FFFFFF;
+	background-size: contain;
 }
 

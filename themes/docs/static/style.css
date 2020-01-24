@@ -77,18 +77,25 @@ template { display: none; }
 
 .container { display: flex; flex-direction: row; flex-wrap: wrap; }
 
-header { flex: 1 1 100%; order: 1; }
+header { flex: 1 1 100%; }
 
-aside { flex: 1 1 100%; order: 3; }
+aside { display: block; flex: 1 2 25%; max-width: 15rem; min-width: 9rem; }
 
-main { max-width: 45rem; min-width: 16rem; min-height: 100vh; flex: 3 0 75%; order: 2; }
+main { max-width: 45rem; min-width: 30rem; flex: 2 0 75%; }
 
-footer { flex: 1 0 100%; order: 4; }
+footer { flex: 1 0 100%; }
 
-/* Large screens */
-@media all and (min-width: 42rem) { aside { order: 2; flex: 1 2 25%; max-width: 16rem; }
-  main { min-width: 32rem; flex: 2 0 75%; order: 3; }
-  footer { flex: 1 0 100%; order: 4; } }
+#sidebar-toggle { display: none; }
+
+/* Large Screen */
+@media screen and (min-width: 40rem) { main { padding: 1.7778rem 2.6667rem; } }
+
+/* Mobile screens */
+@media screen and (max-width: 40rem) { aside { display: none; position: absolute; top: 110px; left: -16rem; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.5s linear; }
+  aside.show { display: block; width: 100%; left: 0; transition: width 1s; z-index: 25; /* above asciinema */ visibility: visible; opacity: 1; }
+  #sidebar-toggle { display: block; position: absolute; left: 16px; z-index: 26; /* above aside */ }
+  main { min-width: 16rem; min-height: 100vh; flex: 3 0 75%; padding: 1.7778rem; }
+  footer { flex: 1 0 100%; } }
 
 header { background-color: #eebbc3; color: #232946; padding: 1.0rem; }
 
@@ -104,7 +111,7 @@ aside nav a:hover { color: #eebbc3; }
 
 aside nav ul { padding-left: 1.0rem; }
 
-main { background: #FFFFFF; padding: 1.7778rem 2.6667rem; }
+main { background: #FFFFFF; }
 
 footer { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Droid Sans", Roboto, Cantarell, "Helvetica Neue", sans-serif; padding: 0.5rem 1.0rem; }
 
@@ -113,3 +120,7 @@ footer span { margin: 0  8px; }
 footer span { margin: 0  8px; }
 
 span.sidenote { border: 1px solid #CCCCCC; display: block; float: right; font-size: 0.83333rem; margin: 8px 0 8px 8px; max-width: 9rem; padding: 8px; }
+
+#sidebar-toggle button { width: 36px; height: 36px; background: url(menu-close.svg) no-repeat center center #FFFFFF; background-size: contain; border: none; outline: inherit; border-radius: 18px; }
+
+#sidebar-toggle button.open { width: 36px; height: 36px; background: url(menu-open.svg) no-repeat center center #FFFFFF; background-size: contain; }

@@ -17,10 +17,17 @@
 
 		<div class="container">
 			<header>
-				<h3><a href="{{ .Params.BaseURL }}">{{ .Params.SiteName }}</a></h3>
+				<h3>
+					<a href="{{ .Params.BaseURL }}">{{ .Params.SiteName }}</a>
+				</h3>
+				<div id="sidebar-toggle">
+					<button id="sidebar-toggle__button"
+						class="open"
+						onClick="document.getElementById('sidebar').classList.toggle('show');document.getElementById('sidebar-toggle__button').classList.toggle('open');"/>
+				</div>
 			</header>
 
-			<aside>
+			<aside id="sidebar">
 				<nav>
 					<h3> Contents </h3>
 					<ul>
