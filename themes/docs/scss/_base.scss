@@ -5,6 +5,7 @@
 
 html {
 	box-sizing: border-box;
+	font-size: 18px;
 	height: 100%;
 	line-height: 1.5;
 	-webkit-text-size-adjust: 100%;
@@ -20,6 +21,13 @@ body {
 	font-family: $main;
 	margin: 0;
 	padding: 0;
+}
+
+/* Mobile screens */
+@media screen and (max-width: 40rem) {
+	body {
+		font-size: 20px;
+	}
 }
 
 main {

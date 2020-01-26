@@ -1,9 +1,12 @@
 /* base.scss Uses code from: normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
-html { box-sizing: border-box; height: 100%; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+html { box-sizing: border-box; font-size: 18px; height: 100%; line-height: 1.5; -webkit-text-size-adjust: 100%; }
 
 *, *:before, *:after { box-sizing: inherit; }
 
 body { background: #EEEEEE; color: #333333; font-family: "Droid Serif", Georgia, serif; margin: 0; padding: 0; }
+
+/* Mobile screens */
+@media screen and (max-width: 40rem) { body { font-size: 20px; } }
 
 main { display: block; }
 
@@ -81,7 +84,7 @@ header { flex: 1 1 100%; }
 
 aside { display: block; flex: 1 2 25%; max-width: 15rem; min-width: 9rem; }
 
-main { max-width: 45rem; min-width: 30rem; flex: 2 0 75%; }
+main { max-width: 45rem; min-width: 30rem; height: 100vh; flex: 2 0 75%; }
 
 footer { flex: 1 0 100%; }
 
