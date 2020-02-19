@@ -4,8 +4,13 @@ header {
 	color: $header-fgcolor;
 	padding: 1.0rem;
 
+	h3 {
+		font-size: 2.0rem;
+		margin: 0.2222rem;
+	}
+
 	a, a:visited {
-		color: $header-fgcolor;
+		color: currentColor;
 		text-decoration: none;
 	}
 }
@@ -20,7 +25,7 @@ aside {
 		padding: 1.0rem;
 
 		a, a:visited {
-			color: $aside-fgcolor;
+			color: currentColor;
 		}
 
 		a:hover {
@@ -39,7 +44,7 @@ main {
 
 footer {
 	font-family: $system;
-	padding: 0.5rem 1.0rem;
+	padding: 2.0rem 1.0rem 0.5rem 1.0rem;
 
 	span {
 		margin: 0  8px;
