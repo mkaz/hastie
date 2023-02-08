@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="{{ AUTHOR }}">
+        <title>{% block title %}{{ SITENAME }}{% endblock title %}</title>
+        <link rel="stylesheet" href="/css/style.css"/>
+        <link rel="icon" href="/favicon.ico">
+    </head>
+    <body>
+
+        <header>
+            <h3>
+				<a href="/">{{ SITENAME }}</a>
+            </h3>
+        </header>
+
+        <main>
+            <aside>
+                <nav>
+                    <h3> Topics </h3>
+                    <ul>
+                        TODO: SECTIONS
+                    </ul>
+                </nav>
+            </aside>
+
+            <article>
+                {% block content %}
+                {% endblock content %}
+            </article>
+        </main>
+
+        <footer>
+            An <a class="white" href="https://mkaz.blog">mkaz</a> depot.
+        </footer>
+
+    </body>
+</html>
