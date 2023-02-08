@@ -1,5 +1,6 @@
+---
 title: Templates
-
+---
 
 Hastie uses Jinja2 template language  to provide templating. See the [documentation for syntax]().
 

@@ -20,6 +20,9 @@ For development, I symlink ~/bin/hastie to ./src/hastie.py
 
 Eventually I'll make it pippable.
 
+- jinja2 
+- python-frontmatter
+
 
 ## History
 
