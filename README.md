@@ -1,37 +1,36 @@
 
-# Hastie - Static Site Generator
+# Hastie - static site generator
 
 Hastie is a static site generator, it processes a folder of markdown text files, applies a template, and generates an HTML site.
 
-## Example Sites
-
-* [Hastie Documentation](https://mkaz.github.io/hastie)
-* [Working with Go](https://mkaz.github.io/working-with-go/)
-* [Working with Vim](https://mkaz.github.io/working-with-vim/)
-* [My Recipes site](http://kazmierczaks.com/)
-
-Do you use Hastie? Submit your site via PR.
 
 ## Using Hastie
 
-To use Hastie, first create a directory of source files in markdown, and specify templates to use, either pre-built or create your own. You then run hastie to smash the two together producing a site of HTML files. Upload and serve.
+To use Hastie:
 
-For the [Hastie documentation site](https://mkaz.github.io/hastie), the template files are available at [themes/docs](https://github.com/mkaz/hastie/tree/master/themes/docs) and the pages and config are in the [example directory](https://github.com/mkaz/hastie/tree/master/example).
+1. Create your content in markdown organized by directory
+2. Specify templates to use in hastie.conf
+3. Run Hastie to smash the two together, output to `output/`
+4. Upload and serve.
 
-To generate the documentation, after downloading a binary:
 
-1. Clone the repository.
-2. Change to `hastie/example` directory.
-3. Run `hastie` to generate.
-4. Files output to `docs/` directory per `hastie.json` config.
+## Install
 
-[Read the docs](https://mkaz.github.io/hastie) for customization and usage.
+For development, I symlink ~/bin/hastie to ./src/hastie.py
 
-## Contribute
+Eventually I'll make it pippable.
 
-All contributions are welcome. Please use Github to submit feature requests, bug reports, documentation, or pull requests.
 
-Thanks to all [the contributors](https://github.com/mkaz/hastie/graphs/contributors)!
+## History
+
+Hastie started as a Go project, but rewritten to Python. See [golang branch](https://github.com/mkaz/hastie/tree/golang) for archived code.
+
+**Why?** I switched my [mkaz.blog] site over to static for easier maintenance and looked briefly at Pelican but it does too much. Domain name aside, my site isn't really a blog in the reverse-chronological order of posts sense; it is a collection of pages in categories.
+
+Pelican has a lot of requirements around dates, and template types. It generates numerous additional pages for author, tags, and other things I don't really want.
+
+So I dusted off Hastie which does exactly what I want, but since I haven't coded in Go in awhile, I switched it over to Python.
+
 
 ## License
 

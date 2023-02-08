@@ -1,13 +1,11 @@
----
 title: Getting Started
-layout: page
-order: 1
----
+
 
 ## Binary Install
 
 Download binaries for Linux, Mac, and Windows from [Github releases tab](https://github.com/mkaz/hastie/releases).
 
+TBD
 
 ## Usage
 
@@ -15,32 +13,46 @@ Download binaries for Linux, Mac, and Windows from [Github releases tab](https:/
 $ hastie [-flags]
 
 Flags:
-
-  -config string
-        Config file (default "hastie.json")
-  -debug
-        Debug output (verbose)
-  -help
-        show this help
-  -nomarkdown
-        do not use markdown conversion
-  -verbose
-        Show info level
   -version
         Display version and quit
 ```
 
-Configuration file format (default ./hastie.json)
+Configuration file hastie.conf is in TOML format
 
-```json
-{
-  "SourceDir" : "posts",
-  "LayoutDir" : "layouts",
-  "PublishDir": "public"
-}
+```toml
+base_url = "/"
+content = "./pages"
+output = "./output"
+static = "./static"
+templates = "../themes/docs/"
+
+[site]
+title = "Example Site"
+author = "Marcus Kazmierczak"
 ```
 
-Hastie walks through the `SourceDir` and finds all `.md` and `.html` files. It applies the templates from `LayoutDir` and generates HTML copying to `PublishDir`. It uses Go's template language for templates and markdown for content.
+Hastie walks through the `content` directory and finds all `.md` files. It applies the templates from `templates` directory and generates HTML copying to `output`. 
 
-The [Hastie documentation site](https://mkaz.github.io/hastie/) is generated using Hastie. See the [github example directory](https://github.com/mkaz/hastie/tree/master/example) for configuration and pages and the [themes/docs](https://github.com/mkaz/hastie/tree/master/themes/docs) for templates files.
+The file front matter can specify the template, using `template: filename` (without `.html` extension).
+
+If not specified, the default templates are:
+- `home` for the top-level `index.md`
+- `category` for `index.md` files in direcotries
+- `page` for all other pages
+
+For this example content structure:
+
+```
+content/
+    about.md
+    index.md
+    pastas/
+        index.md
+        macaroni.md
+        spaghetti.md
+```
+
+- `about.md`, `macaroni.md`, and `spaghetti.md` would use `page` template
+- `pastas/index.md` would use `category` template
+- `index.md` would use `home` template
 

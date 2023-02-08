@@ -1,19 +1,8 @@
----
 title: Templates
-layout: page
-order: 3
----
 
-Hastie uses Go's standard template package to provide templating. See the [two themes in the repository](https://github.com/mkaz/hastie/tree/master/themes) for an example of template files.
 
-Hastie looks for the template files in the `LayoutDir` defined in hastie.json config. When parsing a markdown page, the default template file is `post.html`. You can specify the `layout` parameter in the front-matter to use a different template. For example, the following front matter uses the `page.html` template:
+Hastie uses Jinja2 template language  to provide templating. See the [documentation for syntax]().
 
-```markdown
----
-title: Templates
-layout: page
----
-```
 
 ## Template Variables
 
