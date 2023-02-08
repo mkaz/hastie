@@ -31,11 +31,12 @@ def main():
 
 def get_page(filename) -> Dict:
     page = {}
+    exts = ["fenced_code"]
     with open(filename, "r") as f:
         page = frontmatter.load(f)
 
     page["filename"] = filename
-    page["content"] = markdown(page["content"])
+    page.content = markdown(page.content, extensions=exts)
     return page
 
 
