@@ -1,0 +1,26 @@
+[project]
+name = "hastie_mkaz"
+version = "1.0.0"
+authors = [
+  { name="Marcus Kazmierczak", email="marcus@mkaz.com" },
+]
+description = "A static site generator"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/mkaz/hastie"
+"Bug Tracker" = "https://github.com/mkaz/hastie/issues"
+
+# pyproject.toml
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
