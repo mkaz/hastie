@@ -35,6 +35,9 @@ def main():
     # gather site info
     pages = gather_pages(args)
     categories = gather_categories(args)
+    site = []
+    if "site" in args:
+        site = args["site"]
 
     # generate pages
     for page in pages:
@@ -43,7 +46,7 @@ def main():
             tpl = page["template"]
 
         tpl = jinja.get_template(tpl_name)
-        html = tpl.render(page=page, pages=pages, categories=categories)
+        html = tpl.render(page=page, pages=pages, categories=categories, site=site)
         outfile = get_output_file(page["filename"], cdir, odir)
 
         # create directories if they don't exist
