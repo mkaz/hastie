@@ -5,10 +5,8 @@ import sys
 import toml
 from typing import Dict
 
-VERSION = "1.0.0"
 
-
-def init_args() -> Dict:
+def init_args(version: str) -> Dict:
     parser = argparse.ArgumentParser(description="hastie")
     parser.add_argument("-v", "--version", action="store_true")
     args = vars(parser.parse_args())
@@ -18,7 +16,7 @@ def init_args() -> Dict:
     conffile = "./hastie.conf"
 
     if args["version"]:
-        print(f"hastie v{VERSION}")
+        print(f"hastie v{version}")
         sys.exit()
 
     # args is dict return, so add defaults
