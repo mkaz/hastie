@@ -8,6 +8,7 @@ from typing import Dict
 
 def init_args(version: str) -> Dict:
     parser = argparse.ArgumentParser(description="hastie")
+    parser.add_argument("-q", "--quiet", action="store_true")
     parser.add_argument("-v", "--version", action="store_true")
     args = vars(parser.parse_args())
 

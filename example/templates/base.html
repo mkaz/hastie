@@ -22,7 +22,11 @@
                 <nav>
                     <h3> Topics </h3>
                     <ul>
-                        TODO: SECTIONS
+                       {% for category in categories: %}
+                            <a href="{{ category.url }}">
+                                {{ category.name }}
+                            </a>
+                       {% endfor %}
                     </ul>
                 </nav>
             </aside>
