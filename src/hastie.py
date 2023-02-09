@@ -2,12 +2,13 @@
 
 from config import init_args
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from pathlib import Path
 import shutil
 import time
 
 # internal imports
-from page import get_page
-from templates import *
+from page import gather_pages, gather_categories
+from templates import what_template, get_output_file
 
 VERSION = "1.0.0"
 
@@ -20,9 +21,8 @@ def main():
     odir = args["output_dir"]
     tdir = args["templates_dir"]
 
-    print(f"Hastie v{VERSION}")
-
-    page_files = args["content_dir"].glob("**/*.md")
+    if not args["quiet"]:
+        print(f"Hastie v{VERSION}")
 
     # load in jinja templates
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
@@ -32,13 +32,9 @@ def main():
     out_static = Path(odir)
     shutil.copytree(tpl_static, out_static, dirs_exist_ok=True)
 
-    # gather pages info
-    pages = []
-    for filename in page_files:
-        page = get_page(filename)
-        page["filename"] = filename
-        page["url"] = os.path.relpath(page["filename"], start=cdir)
-        pages.append(page)
+    # gather site info
+    pages = gather_pages(args)
+    categories = gather_categories(args)
 
     # generate pages
     for page in pages:
@@ -47,7 +43,7 @@ def main():
             tpl = page["template"]
 
         tpl = jinja.get_template(tpl_name)
-        html = tpl.render(page=page, pages=pages)
+        html = tpl.render(page=page, pages=pages, categories=categories)
         outfile = get_output_file(page["filename"], cdir, odir)
 
         # create directories if they don't exist
@@ -55,7 +51,8 @@ def main():
         outfile.write_text(html)
 
     elapsed = time.time() - start_time
-    print(f"Generated {len(pages)} files in {elapsed:.3f} sec")
+    if not args["quiet"]:
+        print(f"Generated {len(pages)} files in {elapsed:.3f} sec")
 
 
 if __name__ == "__main__":

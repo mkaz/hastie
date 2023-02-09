@@ -4,9 +4,15 @@
 
 {% block content %}
 
-    ---
-    HEY I'M THE HOME PAGE
-    ---
-    
+    <h1> Welcome Home 🏠 <h1>
+        
     {{ content | safe }}
+
+    <h3> Pages </h3>
+    <ul>
+    {% for page in pages %}
+        <li><a href="{{page.url}}">{{page.title}}</a></li>
+    {% endfor %}
+    </ul>
+
 {% endblock content %}
