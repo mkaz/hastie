@@ -6,7 +6,7 @@ from typing import Dict
 
 def get_page(filename: os.PathLike) -> Dict:
     page = {}
-    exts = ["fenced_code"]
+    exts = ["fenced_code", "tables"]
     with open(filename, "r") as f:
         page = frontmatter.load(f)
 
