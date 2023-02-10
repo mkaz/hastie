@@ -7,8 +7,8 @@ import shutil
 import time
 
 # internal imports
-from page import gather_pages, gather_categories, get_page
-from templates import get_output_file
+import hres
+import hfs
 
 VERSION = "1.0.0"
 
@@ -36,11 +36,12 @@ def main():
     # copy site static dir to output - content ends in static/ dir
     site_static = Path("./", "static")
     out_static = Path(odir, "static")
-    shutil.copytree(site_static, out_static, dirs_exist_ok=True)
+    if site_static.is_dir():
+        shutil.copytree(site_static, out_static, dirs_exist_ok=True)
 
     # gather site info
-    pages = gather_pages(args)
-    categories = gather_categories(args)
+    pages = hres.gather_pages(cdir, base_url=args["base_url"])
+    categories = hres.gather_categories(cdir, base_url=args["base_url"])
     site = []
     if "site" in args:
         site = args["site"]
@@ -53,7 +54,7 @@ def main():
 
         tpl = jinja.get_template(tpl_name)
         html = tpl.render(page=page, pages=pages, categories=categories, site=site)
-        outfile = get_output_file(page["filename"], cdir, odir)
+        outfile = hfs.get_output_file(page["filename"], cdir, odir)
 
         # create directories if they don't exist
         outfile.parent.mkdir(exist_ok=True, parents=True)
@@ -73,7 +74,7 @@ def main():
         html = tpl.render(
             page=cat["page"], pages=category_pages, categories=categories, site=site
         )
-        outfile = get_output_file(cat["page"]["filename"], cdir, odir)
+        outfile = hfs.get_output_file(cat["page"]["filename"], cdir, odir)
 
         # create directories if they don't exist
         outfile.parent.mkdir(exist_ok=True, parents=True)
@@ -81,7 +82,7 @@ def main():
         count += 1
 
     # generate home page
-    home = get_page(Path(cdir, "index.md"))
+    home = hres.get_page(Path(cdir, "index.md"))
     home["url"] = args["base_url"]
     tpl_name = "index.html"
     if "template" in home:
@@ -89,7 +90,7 @@ def main():
 
     tpl = jinja.get_template(tpl_name)
     html = tpl.render(page=home, pages=pages, categories=categories, site=site)
-    outfile = get_output_file(home["filename"], cdir, odir)
+    outfile = hfs.get_output_file(home["filename"], cdir, odir)
     outfile.write_text(html)
     count += 1
 
