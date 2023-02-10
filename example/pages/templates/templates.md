@@ -5,9 +5,9 @@ title: Templates
 Hastie uses Jinja2 templates, for template syntax see their [Template Designer Documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/).
 
 
-## Template Variables
+## Page Variables
 
-The following variables are made available to each template:
+The following variables are made available to each page template:
 
 Variable      | Description            
 ------------- | ----------------------
@@ -17,9 +17,25 @@ page.date     | Date for page
 page.content  | HTML content for page
 page.category | Category for page
 page.url      | Permalink for page
+pages         | List of all pages 
+site          | site data object
 
 
-### Examples:
+## Category Variables
+
+The following variables are made available to each category page (index.md):
+
+Variable      | Description            
+------------- | ----------------------
+page          | Current category page
+page.title    | Title for page
+page.date     | Date for page
+page.content  | HTML content for page
+page.category | Category for page
+page.url      | Permalink for page
+pages         | List of all pages in category
+site          | site data object
+
 
 
 ## Static  Directory

@@ -8,7 +8,7 @@ import time
 
 # internal imports
 from page import gather_pages, gather_categories
-from templates import what_template, get_output_file
+from templates import get_output_file
 
 VERSION = "1.0.0"
 
@@ -41,13 +41,31 @@ def main():
 
     # generate pages
     for page in pages:
-        tpl_name = what_template(page["filename"], cdir)
+        tpl_name = "page.html"
         if "template" in page:
-            tpl = page["template"]
+            tpl_name = page["template"]
 
         tpl = jinja.get_template(tpl_name)
         html = tpl.render(page=page, pages=pages, categories=categories, site=site)
         outfile = get_output_file(page["filename"], cdir, odir)
+
+        # create directories if they don't exist
+        outfile.parent.mkdir(exist_ok=True, parents=True)
+        outfile.write_text(html)
+
+    for cat in categories:
+        tpl_name = "category.html"
+        if "template" in cat["page"]:
+            tpl_name = cat["page"]["template"]
+
+        ## TODO filter pages list to those with cateory
+        category_pages = filter(lambda p: p["category"] == cat["name"], pages)
+
+        tpl = jinja.get_template(tpl_name)
+        html = tpl.render(
+            page=cat["page"], pages=category_pages, categories=categories, site=site
+        )
+        outfile = get_output_file(cat["page"]["filename"], cdir, odir)
 
         # create directories if they don't exist
         outfile.parent.mkdir(exist_ok=True, parents=True)
