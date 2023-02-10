@@ -1,6 +1,7 @@
 import frontmatter
 from markdown import markdown
 import os
+from pathlib import Path
 from typing import Dict, List
 
 
@@ -19,8 +20,10 @@ def gather_pages(a: Dict) -> List:
     pages = []
     files = a["content_dir"].glob("**/*.md")
     for filename in files:
+        if filename.name == "index.md":
+            continue
         page = get_page(filename)
-        page["filename"] = filename  # on disk file
+        page["category"] = os.path.relpath(filename.parent, a["content_dir"])
         page["url"] = a["base_url"] + os.path.relpath(
             filename.with_suffix(".html"), start=a["content_dir"]
         )
@@ -28,16 +31,31 @@ def gather_pages(a: Dict) -> List:
     return pages
 
 
+## TODO - pages need to know own category
+
+
 def gather_categories(a: Dict) -> List:
-    cats = []
+    categories = []
+
     paths = a["content_dir"].glob("**")
     for p in paths:
-        if p.is_dir():
-            cat = os.path.relpath(p, start=a["content_dir"])
-            if cat == ".":
-                continue  # skip
+        if not p.is_dir():
+            continue  # skip
 
-            cat = {"name": cat, "url": a["base_url"] + cat + "/"}
-            cats.append(cat)
+        name = os.path.relpath(p, start=a["content_dir"])
+        if name == ".":
+            continue  # skip
 
-    return cats
+        index = Path(p, "index.md")
+        if not index.is_file():
+            continue  # skip - it's not a category without a index.md
+
+        page = get_page(index)
+        category = {
+            "name": name,
+            "page": page,
+            "url": a["base_url"] + name + "/",
+        }
+        categories.append(category)
+
+    return categories
