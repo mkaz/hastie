@@ -7,7 +7,7 @@ import shutil
 import time
 
 # internal imports
-from page import gather_pages, gather_categories
+from page import gather_pages, gather_categories, get_page
 from templates import get_output_file
 
 VERSION = "1.0.0"
@@ -15,6 +15,7 @@ VERSION = "1.0.0"
 
 def main():
     start_time = time.time()
+    count = 0
 
     args = init_args(VERSION)
     cdir = args["content_dir"]
@@ -52,13 +53,15 @@ def main():
         # create directories if they don't exist
         outfile.parent.mkdir(exist_ok=True, parents=True)
         outfile.write_text(html)
+        count += 1
 
+    # generate category pages
     for cat in categories:
         tpl_name = "category.html"
         if "template" in cat["page"]:
             tpl_name = cat["page"]["template"]
 
-        ## TODO filter pages list to those with cateory
+        ## filter pages to those within category
         category_pages = filter(lambda p: p["category"] == cat["name"], pages)
 
         tpl = jinja.get_template(tpl_name)
@@ -70,10 +73,24 @@ def main():
         # create directories if they don't exist
         outfile.parent.mkdir(exist_ok=True, parents=True)
         outfile.write_text(html)
+        count += 1
+
+    # generate home page
+    home = get_page(Path(cdir, "index.md"))
+    home["url"] = args["base_url"]
+    tpl_name = "index.html"
+    if "template" in home:
+        tpl_name = home["template"]
+
+    tpl = jinja.get_template(tpl_name)
+    html = tpl.render(page=home, pages=pages, categories=categories, site=site)
+    outfile = get_output_file(home["filename"], cdir, odir)
+    outfile.write_text(html)
+    count += 1
 
     elapsed = time.time() - start_time
     if not args["quiet"]:
-        print(f"Generated {len(pages)} files in {elapsed:.3f} sec")
+        print(f"Generated {count} files in {elapsed:.3f} sec")
 
 
 if __name__ == "__main__":
