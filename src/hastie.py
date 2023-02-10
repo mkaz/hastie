@@ -28,10 +28,15 @@ def main():
     # load in jinja templates
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
 
-    # copy templates static dir to output
+    # copy templates static dir to output - content ends up top level
     tpl_static = Path(tdir, "static")
-    out_static = Path(odir)
-    shutil.copytree(tpl_static, out_static, dirs_exist_ok=True)
+    out_tpl_static = Path(odir)
+    shutil.copytree(tpl_static, out_tpl_static, dirs_exist_ok=True)
+
+    # copy site static dir to output - content ends in static/ dir
+    site_static = Path("./", "static")
+    out_static = Path(odir, "static")
+    shutil.copytree(site_static, out_static, dirs_exist_ok=True)
 
     # gather site info
     pages = gather_pages(args)
