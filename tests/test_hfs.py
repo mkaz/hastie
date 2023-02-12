@@ -8,7 +8,7 @@ def test_get_output_dir_index():
     content_dir = Path("/pages")
     output_dir = Path("/output")
     filepath = Path("/pages/index.md")
-    p = hatie.hfs.get_output_file(filepath, content_dir, output_dir)
+    p = hastie.hfs.get_output_file(filepath, content_dir, output_dir)
     assert p == Path("/output/index.html")
 
 
