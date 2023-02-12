@@ -39,7 +39,7 @@ def main():
     if site_static.is_dir():
         shutil.copytree(site_static, out_static, dirs_exist_ok=True)
 
-    # gather site info
+    # gather site info - all pages, categories
     pages = hres.gather_pages(cdir, base_url=args["base_url"])
     categories = hres.gather_categories(cdir, base_url=args["base_url"])
     site = []
@@ -51,6 +51,11 @@ def main():
         tpl_name = "page.html"
         if "template" in page:
             tpl_name = page["template"]
+
+        # filter categories to the page
+        page["categories"] = filter(
+            lambda c: page["category"] == c["parent"], categories
+        )
 
         tpl = jinja.get_template(tpl_name)
         html = tpl.render(page=page, pages=pages, categories=categories, site=site)
@@ -70,6 +75,12 @@ def main():
         ## filter pages to those within category
         category_pages = filter(lambda p: p["category"] == cat["name"], pages)
 
+        cat["page"]["categories"] = filter(
+            lambda c: (c["parent"] == cat["parent"] or c["parent"] == cat["name"])
+            and (c["name"] != cat["name"]),
+            categories,
+        )
+
         tpl = jinja.get_template(tpl_name)
         html = tpl.render(
             page=cat["page"], pages=category_pages, categories=categories, site=site
@@ -88,6 +99,7 @@ def main():
     if "template" in home:
         tpl_name = home["template"]
 
+    home["categories"] = filter(lambda c: c["parent"] == "", categories)
     tpl = jinja.get_template(tpl_name)
     html = tpl.render(page=home, pages=pages, categories=categories, site=site)
     outfile = hfs.get_output_file(home["filename"], cdir, odir)
