@@ -34,13 +34,20 @@ def gather_pages(content_dir: os.PathLike, base_url="/") -> List:
             # in a subdirectory, thus a category
             category_path = f.parent
             parent_path = category_path.parent
-            page["parent"] = os.path.relpath(parent_path, content_dir)
+            page["parent"] = get_parent_name(parent_path, content_dir)
             page["category"] = os.path.relpath(category_path, parent_path)
 
         page["name"] = f.with_suffix(".html")
         page["url"] = base_url + os.path.relpath(page["name"], start=content_dir)
         pages.append(page)
     return pages
+
+
+def get_parent_name(p: os.PathLike, c: os.PathLike) -> str:
+    name = os.path.relpath(p, start=c)
+    if name == ".":
+        name = ""
+    return name
 
 
 def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
@@ -51,16 +58,10 @@ def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
         if not p.is_dir():
             continue  # skip
 
-        parent = os.path.relpath(p.parent, start=content_dir)
+        parent_name = get_parent_name(p.parent, content_dir)
         name = os.path.relpath(p, start=p.parent)
 
-        if parent == "..":
-            continue
-
-        if parent == ".":
-            parent = ""
-
-        if name == ".":
+        if parent_name == ".." or name == ".":
             continue  # skip
 
         index = Path(p, "index.md")
@@ -69,14 +70,14 @@ def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
 
         page = get_page(index)
         page["category"] = name
-        if parent:
-            url = base_url + parent + "/" + name + "/"
+        if parent_name:
+            url = base_url + parent_name + "/" + name + "/"
         else:
             url = base_url + name + "/"
 
         category = {
             "name": name,
-            "parent": parent,
+            "parent": parent_name,
             "page": page,
             "url": url,
         }
