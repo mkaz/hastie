@@ -1,7 +1,7 @@
 """Hastie file system module"""
 
 from pathlib import Path
-import src.hfs as hfs
+import hastie.hfs as hfs
 
 
 def test_get_output_dir_index():
