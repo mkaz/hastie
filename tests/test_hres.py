@@ -1,7 +1,7 @@
 """ Test module for Hastie resources."""
 
 from pathlib import Path
-import src.hres as hres
+import hastie.hres as hres
 
 
 def test_get_page_basic():
