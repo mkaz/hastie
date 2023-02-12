@@ -17,14 +17,21 @@ def test_gather_pages_basic():
     content_dir = Path("./example/pages")
     pages = hastie.hres.gather_pages(content_dir)
     assert len(pages) == 3
-    assert pages[0]["title"] == "Getting Started"
-    assert pages[0]["category"] == ""
-    assert pages[0]["parent"] == ""
-    assert pages[1]["title"] == "Markdown Content Page"
-    assert pages[1]["category"] == ""
-    assert pages[1]["parent"] == ""
-    assert pages[2]["title"] == "Templates"
-    assert pages[2]["category"] == "templates"
+    for p in pages:
+        good = False
+        if p["title"] == "Getting Started":
+            assert p["category"] == ""
+            assert p["parent"] == ""
+            good = True
+        elif p["title"] == "Markdown Content Page":
+            assert p["category"] == ""
+            assert p["parent"] == ""
+            good = True
+        elif p["title"] == "Templates":
+            assert p["category"] == "templates"
+            assert p["parent"] == ""
+            good = True
+    assert good
 
 
 def test_gather_categories_basic():
