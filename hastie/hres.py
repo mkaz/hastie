@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from typing import Dict, List
 
+import utils
+
 
 def get_page(filename: os.PathLike) -> Dict:
     """Read page in from file system, parse front matter and render markdown."""
@@ -70,16 +72,12 @@ def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
 
         page = get_page(index)
         page["category"] = name
-        if parent_name:
-            url = base_url + parent_name + "/" + name + "/"
-        else:
-            url = base_url + name + "/"
 
         category = {
             "name": name,
             "parent": parent_name,
             "page": page,
-            "url": url,
+            "url": utils.urljoin([base_url, parent_name, name]),
         }
         categories.append(category)
 
