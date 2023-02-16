@@ -9,6 +9,7 @@ import time
 # internal imports
 import hres
 import hfs
+import utils
 
 VERSION = "1.0.0"
 
