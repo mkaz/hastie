@@ -2,7 +2,6 @@ from typing import List
 
 
 def urljoin(parts: List) -> str:
-
     if parts[0].startswith("/"):
         start = "/"
 

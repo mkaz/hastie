@@ -9,9 +9,8 @@ import time
 # internal imports
 import hres
 import hfs
-import utils
 
-VERSION = "1.0.0"
+VERSION = "0.9.0"
 
 
 def main():

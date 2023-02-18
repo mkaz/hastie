@@ -9,7 +9,7 @@ Hastie uses Jinja2 templates, for template syntax see their [Template Designer D
 
 The following variables are made available to each page template:
 
-Variable      | Description            
+Variable      | Description
 ------------- | ----------------------
 page          | Current page object
 page.title    | Title for page
@@ -17,7 +17,7 @@ page.date     | Date for page
 page.content  | HTML content for page
 page.category | Category for page
 page.url      | Permalink for page
-pages         | List of all pages 
+pages         | List of all pages
 site          | site data object
 
 
@@ -25,7 +25,7 @@ site          | site data object
 
 The following variables are made available to each category page (index.md):
 
-Variable      | Description            
+Variable      | Description
 ------------- | ----------------------
 page          | Current category page
 page.title    | Title for page

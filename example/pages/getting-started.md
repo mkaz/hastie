@@ -32,7 +32,7 @@ title = "Example Site"
 author = "Marcus Kazmierczak"
 ```
 
-Hastie walks through the `content` directory and finds all `.md` files. It applies the templates from `templates` directory and generates HTML copying to `output`. 
+Hastie walks through the `content` directory and finds all `.md` files. It applies the templates from `templates` directory and generates HTML copying to `output`.
 
 The file front matter can specify the template, using `template: filename` (without `.html` extension).
 
@@ -56,4 +56,3 @@ content/
 - `about.md`, `macaroni.md`, and `spaghetti.md` would use `page` template
 - `pastas/index.md` would use `category` template
 - `index.md` would use `home` template
-

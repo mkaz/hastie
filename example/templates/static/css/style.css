@@ -94,7 +94,7 @@ footer {
 }
 
 @media (max-width: 720px) {
-	
+
 	header {
 		margin-bottom: 2rem;
 	}
@@ -109,11 +109,11 @@ footer {
 		margin-bottom: 2rem;
 		margin-right: 0;
 	}
-	
+
 	aside h3 {
 		display: none;
 	}
-	
+
 	aside ul {
 		display: flex;
 		flex-wrap: wrap;
@@ -134,16 +134,16 @@ article {
 
 /* Make things readable and wrap at 36rem
 	* we don't do all because we want images, code to be wide. */
-article blockquote, 
+article blockquote,
 article p,
 article li {
 	max-width: 36rem;
 }
 
-article h2, 
+article h2,
 article h3,
-article h4, 
-article h5, 
+article h4,
+article h5,
 article h6 {
 	margin-top: 2.0rem;
 	margin-bottom: 0;
