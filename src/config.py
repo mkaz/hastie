@@ -1,5 +1,4 @@
 import argparse
-import os
 from pathlib import Path
 import sys
 import toml
@@ -12,9 +11,9 @@ def init_args(version: str) -> Dict:
     parser.add_argument("-v", "--version", action="store_true")
     args = vars(parser.parse_args())
 
-    # Allow override? Why complicate matters, just look for it
-    # in the current directory. Always the same name.
-    conffile = "./hastie.conf"
+    # Convention over configuration.
+    # No override, look for file in the current directory.
+    conffile = "./hastie.toml"
 
     if args["version"]:
         print(f"hastie v{version}")

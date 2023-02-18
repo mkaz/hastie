@@ -1,31 +1,3 @@
-[project]
-name = "hastie"
-version = "0.9.0"
-authors = [
-  { name="Marcus Kazmierczak", email="marcus@mkaz.com" },
-]
-description = "A static site generator"
-readme = "README.md"
-requires-python = ">=3.7"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-
-[project.urls]
-"Homepage" = "https://github.com/mkaz/hastie"
-"Bug Tracker" = "https://github.com/mkaz/hastie/issues"
-
-# pyproject.toml
-[tool.pytest.ini_options]
-minversion = "7.0"
-addopts = "-ra -q"
-pythonpath = "hastie"
-testpaths = [
-    "tests",
-]
-
 
 [tool.poetry]
 name = "hastie"
@@ -34,9 +6,23 @@ description = "A static site generator"
 authors = ["Marcus Kazmierczak <marcus@mkaz.com>"]
 license = "MIT"
 readme = "README.md"
+keywords = ["static site generator", "static site", "blog"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Content Management System",
+    "Topic :: Internet :: WWW/HTTP :: Site Management",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
+
 
 [tool.poetry.dependencies]
-python = "3.11.2"
+python = ">=3.9"
 black = "^23.1.0"
 flake8 = "^6.0.0"
 jinja2 = "^3.1.2"
@@ -49,3 +35,12 @@ python-frontmatter = "^1.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra"
+pythonpath = "src"
+testpaths = [
+    "tests",
+]
