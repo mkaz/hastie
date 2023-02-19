@@ -27,6 +27,26 @@ poetry install
 ```
 
 
+## Template Building
+
+See the example site in this repo for documentation.
+
+```
+# clone repo
+git clone https://github.com/mkaz/hastie
+cd hastie
+
+# install dependencies
+poetry install
+
+# build example site
+cd example
+python3 ../src/hastie.py
+
+# serve site
+python3 -m http.simple --directory output/
+```
+
 
 ## History
 
