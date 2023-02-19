@@ -7,7 +7,7 @@ import shutil
 import time
 
 # internal imports
-import hres
+import content
 import hfs
 
 VERSION = "0.9.0"
@@ -40,8 +40,8 @@ def main():
         shutil.copytree(site_static, out_static, dirs_exist_ok=True)
 
     # gather site info - all pages, categories
-    pages = hres.gather_pages(cdir, base_url=args["base_url"])
-    categories = hres.gather_categories(cdir, base_url=args["base_url"])
+    pages = content.gather_pages(cdir, base_url=args["base_url"])
+    categories = content.gather_categories(cdir, base_url=args["base_url"])
     site = []
     if "site" in args:
         site = args["site"]
@@ -93,7 +93,7 @@ def main():
         count += 1
 
     # generate home page
-    home = hres.get_page(Path(cdir, "index.md"))
+    home = content.get_page(Path(cdir, "index.md"))
     home["url"] = args["base_url"]
     tpl_name = "index.html"
     if "template" in home:
