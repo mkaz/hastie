@@ -8,8 +8,8 @@ Hastie is a static site generator, it processes a folder of markdown text files,
 
 To use Hastie:
 
-1. Create your content in markdown organized by directory
-2. Specify templates to use in hastie.conf
+1. Create your content in markdown organized by directory.
+2. Specify templates to use in `hastie.toml`
 3. Run Hastie to smash the two together, output to `output/`
 4. Upload and serve.
 
@@ -20,15 +20,19 @@ For development, I symlink ~/bin/hastie to ./src/hastie.py
 
 Eventually I'll make it pippable.
 
-- jinja2
-- python-frontmatter
+Install dependencies using:
+
+```bash
+poetry install
+```
+
 
 
 ## History
 
 Hastie started as a Go project, but rewritten to Python. See [golang branch](https://github.com/mkaz/hastie/tree/golang) for archived code.
 
-**Why?** I switched my [mkaz.blog] site over to static for easier maintenance and looked briefly at Pelican but it does too much. Domain name aside, my site isn't really a blog in the reverse-chronological order of posts sense; it is a collection of pages in categories.
+**Why?** I switched my [mkaz.blog](https://mkaz.blog) site over to static for easier maintenance and looked briefly at Pelican but it does too much. Domain name aside, my site isn't really a blog in the reverse-chronological order of posts sense; it is a collection of pages in categories.
 
 Pelican has a lot of requirements around dates, and template types. It generates numerous additional pages for author, tags, and other things I don't really want.
 
