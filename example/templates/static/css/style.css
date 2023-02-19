@@ -132,12 +132,12 @@ article {
 	margin: 0;
 }
 
-/* Make things readable and wrap at 36rem
-	* we don't do all because we want images, code to be wide. */
+/* Make things readable and wrap at 42rem
+ * we don't do all because we want images, code to be wide. */
 article blockquote,
 article p,
 article li {
-	max-width: 36rem;
+	max-width: 42rem;
 }
 
 article h2,

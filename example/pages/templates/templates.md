@@ -2,7 +2,8 @@
 title: Templates
 ---
 
-Hastie uses Jinja2 templates, for template syntax see their [Template Designer Documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/).
+Hastie uses Jinja2 templates, for template syntax see their [Template Designer
+Documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/).
 
 
 ## Page Variables
@@ -40,7 +41,8 @@ site          | site data object
 
 ## Static  Directory
 
-If a directory named `static` exists in the `templates` direcotry, Hastie will copy its contents as-is to the root of the `output_dir`.
+If a directory named `static` exists in the `templates` direcotry, Hastie will
+copy its contents as-is to the root of the `output_dir`.
 
 So the following would be copied:
 
@@ -48,3 +50,14 @@ So the following would be copied:
 templates/static/css/style.css  -> output/css/style.css
 templates/static/favicon.ico    -> output/favicon.ico
 ```
+
+
+## Code Syntax Highlighting
+
+Hastie will add CSS syntax highlighting for fenced code blocks. It uses the
+Pygments library and will wrap the elements in CSS classes that need to be
+stylized. See the [StylishThemes repo](https://github.com/StylishThemes/Syntax-Themes/tree/master/pygments)
+for available CSS stylesheets.
+
+Download a stylesheet and include it in your template CSS directory, also be
+sure to load the CSS file in your base.html.

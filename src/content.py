@@ -12,7 +12,7 @@ import utils
 def get_page(filename: os.PathLike) -> Dict:
     """Read page in from file system, parse front matter and render markdown."""
     page = {}
-    exts = ["fenced_code", "tables"]
+    exts = ["codehilite", "fenced_code", "tables"]
     with open(filename, "r") as f:
         page = frontmatter.load(f)
 
