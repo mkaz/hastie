@@ -4,13 +4,18 @@
 {% block title %}{{category}} -{{ SITENAME }} {% endblock %}
 
 {% block content %}
-	<ul>
-	{# for article in articles_page.object_list #}
-		<li>
-			<a href="">
 
+    <h1> {{ page.title }} </h1>
+
+    {{ page.content | safe }}
+
+	<ul>
+    {% for page in pages: %}
+		<li>
+            <a href="{{page.url}}">
+                {{ page.title }}
 			</a>
 		</li>
-	{# endfor #}
+	{% endfor %}
 	</ul>
 {% endblock %}

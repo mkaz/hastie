@@ -2,4 +2,4 @@
 title: Templates Index
 ---
 
-This is just to show how a index file works.
+This is shows how an index file works.
