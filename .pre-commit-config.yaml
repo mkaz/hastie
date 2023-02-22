@@ -13,4 +13,3 @@ repos:
     rev: v0.0.251
     hooks:
     -   id: ruff
-        args: [--target-version py310]
