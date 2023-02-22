@@ -24,16 +24,13 @@ def main():
         print(f"Hastie v{VERSION}")
 
     # Confirm content and template directories exists
-    if not config["content_dir"].is_dir():
-        print("Content directory '{}' not found".format(config["content_dir"]))
+    if not cdir.is_dir():
+        print(f"Content directory {cdir} not found")
         sys.exit()
 
-    if not config["templates_dir"].is_dir():
-        print("Templates directory '{}' not found".format(config["templates_dir"]))
+    if not tdir.is_dir():
+        print(f"Templates directory {tdir} not found")
         sys.exit()
-
-    # load in jinja templates
-    jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
 
     # copy templates static dir to output - content ends up top level
     tpl_static = Path(tdir, "static")
@@ -45,6 +42,9 @@ def main():
     out_static = Path(odir, "static")
     if site_static.is_dir():
         shutil.copytree(site_static, out_static, dirs_exist_ok=True)
+
+    # load in jinja templates
+    jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
 
     # gather site info - all pages, categories
     pages = content.gather_pages(cdir, base_url=config["base_url"])
