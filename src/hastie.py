@@ -65,7 +65,13 @@ def main():
         )
 
         # check for template
-        tpl = jinja.get_template(tpl_name)
+        try:
+            tpl = jinja.get_template(tpl_name)
+        except Exception as err:
+            print("Error getting template")
+            print(f"    Template: {tpl_name}")
+            print(err)
+            sys.exit()
 
         try:
             html = tpl.render(page=page, pages=pages, categories=categories, site=site)
