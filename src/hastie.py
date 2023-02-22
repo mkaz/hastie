@@ -1,29 +1,36 @@
 #!/usr/bin/env python3
 
-from config import init_args
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pathlib import Path
 import shutil
+import sys
 import time
 
 # internal imports
+from config import config, VERSION
 import content
 import hfs
-
-VERSION = "0.9.0"
 
 
 def main():
     start_time = time.time()
     count = 0
 
-    args = init_args(VERSION)
-    cdir = args["content_dir"]
-    odir = args["output_dir"]
-    tdir = args["templates_dir"]
+    cdir = config["content_dir"]
+    odir = config["output_dir"]
+    tdir = config["templates_dir"]
 
-    if not args["quiet"]:
+    if not config["quiet"]:
         print(f"Hastie v{VERSION}")
+
+    # Confirm content and template directories exists
+    if not config["content_dir"].is_dir():
+        print("Content directory '{}' not found".format(config["content_dir"]))
+        sys.exit()
+
+    if not config["templates_dir"].is_dir():
+        print("Templates directory '{}' not found".format(config["templates_dir"]))
+        sys.exit()
 
     # load in jinja templates
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
@@ -40,11 +47,11 @@ def main():
         shutil.copytree(site_static, out_static, dirs_exist_ok=True)
 
     # gather site info - all pages, categories
-    pages = content.gather_pages(cdir, base_url=args["base_url"])
-    categories = content.gather_categories(cdir, base_url=args["base_url"])
+    pages = content.gather_pages(cdir, base_url=config["base_url"])
+    categories = content.gather_categories(cdir, base_url=config["base_url"])
     site = []
-    if "site" in args:
-        site = args["site"]
+    if "site" in config:
+        site = config["site"]
 
     # generate pages
     for page in pages:
@@ -57,8 +64,18 @@ def main():
             lambda c: page["category"] == c["parent"], categories
         )
 
+        # check for template
         tpl = jinja.get_template(tpl_name)
-        html = tpl.render(page=page, pages=pages, categories=categories, site=site)
+
+        try:
+            html = tpl.render(page=page, pages=pages, categories=categories, site=site)
+        except Exception as err:
+            print("Error rendering page with template")
+            print(f"    Page    : {page['filename']}")
+            print(f"    Template: {tpl_name}")
+            print(err)
+            sys.exit()
+
         outfile = hfs.get_output_file(page["filename"], cdir, odir)
 
         # create directories if they don't exist
@@ -82,9 +99,17 @@ def main():
         )
 
         tpl = jinja.get_template(tpl_name)
-        html = tpl.render(
-            page=cat["page"], pages=category_pages, categories=categories, site=site
-        )
+        try:
+            html = tpl.render(
+                page=cat["page"], pages=category_pages, categories=categories, site=site
+            )
+        except Exception as err:
+            print("Error rendering category with template")
+            print(f"    Page    : {cat.page.filename}")
+            print(f"    Template: {tpl_name}")
+            print(err)
+            sys.exit()
+
         outfile = hfs.get_output_file(cat["page"]["filename"], cdir, odir)
 
         # create directories if they don't exist
@@ -94,7 +119,7 @@ def main():
 
     # generate home page
     home = content.get_page(Path(cdir, "index.md"))
-    home["url"] = args["base_url"]
+    home["url"] = config["base_url"]
     tpl_name = "index.html"
     if "template" in home:
         tpl_name = home["template"]
@@ -107,7 +132,7 @@ def main():
     count += 1
 
     elapsed = time.time() - start_time
-    if not args["quiet"]:
+    if not config["quiet"]:
         print(f"Generated {count} files in {elapsed:.3f} sec")
 
 

@@ -5,7 +5,9 @@ from markdown import markdown
 import os
 from pathlib import Path
 from typing import Dict, List
+import sys
 
+from config import config
 import utils
 
 
@@ -14,10 +16,33 @@ def get_page(filename: os.PathLike) -> Dict:
     page = {}
     exts = ["codehilite", "fenced_code", "tables"]
     with open(filename, "r") as f:
-        page = frontmatter.load(f)
+        # check for frontmatter format
+        fm = config.get("frontmatter", "yaml")
+        match fm:
+            case "toml":
+                handler = frontmatter.default_handlers.TOMLHandler()
+            case "json":
+                handler = frontmatter.default_handlers.JSONHandler()
+            case _:
+                handler = frontmatter.default_handlers.YAMLHandler()
+
+        try:
+            page = frontmatter.load(f, handler=handler).to_dict()
+        except Exception as err:
+            print("Error parsing frontmatter")
+            print(f"    Filename: {filename}")
+            print(err)
+            sys.exit(1)
+
+    try:
+        page["content"] = markdown(page.get("content", ""), extensions=exts)
+    except Exception as err:
+        print("Error converting markdown")
+        print(f"    Filename: {filename}")
+        print(err)
+        sys.exit(1)
 
     page["filename"] = filename
-    page.content = markdown(page.content, extensions=exts)
     return page
 
 
