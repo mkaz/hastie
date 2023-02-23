@@ -73,8 +73,13 @@ def main():
             print(err)
             sys.exit()
 
+        ## filter pages to those within category
+        category_pages = filter(lambda p: p["category"] == page["category"], pages)
+
         try:
-            html = tpl.render(page=page, pages=pages, categories=categories, site=site)
+            html = tpl.render(
+                page=page, pages=category_pages, categories=categories, site=site
+            )
         except Exception as err:
             print("Error rendering page with template")
             print(f"    Page    : {page['filename']}")
