@@ -7,8 +7,9 @@ def get_output_file(f: os.PathLike, c: os.PathLike, o: os.PathLike) -> os.PathLi
     # get file relative to content directory
     jf = Path(os.path.relpath(f, start=c))
 
-    # switch markdown to html
-    jf = jf.with_suffix(".html")
+    if jf.name == "index.md":
+        return Path(o, jf.parent, "index.html")
 
-    # return relative file joined with output directory
-    return Path(o, jf)
+    # filename without extension is .stem
+    # create directory from stem - write as index.html
+    return Path(o, jf.parent, jf.stem, "index.html")
