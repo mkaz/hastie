@@ -47,6 +47,28 @@ h1 { font-size: 24px; }
 h2 { font-size: 20px; }
 h3 { font-size: 18px; }
 
+table{
+    border-collapse:collapse;
+    font-size:0.9rem;
+}
+
+td,th {
+    padding: 4px 16px 4px 4px;
+}
+
+th:last-child,td:last-child{
+    padding-right:4px;
+}
+
+tr:nth-child(even){
+    background-color:#eee
+}
+
+th{
+    text-decoration: underline;
+    text-align:left;
+}
+
 header {
 	margin-bottom: 3rem;
 	h3 { margin: 0; }
