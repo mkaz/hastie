@@ -4,7 +4,7 @@ import sys
 import toml
 
 # initialize config
-VERSION = "0.9.0"
+VERSION = "0.9.1"
 
 
 parser = argparse.ArgumentParser(description="hastie")

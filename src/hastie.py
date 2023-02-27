@@ -76,6 +76,12 @@ def main():
         ## filter pages to those within category
         category_pages = filter(lambda p: p["category"] == page["category"], pages)
 
+        # remove drafts from category pages
+        category_pages = filter(lambda p: "draft" not in p, category_pages)
+
+        # remove archived from category pages
+        category_pages = filter(lambda p: "archive" not in p, category_pages)
+
         try:
             html = tpl.render(
                 page=page, pages=category_pages, categories=categories, site=site
@@ -89,10 +95,12 @@ def main():
 
         outfile = hfs.get_output_file(page["filename"], cdir, odir)
 
-        # create directories if they don't exist
-        outfile.parent.mkdir(exist_ok=True, parents=True)
-        outfile.write_text(html)
-        count += 1
+        # do not write out drafts
+        if "draft" not in page:
+            # create directories if they don't exist
+            outfile.parent.mkdir(exist_ok=True, parents=True)
+            outfile.write_text(html)
+            count += 1
 
     # generate category pages
     for cat in categories:
@@ -102,6 +110,12 @@ def main():
 
         ## filter pages to those within category
         category_pages = filter(lambda p: p["category"] == cat["name"], pages)
+
+        # remove drafts from category pages
+        category_pages = filter(lambda p: "draft" not in p, category_pages)
+
+        # remove archived from category pages
+        category_pages = filter(lambda p: "archive" not in p, category_pages)
 
         cat["page"]["categories"] = filter(
             lambda c: (c["parent"] == cat["parent"] or c["parent"] == cat["name"])

@@ -18,7 +18,7 @@ page.date     | Date for page
 page.content  | HTML content for page
 page.category | Category for page
 page.url      | Permalink for page
-pages         | List of all pages
+pages         | List of all pages in same category
 site          | site data object
 
 
@@ -60,4 +60,5 @@ stylized. See the [StylishThemes repo](https://github.com/StylishThemes/Syntax-T
 for available CSS stylesheets.
 
 Download a stylesheet and include it in your template CSS directory, also be
-sure to load the CSS file in your base.html.
+sure to load the CSS file in your base.html. You will likely need to change
+the top level `highlite` class to `codehilite`
