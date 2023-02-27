@@ -64,7 +64,7 @@ def gather_pages(content_dir: os.PathLike, base_url="/") -> List:
             page["parent"] = get_parent_name(parent_path, content_dir)
             page["category"] = os.path.relpath(category_path, parent_path)
 
-        page["name"] = f.with_suffix(".html")
+        page["name"] = Path(f.parent, f.stem)
         page["url"] = base_url + os.path.relpath(page["name"], start=content_dir)
         pages.append(page)
     return pages
