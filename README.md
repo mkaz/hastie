@@ -16,7 +16,7 @@ To use Hastie:
 
 ## Install
 
-For development, I symlink ~/bin/hastie to ./src/hastie.py
+For development, I symlink ~/bin/hastie to ./hastie/hastie.py
 
 Eventually I'll make it pippable.
 
@@ -41,7 +41,7 @@ poetry install
 
 # build example site
 cd example
-python3 ../src/hastie.py
+python3 ../hastie/hastie.py
 
 # serve site
 python3 -m http.simple --directory output/

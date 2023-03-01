@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import operator
 from pathlib import Path
 import shutil
 import sys
 import time
 
 # internal imports
-from config import config, VERSION
-import content
-import hfs
+from hastie.config import config, VERSION
+import hastie.content as content
+import hastie.hfs as hfs
 
 
 def main():
@@ -74,13 +75,18 @@ def main():
             sys.exit()
 
         ## filter pages to those within category
-        category_pages = filter(lambda p: p["category"] == page["category"], pages)
+        category_pages = list(
+            filter(lambda p: p["category"] == page["category"], pages)
+        )
 
         # remove drafts from category pages
-        category_pages = filter(lambda p: "draft" not in p, category_pages)
+        category_pages = list(filter(lambda p: "draft" not in p, category_pages))
 
         # remove archived from category pages
-        category_pages = filter(lambda p: "archive" not in p, category_pages)
+        category_pages = list(filter(lambda p: "archive" not in p, category_pages))
+
+        # sort pages
+        category_pages.sort(key=operator.itemgetter("title"))
 
         try:
             html = tpl.render(
@@ -109,13 +115,16 @@ def main():
             tpl_name = cat["page"]["template"]
 
         ## filter pages to those within category
-        category_pages = filter(lambda p: p["category"] == cat["name"], pages)
+        category_pages = list(filter(lambda p: p["category"] == cat["name"], pages))
 
         # remove drafts from category pages
-        category_pages = filter(lambda p: "draft" not in p, category_pages)
+        category_pages = list(filter(lambda p: "draft" not in p, category_pages))
 
         # remove archived from category pages
-        category_pages = filter(lambda p: "archive" not in p, category_pages)
+        category_pages = list(filter(lambda p: "archive" not in p, category_pages))
+
+        # sort by title
+        category_pages.sort(key=operator.itemgetter("title"))
 
         cat["page"]["categories"] = filter(
             lambda c: (c["parent"] == cat["parent"] or c["parent"] == cat["name"])

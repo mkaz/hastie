@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Dict, List
 import sys
 
-from config import config
-import utils
+from hastie.config import config
+import hastie.utils as utils
 
 
 def get_page(filename: os.PathLike) -> Dict:
