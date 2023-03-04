@@ -41,7 +41,9 @@ def generate_rss(config: Dict, pages: List) -> str:
             <item>
                 <title>{page["title"]}</title>
                 <link>{page["url"]}</link>
-                <description></description>
+                <description><![CDATA[
+                    {page["content"]}
+                ]]></description>
                 <guid>{page["url"]}</guid>
                 <pubDate>{pubdate}</pubDate>
             </item>"""
