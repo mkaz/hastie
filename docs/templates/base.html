@@ -15,7 +15,7 @@
 
         <header>
             <h3>
-				<a href="/">{{ site.title }}</a>
+                <a href="{{ site.base_url }}/">{{ site.title }}</a>
             </h3>
         </header>
 
@@ -25,7 +25,7 @@
                     <h3> Topics </h3>
                     <ul>
                        {% for category in categories: %}
-                           <a href="{{ site.base_url }}{{ category.url }}">
+                           <a href="{{ category.url }}">
                                 {{ category.name }}
                             </a>
                        {% endfor %}
