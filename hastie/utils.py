@@ -4,6 +4,8 @@ from typing import List
 def urljoin(parts: List) -> str:
     if parts[0].startswith("/"):
         start = "/"
+    else:
+        start = ""
 
     # remove slash
     parts = list(map(slash_strip, parts))
