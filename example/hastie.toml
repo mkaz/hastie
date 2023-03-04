@@ -5,7 +5,9 @@ output_dir = "./output"
 templates_dir = "./templates"
 
 [site]
-title = "Example Site"
+title = "Hastie Documentation"
+description = "Documentation (and example) site for Hastie"
 author = "Marcus Kazmierczak"
+rss = true
 
 # TODO: static dir
