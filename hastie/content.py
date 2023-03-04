@@ -66,7 +66,9 @@ def gather_pages(content_dir: os.PathLike, base_url="/") -> List:
             page["category"] = os.path.relpath(category_path, parent_path)
 
         page["name"] = Path(f.parent, f.stem)
-        page["url"] = base_url + os.path.relpath(page["name"], start=content_dir)
+        page["url"] = utils.urljoin(
+            [base_url, os.path.relpath(page["name"], start=content_dir)]
+        )
         pages.append(page)
     return pages
 
