@@ -9,8 +9,7 @@ from typing import Dict, List
 def generate_rss(config: Dict, pages: List) -> str:
     """With the config and list of pages, returns an RSS document"""
 
-    rss = f"""
-    <?xml version="1.0"?>
+    rss = f"""<?xml version="1.0"?>
         <rss version="2.0">
             <channel>
                 <title>{config["site"]["title"]}</title>
