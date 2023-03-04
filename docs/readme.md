@@ -1,5 +1,5 @@
 
-# Example Site
+# Hastie Documentation Site
 
 This example is the documentation site for Hastie.
 

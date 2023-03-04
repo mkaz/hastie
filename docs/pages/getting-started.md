@@ -30,6 +30,7 @@ templates = "../themes/docs/"
 
 [site]
 title = "Example Site"
+description = "Just another example site"
 author = "Marcus Kazmierczak"
 ```
 

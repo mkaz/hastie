@@ -16,21 +16,16 @@ To use Hastie:
 
 ## Install
 
-`python3 -m pip install git+https://github.com/mkaz/hastie`
+Install using pip
 
-
-For development, I run: `poetry run python hastie/main.py`
-
-Install dependencies using:
-
-```bash
-poetry install
+```
+python3 -m pip install git+https://github.com/mkaz/hastie
 ```
 
 
 ## Template Building
 
-See the example site in this repo for documentation.
+See the docs site in this repo for documentation.
 
 ```
 # clone repo
@@ -40,9 +35,9 @@ cd hastie
 # install dependencies
 poetry install
 
-# build example site
-cd example
-python3 ../hastie/hastie.py
+# build docs site
+cd docs
+poetry run python ../hastie/main.py
 
 # serve site
 python3 -m http.simple --directory output/

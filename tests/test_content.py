@@ -10,15 +10,15 @@ import hastie
 
 def test_get_page_basic():
     """Confirm title and filename reads in properly."""
-    f = Path("./example/pages/index.md")
+    f = Path("./docs/pages/index.md")
     page = hastie.content.get_page(f)
-    assert page["filename"] == Path("example/pages/index.md")
+    assert page["filename"] == Path("docs/pages/index.md")
     assert page["title"] == "Welcome to Hastie"
 
 
 def test_gather_pages_basic():
     """Confirm pages gathered with correct, URL, and categories."""
-    content_dir = Path("./example/pages")
+    content_dir = Path("./docs/pages")
     pages = hastie.content.gather_pages(content_dir)
     assert len(pages) == 3
     for p in pages:
@@ -40,7 +40,7 @@ def test_gather_pages_basic():
 
 def test_gather_categories_basic():
     """Confirm categories gathered with correct, URL, and categories."""
-    content_dir = Path("./example/pages")
+    content_dir = Path("./docs/pages")
     cats = hastie.content.gather_categories(content_dir)
     assert len(cats) == 2
     assert cats[0]["name"] == "templates"
