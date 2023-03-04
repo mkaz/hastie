@@ -47,6 +47,7 @@ def get_page(filename: os.PathLike) -> Dict:
 
 
 def gather_pages(content_dir: os.PathLike, base_url="/") -> List:
+    """Build the list of pages from the file system."""
     pages = []
     files = content_dir.glob("**/*.md")
     for f in files:
@@ -78,6 +79,7 @@ def get_parent_name(p: os.PathLike, c: os.PathLike) -> str:
 
 
 def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
+    """Build list of categories from the filesystem."""
     categories = []
 
     paths = content_dir.glob("**/*")

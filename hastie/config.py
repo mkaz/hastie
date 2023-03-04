@@ -1,10 +1,11 @@
 import argparse
+import importlib.metadata
 from pathlib import Path
 import sys
 import toml
 
 # initialize config
-VERSION = "0.9.2"
+__version__ = importlib.metadata.version(__package__)
 
 
 parser = argparse.ArgumentParser(description="hastie")
@@ -26,7 +27,7 @@ if not conffile.is_file():
     sys.exit()
 
 if args["version"]:
-    print(f"hastie v{VERSION}")
+    print(f"hastie v{__version__}")
     sys.exit()
 
 # args is dict return, so add defaults

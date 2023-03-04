@@ -1,3 +1,4 @@
+example/output/
 .pytest_cache/
 __pycache__/
-example/output/
+.ruff_cache/
