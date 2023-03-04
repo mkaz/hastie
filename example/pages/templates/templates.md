@@ -1,5 +1,6 @@
 ---
 title: Templates
+date : 2023-03-03
 ---
 
 Hastie uses Jinja2 templates, for template syntax see their [Template Designer

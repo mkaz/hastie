@@ -11,6 +11,7 @@ import time
 from hastie.config import config, VERSION
 import hastie.content as content
 import hastie.hfs as hfs
+from hastie.rss import generate_rss
 
 
 def main():
@@ -102,11 +103,13 @@ def main():
         outfile = hfs.get_output_file(page["filename"], cdir, odir)
 
         # do not write out drafts
-        if "draft" not in page:
-            # create directories if they don't exist
-            outfile.parent.mkdir(exist_ok=True, parents=True)
-            outfile.write_text(html)
-            count += 1
+        if "draft" in page:
+            continue
+
+        # create directories if they don't exist
+        outfile.parent.mkdir(exist_ok=True, parents=True)
+        outfile.write_text(html)
+        count += 1
 
     # generate category pages
     for cat in categories:
@@ -164,6 +167,13 @@ def main():
     outfile = hfs.get_output_file(home["filename"], cdir, odir)
     outfile.write_text(html)
     count += 1
+
+    # generate RSS ?
+    if "rss" in config["site"]:
+        rss = generate_rss(config, pages)
+        outfile = Path(odir, "rss.xml")
+        outfile.write_text(rss)
+        count += 1
 
     elapsed = time.time() - start_time
     if not config["quiet"]:

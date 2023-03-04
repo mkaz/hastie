@@ -1,5 +1,6 @@
 ---
 title: Getting Started
+date: 2023-02-24
 ---
 
 ## Binary Install
