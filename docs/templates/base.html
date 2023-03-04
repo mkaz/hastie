@@ -4,18 +4,18 @@
         <meta charset="UTF-8">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="author" content="{{ AUTHOR }}">
-        <title>{% block title %}{{ SITENAME }}{% endblock title %}</title>
+        <meta name="author" content="{{ site.author }}">
+        <title>{% block title %}{{ site.title }}{% endblock title %}</title>
 
-        <link rel="stylesheet" href="/css/style.css"/>
-        <link rel="stylesheet" href="/css/code-highlight.css"/>
-        <link rel="icon" href="/favicon.ico">
+        <link rel="stylesheet" href="{{ site.base_url }}/css/style.css"/>
+        <link rel="stylesheet" href="{{ site.base_url }}/css/code-highlight.css"/>
+        <link rel="icon" href="{{ site.base_url }}/favicon.ico">
     </head>
     <body>
 
         <header>
             <h3>
-				<a href="/">{{ SITENAME }}</a>
+				<a href="/">{{ site.title }}</a>
             </h3>
         </header>
 
@@ -25,7 +25,7 @@
                     <h3> Topics </h3>
                     <ul>
                        {% for category in categories: %}
-                            <a href="{{ category.url }}">
+                           <a href="{{ site.base_url }}{{ category.url }}">
                                 {{ category.name }}
                             </a>
                        {% endfor %}
@@ -40,7 +40,7 @@
         </main>
 
         <footer>
-            An <a class="white" href="https://mkaz.blog">mkaz</a> depot.
+            An <a href="https://mkaz.blog">mkaz</a> depot.
         </footer>
 
     </body>

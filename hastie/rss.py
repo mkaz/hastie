@@ -9,11 +9,17 @@ from typing import Dict, List
 def generate_rss(config: Dict, pages: List) -> str:
     """With the config and list of pages, returns an RSS document"""
 
+    # we want at least a slash for the link
+    if "base_url" in config:
+        base_url = config["base_url"]
+    else:
+        base_url = "/"
+
     rss = f"""<?xml version="1.0"?>
         <rss version="2.0">
             <channel>
                 <title>{config["site"]["title"]}</title>
-                <link>{config["base_url"]}</link>
+                <link>{base_url}</link>
                 <description>{config["site"]["description"]}</description>
                 <language>en-us</language>
                 <pubDate>{formatdate()}</pubDate>

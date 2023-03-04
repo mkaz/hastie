@@ -1,5 +1,5 @@
 
-base_url = "/"
+# Hastie directories
 content_dir = "./pages"
 output_dir = "./output"
 templates_dir = "./templates"
@@ -8,6 +8,11 @@ templates_dir = "./templates"
 title = "Hastie Documentation"
 description = "Documentation (and example) site for Hastie"
 author = "Marcus Kazmierczak"
-rss = true
 
-# TODO: static dir
+# We don't need RSS for docs, but this is what you would
+# use to generate RSS for your site
+# rss = true
+
+# base url for GitHub pages
+# https://mkaz.github.io/hastie/
+base_url = "/hastie"

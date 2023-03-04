@@ -1,6 +1,5 @@
 ---
 title: Getting Started
-date: 2023-02-24
 ---
 
 ## Binary Install
@@ -22,7 +21,6 @@ Flags:
 Configuration file hastie.conf is in TOML format
 
 ```toml
-base_url = "/"
 content = "./pages"
 output = "./output"
 static = "./static"
@@ -32,6 +30,9 @@ templates = "../themes/docs/"
 title = "Example Site"
 description = "Just another example site"
 author = "Marcus Kazmierczak"
+
+# set if a subdirectory
+base_url = "/"
 ```
 
 Hastie walks through the `content` directory and finds all `.md` files. It applies the templates from `templates` directory and generates HTML copying to `output`.

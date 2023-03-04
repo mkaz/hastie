@@ -45,3 +45,9 @@ config = args | conf
 # Convert directories to Paths
 config["content_dir"] = Path(config["content_dir"])
 config["templates_dir"] = Path(config["templates_dir"])
+
+# guarentee config has base_url without trailing slash
+if "base_url" in config["site"]:
+    config["base_url"] = config["site"]["base_url"].rstrip("/")
+else:
+    config["base_url"] = ""

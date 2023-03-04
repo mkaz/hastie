@@ -1,7 +1,7 @@
 
 {% extends "base.html" %}
 
-{% block title %}{{category}} -{{ SITENAME }} {% endblock %}
+{% block title %}{{category}} -{{ site.title }} {% endblock %}
 
 {% block content %}
 
@@ -12,7 +12,7 @@
 	<ul>
     {% for page in pages: %}
 		<li>
-            <a href="{{page.url}}">
+            <a href="{{ site.base_url }}{{ page.url }}">
                 {{ page.title }}
 			</a>
 		</li>
