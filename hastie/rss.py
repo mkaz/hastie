@@ -1,4 +1,6 @@
+"""RSS Module"""
 from email.utils import formatdate
+import operator
 from textwrap import dedent
 from typing import Dict, List
 
@@ -20,19 +22,23 @@ def generate_rss(config: Dict, pages: List) -> str:
                 <managingEditor>{config["site"]["author"]}</managingEditor>
                 <webMaster>{config["site"]["author"]}</webMaster>
     """
+
+    # filter out pages without a date
+    pages = list(filter(lambda p: "date" in p, pages))
+
     # sort by date
+    pages.sort(key=operator.itemgetter("date"))
+
     # limit to 10 most recent
-
     for page in pages[:10]:
-        rss += f"""<item>
-            <title>{page["title"]}</title>
-            <link>{page["url"]}</link>
-            <description></description>
-            <guid>{page["url"]}</guid>
-        """
-        if "date" in page:
-            rss += f"<pubDate>{page['date']}</pubDate>"
+        rss += f"""
+            <item>
+                <title>{page["title"]}</title>
+                <link>{page["url"]}</link>
+                <description></description>
+                <guid>{page["url"]}</guid>
+                <pubDate>{page['date']}</pubDate>
+            </item>"""
 
-        rss += "</item></channel></rss>"
-
+    rss += "</channel></rss>"
     return dedent(rss)
