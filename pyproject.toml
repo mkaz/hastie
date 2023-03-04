@@ -1,7 +1,7 @@
 
 [tool.poetry]
 name = "hastie"
-version = "0.9.3"
+version = "0.9.4"
 description = "A static site generator"
 authors = ["Marcus Kazmierczak <marcus@mkaz.com>"]
 license = "MIT"

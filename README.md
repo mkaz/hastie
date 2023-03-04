@@ -16,9 +16,10 @@ To use Hastie:
 
 ## Install
 
-For development, I symlink ~/bin/hastie to ./hastie/hastie.py
+`python3 -m pip install git+https://github.com/mkaz/hastie`
 
-Eventually I'll make it pippable.
+
+For development, I run: `poetry run python hastie/main.py`
 
 Install dependencies using:
 

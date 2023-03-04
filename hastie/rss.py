@@ -27,6 +27,9 @@ def generate_rss(config: Dict, pages: List) -> str:
     # filter out pages without a date
     pages = list(filter(lambda p: "date" in p, pages))
 
+    # filter out draft pages
+    pages = list(filter(lambda p: "draft" not in p, pages))
+
     # sort by date
     pages.sort(key=operator.itemgetter("date"), reverse=True)
 

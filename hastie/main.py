@@ -8,7 +8,7 @@ import sys
 import time
 
 # internal imports
-from hastie.config import config, VERSION
+from hastie.config import config, __version__
 import hastie.content as content
 import hastie.hfs as hfs
 from hastie.rss import generate_rss
@@ -23,7 +23,7 @@ def main():
     tdir = config["templates_dir"]
 
     if not config["quiet"]:
-        print(f"Hastie v{VERSION}")
+        print(f"Hastie v{__version__}")
 
     # Confirm content and template directories exists
     if not cdir.is_dir():
