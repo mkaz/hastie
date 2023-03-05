@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description="hastie")
 parser.add_argument("-q", "--quiet", action="store_true")
 parser.add_argument("-v", "--version", action="store_true")
 parser.add_argument("-c", "--conf", help="Config file")
+parser.add_argument("--baseurl", help="Override base url in config")
 args = vars(parser.parse_args())
 
 # Convention over configuration.
@@ -46,8 +47,11 @@ config = args | conf
 config["content_dir"] = Path(config["content_dir"])
 config["templates_dir"] = Path(config["templates_dir"])
 
-# guarentee config has base_url without trailing slash
-if "base_url" in config["site"]:
-    config["base_url"] = config["site"]["base_url"].rstrip("/")
+# guarentee config has baseurl without trailing slash
+# command-line argument overwrite config
+if args["baseurl"]:
+    config["site"]["baseurl"] = args["baseurl"].rstrip("/")
+elif "baseurl" in config["site"]:
+    config["site"]["baseurl"] = config["site"]["baseurl"].rstrip("/")
 else:
-    config["base_url"] = ""
+    config["site"]["baseurl"] = ""

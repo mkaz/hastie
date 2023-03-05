@@ -46,7 +46,7 @@ def get_page(filename: os.PathLike) -> Dict:
     return page
 
 
-def gather_pages(content_dir: os.PathLike, base_url="/") -> List:
+def gather_pages(content_dir: os.PathLike, baseurl="/") -> List:
     """Build the list of pages from the file system."""
     pages = []
     files = content_dir.glob("**/*.md")
@@ -67,7 +67,7 @@ def gather_pages(content_dir: os.PathLike, base_url="/") -> List:
 
         page["name"] = Path(f.parent, f.stem)
         page["url"] = utils.urljoin(
-            [base_url, os.path.relpath(page["name"], start=content_dir)]
+            [baseurl, os.path.relpath(page["name"], start=content_dir)]
         )
         pages.append(page)
     return pages
@@ -80,7 +80,7 @@ def get_parent_name(p: os.PathLike, c: os.PathLike) -> str:
     return name
 
 
-def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
+def gather_categories(content_dir: os.PathLike, baseurl="/") -> List:
     """Build list of categories from the filesystem."""
     categories = []
 
@@ -106,7 +106,7 @@ def gather_categories(content_dir: os.PathLike, base_url="/") -> List:
             "name": name,
             "parent": parent_name,
             "page": page,
-            "url": utils.urljoin([base_url, parent_name, name]),
+            "url": utils.urljoin([baseurl, parent_name, name]),
         }
         categories.append(category)
 
