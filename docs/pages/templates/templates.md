@@ -1,6 +1,5 @@
 ---
 title: Templates
-date : 2023-03-03
 ---
 
 Hastie uses Jinja2 templates, for template syntax see their [Template Designer
@@ -37,7 +36,6 @@ page.category | Category for page
 page.url      | Permalink for page
 pages         | List of all pages in category
 site          | site data object
-
 
 
 ## Static  Directory

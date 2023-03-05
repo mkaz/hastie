@@ -1,0 +1,7 @@
+# justfile for convenience
+
+build:
+    poetry run python ../hastie/main.py --baseurl "/"
+
+serve:
+    python3 -m http.server --directory output/

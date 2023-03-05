@@ -7,27 +7,37 @@
         <meta name="author" content="{{ site.author }}">
         <title>{% block title %}{{ site.title }}{% endblock title %}</title>
 
-        <link rel="stylesheet" href="{{ site.base_url }}/css/style.css"/>
-        <link rel="stylesheet" href="{{ site.base_url }}/css/code-highlight.css"/>
-        <link rel="icon" href="{{ site.base_url }}/favicon.ico">
+        <link rel="stylesheet" href="{{ site.baseurl }}/css/style.css"/>
+        <link rel="stylesheet" href="{{ site.baseurl }}/css/code-highlight.css"/>
+        <link rel="icon" href="{{ site.baseurl }}/favicon.ico">
     </head>
     <body>
 
         <header>
             <h3>
-                <a href="{{ site.base_url }}/">{{ site.title }}</a>
+                <a href="{{ site.baseurl }}/">{{ site.title }}</a>
             </h3>
         </header>
 
         <main>
             <aside>
                 <nav>
-                    <h3> Topics </h3>
+                    <h3> Pages </h3>
+                    <ul>
+                       {% for page in pages: %}
+                           <li><a href="{{ page.url }}">
+                                {{ page.title }}
+                            </a></li>
+                       {% endfor %}
+                    </ul>
+                </nav>
+                <nav>
+                    <h3> Sections </h3>
                     <ul>
                        {% for category in categories: %}
-                           <a href="{{ category.url }}">
+                           <li><a href="{{ category.url }}">
                                 {{ category.name }}
-                            </a>
+                            </a></li>
                        {% endfor %}
                     </ul>
                 </nav>
@@ -44,7 +54,7 @@
             <span>
                 <a href="https://github.com/mkaz/hastie">
                     View on GitHub
-                    <img src="{{ site.base_url }}/img/github-icon.svg" width=16 height=16 alt="GitHub icon">
+                    <img src="{{ site.baseurl }}/img/github-icon.svg" width=16 height=16 alt="GitHub icon">
                 </a>
             </span>
         </footer>

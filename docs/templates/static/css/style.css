@@ -1,7 +1,8 @@
 @charset "utf-8";
 
 :root {
-	--link-color: #0088CC;
+	--link-color: #003BC6;
+	--code-color: #7701B9;
 }
 
 *, *:before, *:after {
@@ -71,8 +72,9 @@ th{
 
 header {
 	margin-bottom: 3rem;
-	h3 { margin: 0; }
 }
+
+header h3 { margin: 0; }
 
 main {
 	min-height: calc(100vh - 14rem);
@@ -82,7 +84,7 @@ main {
 }
 
 aside {
-	width: 120px;
+	width: 240px;
 	margin-right: 4rem;
 }
 
@@ -162,6 +164,12 @@ article li {
 	max-width: 42rem;
 }
 
+article blockquote,
+article p {
+	margin-top: 1.75rem;
+	margin-bottom: 1.75rem;
+}
+
 article h2,
 article h3,
 article h4,
@@ -190,4 +198,8 @@ section ul {
 section li {
 	line-height: 0;
 	margin-bottom: 2.0rem;
+}
+
+code {
+	color: var(--code-color);
 }

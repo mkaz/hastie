@@ -2,60 +2,62 @@
 title: Getting Started
 ---
 
-## Binary Install
+## Install
 
-Download binaries for Linux, Mac, and Windows from [Github releases tab](https://github.com/mkaz/hastie/releases).
-
-TBD
+```
+pip install git+https://github.com/mkaz/hastie
+```
 
 ## Usage
 
 ```bash
-$ hastie [-flags]
+usage: hastie [-h] [-q] [-v] [-c CONF] [--baseurl BASEURL]
 
-Flags:
-  -version
-        Display version and quit
+options:
+  -h, --help            show this help message and exit
+  -q, --quiet
+  -v, --version
+  -c CONF, --conf CONF  Config file
+  --baseurl BASEURL     Override base url in config
 ```
+## Config
 
-Configuration file hastie.conf is in TOML format
+Create a configuration file hastie.toml
 
 ```toml
 content = "./pages"
 output = "./output"
 static = "./static"
-templates = "../themes/docs/"
+templates = "./templates/"
 
 [site]
 title = "Example Site"
 description = "Just another example site"
 author = "Marcus Kazmierczak"
 
-# set if a subdirectory
-base_url = "/"
+# set if site hosted at a subdirectory
+# for example: https://mkaz.github.io/hastie
+baseurl = "/hastie"
 ```
 
-Hastie walks through the `content` directory and finds all `.md` files. It applies the templates from `templates` directory and generates HTML copying to `output`.
+## Run
 
-The file front matter can specify the template, using `template: filename` (without `.html` extension).
+With the above config, just run `hastie`
 
-If not specified, the default templates are:
-- `home` for the top-level `index.md`
-- `category` for `index.md` files in direcotries
-- `page` for all other pages
-
-For this example content structure:
-
-```
-content/
-    about.md
-    index.md
-    pastas/
-        index.md
-        macaroni.md
-        spaghetti.md
+```bash
+$ hastie
+Hastie v0.9.3
+Generated 6 files in 0.086 sec
 ```
 
-- `about.md`, `macaroni.md`, and `spaghetti.md` would use `page` template
-- `pastas/index.md` would use `category` template
-- `index.md` would use `home` template
+Hastie walks through the `content` directory and finds all `.md` files. It applies the templates from `templates` directory and generates HTML copying to `output` using the same directory structure.
+
+Use directories to create categories for your ontent.
+
+The default templates are:
+
+- `index.html` for the top-level `index.md`
+- `category.html` for `index.md` files in directories
+- `page.html` for all other pages
+
+The frontmatter in the markdown document can specify a different template, use `template: filename` (without `.html` extension).

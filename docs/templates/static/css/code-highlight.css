@@ -6,6 +6,10 @@
     padding: 1rem;
 }
 
+.codehilite pre > code {
+    color: #cccccc;
+}
+
 .codehilite .hll { background-color: #515151 }
 .codehilite .c { color: #999999 } /* Comment */
 .codehilite .err { color: #f2777a } /* Error */

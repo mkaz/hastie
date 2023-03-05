@@ -4,7 +4,7 @@ title: Markdown Content Page
 
 ## Frontmatter
 
-Hastie uses front matter to specify parameters for each page. The parameters are specified at the top of the markdown document. Hastie can support both YAML and TOML frontmatter, personal preference for what you want to use.
+Hastie uses frontmatter to specify parameters for each page. The parameters are specified at the top of the markdown document. Hastie can support both YAML and TOML frontmatter, personal preference for what you want to use.
 
 If converting from another static site generator Jekyll sites use YAML and Zola sites use TOML.
 
@@ -82,7 +82,11 @@ draft = true
 ...
 ```
 
-## Code Highlighting
+## Page Content
+
+After the frontmatter, add your page content in markdown format. This content will be translated to HTML and then made available to the template in the `page.content` variable.
+
+### Code Highlighting
 
 Use fenced code blocks to define a code section with triple ticks and the name
 of the language. See the [Python Markdown
