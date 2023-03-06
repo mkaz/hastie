@@ -13,8 +13,11 @@ def urljoin(parts: List) -> str:
     # filter out empty
     parts = filter(lambda p: p != "", parts)
 
+    # add start to front of list
+    parts.insert(0, start)
+
     # come together
-    url = start + "/".join(parts)
+    url = "/".join(parts)
 
     return url
 
