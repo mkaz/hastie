@@ -1,7 +1,7 @@
 """RSS Module"""
+import operator
 from datetime import datetime
 from email.utils import formatdate
-import operator
 from textwrap import dedent
 from typing import Dict, List
 
@@ -41,7 +41,6 @@ def generate_rss(config: Dict, pages: List) -> str:
     # limit to 10 most recent
     for page in pages[:10]:
         pubdate = datetime.combine(page["date"], datetime.min.time())
-        pubdate = formatdate(pubdate.timestamp())
         rss += f"""
             <item>
                 <title>{page["title"]}</title>
@@ -50,7 +49,7 @@ def generate_rss(config: Dict, pages: List) -> str:
                     {page["content"]}
                 ]]></description>
                 <guid>{page["url"]}</guid>
-                <pubDate>{pubdate}</pubDate>
+                <pubDate>{formatdate(pubdate.timestamp())}</pubDate>
             </item>"""
 
     rss += "</channel></rss>"

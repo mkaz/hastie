@@ -7,7 +7,6 @@ import toml
 # initialize config
 __version__ = importlib.metadata.version(__package__)
 
-
 parser = argparse.ArgumentParser(description="hastie")
 parser.add_argument("-q", "--quiet", action="store_true")
 parser.add_argument("-v", "--version", action="store_true")

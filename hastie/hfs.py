@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-def get_output_file(f: os.PathLike, c: os.PathLike, o: os.PathLike) -> os.PathLike:
+def get_output_file(f: Path, c: Path, o: Path) -> Path:
     """Takes filename, content directory, output directory and returns output file"""
     # get file relative to content directory
     jf = Path(os.path.relpath(f, start=c))

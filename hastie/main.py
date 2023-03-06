@@ -49,8 +49,8 @@ def main():
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
 
     # gather site info - all pages, categories
-    pages = content.gather_pages(cdir, baseurl=config["site"]["baseurl"])
-    categories = content.gather_categories(cdir, baseurl=config["site"]["baseurl"])
+    pages = content.gather_pages(cdir, config)
+    categories = content.gather_categories(cdir, config)
     site = []
     if "site" in config:
         site = config["site"]
@@ -155,7 +155,7 @@ def main():
         count += 1
 
     # generate home page
-    home = content.get_page(Path(cdir, "index.md"))
+    home = content.get_page(Path(cdir, "index.md"), config)
     home["url"] = config["site"]["baseurl"]
     tpl_name = "index.html"
     if "template" in home:

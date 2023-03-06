@@ -1,20 +1,39 @@
-"""Hastie resources, pages and categories."""
+"""
+Hastie resources, pages and categories.
+"""
+
+import os
+import sys
+from pathlib import Path
+from typing import Dict, List
 
 import frontmatter
 from markdown import markdown
-import os
-from pathlib import Path
-from typing import Dict, List
-import sys
 
-from hastie.config import config
 import hastie.utils as utils
 
 
-def get_page(filename: os.PathLike) -> Dict:
-    """Read page in from file system, parse front matter and render markdown."""
-    page = {}
-    exts = ["codehilite", "fenced_code", "tables"]
+def get_page(filename: Path, config: Dict) -> Dict:
+    """Read page in from file system, parse frontmatter and render markdown."""
+
+    try:
+        # read page in
+        page = read_page(filename, config)
+        page["filename"] = filename
+
+        # process markdown
+        page["content"] = process_markdown(page.get("content", ""))
+    except Exception as err:
+        print(f"Error reading page {filename}")
+        print(err)
+        sys.exit(1)
+
+    return page
+
+
+def read_page(filename: Path, config: Dict) -> Dict:
+    """Read page using frontmatter."""
+
     with open(filename, "r") as f:
         # check for frontmatter format
         fm = config.get("frontmatter", "yaml")
@@ -26,35 +45,29 @@ def get_page(filename: os.PathLike) -> Dict:
             case _:
                 handler = frontmatter.default_handlers.YAMLHandler()
 
-        try:
-            page = frontmatter.load(f, handler=handler).to_dict()
-        except Exception as err:
-            print("Error parsing frontmatter")
-            print(f"    Filename: {filename}")
-            print(err)
-            sys.exit(1)
+        page = frontmatter.load(f, handler=handler).to_dict()
 
-    try:
-        page["content"] = markdown(page.get("content", ""), extensions=exts)
-    except Exception as err:
-        print("Error converting markdown")
-        print(f"    Filename: {filename}")
-        print(err)
-        sys.exit(1)
-
-    page["filename"] = filename
     return page
 
 
-def gather_pages(content_dir: os.PathLike, baseurl="/") -> List:
+# Why are these comments different
+def process_markdown(md: str) -> str:
+    """Take markdown content and process to HTML."""
+    exts = ["codehilite", "fenced_code", "tables"]
+    html = markdown(md, extensions=exts)
+    return html
+
+
+def gather_pages(content_dir: Path, config: Dict) -> List:
     """Build the list of pages from the file system."""
     pages = []
+    baseurl = config["site"]["baseurl"]
     files = content_dir.glob("**/*.md")
     for f in files:
         if f.name == "index.md":
             continue
 
-        page = get_page(f)
+        page = get_page(f, config)
         page["category"] = ""  # default
         page["parent"] = ""  # default
 
@@ -73,16 +86,17 @@ def gather_pages(content_dir: os.PathLike, baseurl="/") -> List:
     return pages
 
 
-def get_parent_name(p: os.PathLike, c: os.PathLike) -> str:
+def get_parent_name(p: Path, c: Path) -> str:
     name = os.path.relpath(p, start=c)
     if name == ".":
         name = ""
     return name
 
 
-def gather_categories(content_dir: os.PathLike, baseurl="/") -> List:
+def gather_categories(content_dir: Path, config: Dict) -> List:
     """Build list of categories from the filesystem."""
     categories = []
+    baseurl = config["site"]["baseurl"]
 
     paths = content_dir.glob("**/*")
     for p in paths:
@@ -99,7 +113,7 @@ def gather_categories(content_dir: os.PathLike, baseurl="/") -> List:
         if not index.is_file():
             continue  # skip - it's not a category without a index.md
 
-        page = get_page(index)
+        page = get_page(index, config)
         page["category"] = name
 
         category = {
@@ -110,4 +124,5 @@ def gather_categories(content_dir: os.PathLike, baseurl="/") -> List:
         }
         categories.append(category)
 
+    return categories
     return categories

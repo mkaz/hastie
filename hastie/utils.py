@@ -11,7 +11,7 @@ def urljoin(parts: List) -> str:
     parts = list(map(slash_strip, parts))
 
     # filter out empty
-    parts = filter(lambda p: p != "", parts)
+    parts = list(filter(lambda p: p != "", parts))
 
     # add start to front of list
     parts.insert(0, start)
