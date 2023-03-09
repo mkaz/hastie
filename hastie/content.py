@@ -49,7 +49,7 @@ def read_page(filename: Path, config: Dict = {}) -> Dict:
 
 def process_markdown(md: str) -> str:
     """Take markdown content and process to HTML."""
-    exts = ["codehilite", "fenced_code", "tables"]
+    exts = ["codehilite", "fenced_code", "tables", "toc"]
     html = markdown(md, extensions=exts)
     return html
 

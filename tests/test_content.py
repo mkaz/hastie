@@ -15,6 +15,13 @@ def test_read_page_basic():
     assert page["title"] == "Welcome to Hastie"
 
 
+def test_read_page_custom_var():
+    """Read docs page and check for custom variable in frontmatter."""
+    f = Path("./docs/pages/templates/sub/example.md")
+    page = hastie.content.read_page(f)
+    assert page["topic"] == "moon"
+
+
 def test_determine_categories_from_path_single_category():
     """Test determining categories from path with a single categoey"""
     content_dir = Path("./pages")
