@@ -17,11 +17,7 @@ def get_page(filename: Path, config: Dict) -> Dict:
     """Read page in from file system, parse frontmatter and render markdown."""
 
     try:
-        # read page in
         page = read_page(filename, config)
-        page["filename"] = filename
-
-        # process markdown
         page["content"] = process_markdown(page.get("content", ""))
     except Exception as err:
         print(f"Error reading page {filename}")
@@ -31,8 +27,8 @@ def get_page(filename: Path, config: Dict) -> Dict:
     return page
 
 
-def read_page(filename: Path, config: Dict) -> Dict:
-    """Read page using frontmatter."""
+def read_page(filename: Path, config: Dict = {}) -> Dict:
+    """Read page using frontmatter library."""
 
     with open(filename, "r") as f:
         # check for frontmatter format
@@ -46,11 +42,11 @@ def read_page(filename: Path, config: Dict) -> Dict:
                 handler = frontmatter.default_handlers.YAMLHandler()
 
         page = frontmatter.load(f, handler=handler).to_dict()
+        page["filename"] = filename
 
     return page
 
 
-# Why are these comments different
 def process_markdown(md: str) -> str:
     """Take markdown content and process to HTML."""
     exts = ["codehilite", "fenced_code", "tables"]
@@ -68,29 +64,34 @@ def gather_pages(content_dir: Path, config: Dict) -> List:
             continue
 
         page = get_page(f, config)
-        page["category"] = ""  # default
-        page["parent"] = ""  # default
-
-        if f.parent != content_dir:
-            # in a subdirectory, thus a category
-            category_path = f.parent
-            parent_path = category_path.parent
-            page["parent"] = get_parent_name(parent_path, content_dir)
-            page["category"] = os.path.relpath(category_path, parent_path)
-
-        page["name"] = Path(f.parent, f.stem)
-        page["url"] = utils.urljoin(
-            [baseurl, os.path.relpath(page["name"], start=content_dir)]
-        )
+        page |= determine_categories_from_path(f.parent, content_dir)
+        page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
+        page["url"] = utils.urljoin([baseurl, page["name"]])
         pages.append(page)
     return pages
 
 
 def get_parent_name(p: Path, c: Path) -> str:
+    """If parent name is . return empty."""
     name = os.path.relpath(p, start=c)
     if name == ".":
         name = ""
     return name
+
+
+def determine_categories_from_path(file_parent: Path, content_dir: Path) -> Dict:
+    """Get the page category and parent from paths.
+    Returns empty for both if top level page, or empty parent if not sub-category."""
+    # set defaults to be empty
+    d = {"category": "", "parent": ""}
+
+    if file_parent != content_dir:
+        # Then we're in a subdirectory, thus a category
+        category_path = file_parent
+        parent_path = category_path.parent
+        d["parent"] = get_parent_name(parent_path, content_dir)
+        d["category"] = os.path.relpath(category_path, parent_path)
+    return d
 
 
 def gather_categories(content_dir: Path, config: Dict) -> List:
@@ -124,5 +125,4 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
         }
         categories.append(category)
 
-    return categories
     return categories

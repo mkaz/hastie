@@ -1,51 +1,42 @@
 """ Test module for Hastie resources."""
 
 from pathlib import Path
-import pytest
 
-pytest.skip(allow_module_level=True)
+# import pytest
+# pytest.skip(allow_module_level=True)
+import hastie.content
 
-import hastie
 
-
-def test_get_page_basic():
-    """Confirm title and filename reads in properly."""
+def test_read_page_basic():
+    """Read docs page and confirm frontmatter parse."""
     f = Path("./docs/pages/index.md")
-    page = hastie.content.get_page(f)
+    page = hastie.content.read_page(f)
     assert page["filename"] == Path("docs/pages/index.md")
     assert page["title"] == "Welcome to Hastie"
 
 
-def test_gather_pages_basic():
-    """Confirm pages gathered with correct, URL, and categories."""
-    content_dir = Path("./docs/pages")
-    pages = hastie.content.gather_pages(content_dir)
-    assert len(pages) == 3
-    for p in pages:
-        good = False
-        if p["title"] == "Getting Started":
-            assert p["category"] == ""
-            assert p["parent"] == ""
-            good = True
-        elif p["title"] == "Markdown Content Page":
-            assert p["category"] == ""
-            assert p["parent"] == ""
-            good = True
-        elif p["title"] == "Templates":
-            assert p["category"] == "templates"
-            assert p["parent"] == ""
-            good = True
-    assert good
+def test_determine_categories_from_path_single_category():
+    """Test determining categories from path with a single categoey"""
+    content_dir = Path("./pages")
+    file_parent = Path("./pages/templates")
+    d = hastie.content.determine_categories_from_path(file_parent, content_dir)
+    assert d["parent"] == ""
+    assert d["category"] == "templates"
 
 
-def test_gather_categories_basic():
-    """Confirm categories gathered with correct, URL, and categories."""
-    content_dir = Path("./docs/pages")
-    cats = hastie.content.gather_categories(content_dir)
-    assert len(cats) == 2
-    assert cats[0]["name"] == "templates"
-    assert cats[0]["page"]["title"] == "Templates Index"
-    assert cats[0]["parent"] == ""
-    assert cats[1]["name"] == "sub"
-    assert cats[1]["page"]["title"] == "Subcategory"
-    assert cats[1]["parent"] == "templates"
+def test_determine_categories_from_path_no_category():
+    """Test determining categories from file in root, no category"""
+    content_dir = Path("./pages")
+    file_parent = Path("./pages")
+    d = hastie.content.determine_categories_from_path(file_parent, content_dir)
+    assert d["parent"] == ""
+    assert d["category"] == ""
+
+
+def test_determine_categories_from_path_sub_category():
+    """Test determining categories from file in sub category"""
+    content_dir = Path("./pages")
+    file_parent = Path("./pages/templates/sub")
+    d = hastie.content.determine_categories_from_path(file_parent, content_dir)
+    assert d["parent"] == "templates"
+    assert d["category"] == "sub"
