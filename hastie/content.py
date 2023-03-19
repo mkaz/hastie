@@ -60,38 +60,49 @@ def gather_pages(content_dir: Path, config: Dict) -> List:
     baseurl = config["site"]["baseurl"]
     files = content_dir.glob("**/*.md")
     for f in files:
+        # Check if it is an index file
         if f.name == "index.md":
-            continue
+            # We don't want category pages, they are special
+            if f.parent.parent == content_dir:
+                continue
 
         page = get_page(f, config)
-        page |= determine_categories_from_path(f.parent, content_dir)
-        page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
+        page["category"] = determine_category_from_path(f.parent, content_dir)
+
+        # determine name different for directory page
+        if f.name == "index.md":
+            page["name"] = os.path.relpath(f.parent, start=content_dir)
+        else:
+            page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
+
         page["url"] = utils.urljoin([baseurl, page["name"]])
         pages.append(page)
     return pages
 
 
-def get_parent_name(p: Path, c: Path) -> str:
-    """If parent name is . return empty."""
-    name = os.path.relpath(p, start=c)
-    if name == ".":
-        name = ""
-    return name
+def determine_category_from_path(file_parent: Path, content_dir: Path) -> str:
+    """Get the page category from the files parent path.
 
+    Option 1 - Top level page
+        - the file parent is the same as content dir
 
-def determine_categories_from_path(file_parent: Path, content_dir: Path) -> Dict:
-    """Get the page category and parent from paths.
-    Returns empty for both if top level page, or empty parent if not sub-category."""
-    # set defaults to be empty
-    d = {"category": "", "parent": ""}
+    Option 2 - a single markdown file as page
+        - the file parent is the category (grandparent is content dir)
 
-    if file_parent != content_dir:
-        # Then we're in a subdirectory, thus a category
-        category_path = file_parent
-        parent_path = category_path.parent
-        d["parent"] = get_parent_name(parent_path, content_dir)
-        d["category"] = os.path.relpath(category_path, parent_path)
-    return d
+    Option 3 - a directory page with index.md
+        - the grandparent is category
+    """
+
+    # Option 1- Top level page
+    if file_parent == content_dir:
+        return ""
+    # Option 2 - Parent is category
+    category_path = file_parent
+    if category_path.parent == content_dir:
+        return os.path.relpath(category_path, start=content_dir)
+
+    # Option 3 - Grandparent is category
+    return os.path.relpath(category_path.parent, start=content_dir)
 
 
 def gather_categories(content_dir: Path, config: Dict) -> List:
@@ -99,16 +110,13 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
     categories = []
     baseurl = config["site"]["baseurl"]
 
-    paths = content_dir.glob("**/*")
+    ## do not recurse, categories are top level directories
+    paths = content_dir.glob("*")
     for p in paths:
         if not p.is_dir():
-            continue  # skip
+            continue  # skip files
 
-        parent_name = get_parent_name(p.parent, content_dir)
-        name = os.path.relpath(p, start=p.parent)
-
-        if parent_name == ".." or name == ".":
-            continue  # skip
+        name = os.path.relpath(p, start=content_dir)
 
         index = Path(p, "index.md")
         if not index.is_file():
@@ -119,9 +127,8 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
 
         category = {
             "name": name,
-            "parent": parent_name,
             "page": page,
-            "url": utils.urljoin([baseurl, parent_name, name]),
+            "url": utils.urljoin([baseurl, name]),
         }
         categories.append(category)
 

@@ -4,6 +4,27 @@ title: Welcome to Hastie
 
 Hastie is a static site generator similar to [Jekyll](https://github.com/mojombo/jekyll), [Pelican](https://getpelican.com/), or the many others. It takes content written in markdown and mashes them up with templates written in Jinja to create HTML to be published anywhere.
 
+## Structure
+
+The file system of folders and files in the content directory define the structure for the web site.
+
+The top level directories define the categories. These category directories contain pages defined by a single markdown file, or a directory with an index.md file. Directories are useful when including additional assets, such as images, for the page.
+
+```
+content/
+
+	index.md	# home page
+	about.md	# about page
+	now.md		# now page
+
+	category-one/
+		index.md			# index file for category
+		cat-page.md			# page inside category
+
+		another-cat-page/
+			index.md		# another cat page
+			image.jpg		# image for another
+```
 
 ## Background
 

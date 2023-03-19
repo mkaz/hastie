@@ -34,12 +34,14 @@ def main():
         print(f"Templates directory {tdir} not found")
         sys.exit()
 
-    # copy templates static dir to output - content ends up top level
+    # copy templates static dir to output
+    # - content at top level: for example /favicon.ico
     tpl_static = Path(tdir, "static")
     out_tpl_static = Path(odir)
     shutil.copytree(tpl_static, out_tpl_static, dirs_exist_ok=True)
 
-    # copy site static dir to output - content ends in static/ dir
+    # copy site static dir to output
+    # - content within under /static dir
     site_static = Path("./", "static")
     out_static = Path(odir, "static")
     if site_static.is_dir():

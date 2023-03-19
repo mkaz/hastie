@@ -11,6 +11,6 @@ def urljoin(parts: List) -> str:
     parts = list(filter(lambda p: p != "", parts))
 
     # come together
-    url = "/" + "/".join(parts)
+    url = "/" + "/".join(parts) + "/"
 
     return url
