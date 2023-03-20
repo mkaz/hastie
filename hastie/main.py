@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import sys
 import time
+import sysrsync
 
 # internal imports
 from hastie.config import config, __version__
@@ -46,6 +47,14 @@ def main():
     out_static = Path(odir, "static")
     if site_static.is_dir():
         shutil.copytree(site_static, out_static, dirs_exist_ok=True)
+
+    # sync content structure to output excluding markdown
+    sysrsync.run(
+        source=str(cdir),  # add trailing slash
+        destination=str(odir),  # add trailing slash
+        options=["-a"],
+        exclusions=["*.md"],
+    )
 
     # load in jinja templates
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
