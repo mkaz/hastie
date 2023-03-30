@@ -1,5 +1,8 @@
 from typing import List
 
+# import operator
+import re
+
 
 def urljoin(parts: List) -> str:
     """Join a list of URL paths avoiding duplicate /'s"""
@@ -14,3 +17,26 @@ def urljoin(parts: List) -> str:
     url = "/" + "/".join(parts) + "/"
 
     return url
+
+
+def tryint(s):
+    """Return an int if possible, or `s` unchanged."""
+    try:
+        return int(s)
+    except ValueError:
+        return s
+
+
+def alphanum(s) -> List:
+    """
+    Turn a string into a list of string and number chunks.
+    >>> alphanum_key("z23a")
+    ["z", 23, "a"]
+    """
+
+    return [tryint(c) for c in re.split("([0-9]+)", s)]
+
+
+def human_sort(k: List, field: str) -> List:
+    k.sort(key=lambda el: alphanum(el[field]))
+    return k

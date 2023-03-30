@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import operator
 from pathlib import Path
 import shutil
 import sys
@@ -13,6 +12,7 @@ from hastie.config import config, __version__
 import hastie.content as content
 import hastie.hfs as hfs
 from hastie.rss import generate_rss
+from hastie.utils import human_sort
 
 
 def main():
@@ -98,7 +98,7 @@ def main():
         category_pages = list(filter(lambda p: "archive" not in p, category_pages))
 
         # sort pages
-        category_pages.sort(key=operator.itemgetter("title"))
+        human_sort(category_pages, "title")
 
         try:
             html = tpl.render(
@@ -138,7 +138,7 @@ def main():
         category_pages = list(filter(lambda p: "archive" not in p, category_pages))
 
         # sort by title
-        category_pages.sort(key=operator.itemgetter("title"))
+        human_sort(category_pages, "title")
 
         cat["page"]["categories"] = filter(
             lambda c: (c["parent"] == cat["parent"] or c["parent"] == cat["name"])

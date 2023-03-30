@@ -132,4 +132,6 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
         }
         categories.append(category)
 
+    utils.human_sort(categories, "name")
+
     return categories

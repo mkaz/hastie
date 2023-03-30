@@ -3,18 +3,28 @@
 from pathlib import Path
 from typing import Dict
 
-# import pytest
+import pytest
+
 # pytest.skip(allow_module_level=True)
+
 import hastie.content
 
-# Fixtures
-config: Dict = {}
-config["site"] = {}
-config["site"]["baseurl"] = "/"
 
-config_base: Dict = {}
-config_base["site"] = {}
-config_base["site"]["baseurl"] = "/hastie"
+# Fixtures
+@pytest.fixture()
+def config():
+    config: Dict = {}
+    config["site"] = {}
+    config["site"]["baseurl"] = "/"
+    return config
+
+
+@pytest.fixture()
+def config_base():
+    config: Dict = {}
+    config["site"] = {}
+    config["site"]["baseurl"] = "/hastie"
+    return config
 
 
 def test_read_page_basic():
@@ -32,9 +42,8 @@ def test_read_page_custom_var():
     assert page["topic"] == "templates"
 
 
-def test_gather_categories():
+def test_gather_categories(config):
     """Test determining categories from path with a single categoey"""
-    global config
 
     content_dir = Path("./docs/pages")
     categories = hastie.content.gather_categories(content_dir, config)
@@ -44,9 +53,8 @@ def test_gather_categories():
     assert category["url"] == "/templates/"
 
 
-def test_gather_categories_with_base():
+def test_gather_categories_with_base(config_base):
     """Test determining categories from path with a single categoey"""
-    global config_base
 
     content_dir = Path("./docs/pages")
     categories = hastie.content.gather_categories(content_dir, config_base)
