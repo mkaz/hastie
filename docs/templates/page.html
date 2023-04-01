@@ -8,4 +8,17 @@
 
     {{page.content | safe}}
 
+    {% if page.subpages %}
+    <h3> Subpages </h3>
+    <ul>
+        {% for sub in page.subpages: %}
+            <li>
+                <a href="{{ sub.url }}">
+                    {{ sub.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
 {% endblock content %}

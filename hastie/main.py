@@ -2,10 +2,9 @@
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pathlib import Path
-import shutil
+
 import sys
 import time
-import sysrsync
 
 # internal imports
 from hastie.config import config, __version__
@@ -19,12 +18,12 @@ def main():
     start_time = time.time()
     count = 0
 
+    if not config["quiet"]:
+        print(f"Hastie v{__version__}")
+
     cdir = config["content_dir"]
     odir = config["output_dir"]
     tdir = config["templates_dir"]
-
-    if not config["quiet"]:
-        print(f"Hastie v{__version__}")
 
     # Confirm content and template directories exists
     if not cdir.is_dir():
@@ -35,26 +34,8 @@ def main():
         print(f"Templates directory {tdir} not found")
         sys.exit()
 
-    # copy templates static dir to output
-    # - content at top level: for example /favicon.ico
-    tpl_static = Path(tdir, "static")
-    out_tpl_static = Path(odir)
-    shutil.copytree(tpl_static, out_tpl_static, dirs_exist_ok=True)
-
-    # copy site static dir to output
-    # - content within under /static dir
-    site_static = Path("./", "static")
-    out_static = Path(odir, "static")
-    if site_static.is_dir():
-        shutil.copytree(site_static, out_static, dirs_exist_ok=True)
-
-    # sync content structure to output excluding markdown
-    sysrsync.run(
-        source=str(cdir),  # add trailing slash
-        destination=str(odir),  # add trailing slash
-        options=["-a"],
-        exclusions=["*.md"],
-    )
+    # copy all the static assets
+    hfs.copy_static_assets(cdir, odir, tdir)
 
     # load in jinja templates
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())
@@ -98,11 +79,14 @@ def main():
         category_pages = list(filter(lambda p: "archive" not in p, category_pages))
 
         # sort pages
-        human_sort(category_pages, "title")
+        # human_sort(category_pages, "title")
 
         try:
             html = tpl.render(
-                page=page, pages=category_pages, categories=categories, site=site
+                page=page,
+                pages=category_pages,
+                categories=categories,
+                site=site,
             )
         except Exception as err:
             print("Error rendering page with template")
@@ -138,7 +122,7 @@ def main():
         category_pages = list(filter(lambda p: "archive" not in p, category_pages))
 
         # sort by title
-        human_sort(category_pages, "title")
+        human_sort(category_pages, "name")
 
         cat["page"]["categories"] = filter(
             lambda c: (c["parent"] == cat["parent"] or c["parent"] == cat["name"])
@@ -179,7 +163,7 @@ def main():
     outfile.write_text(html)
     count += 1
 
-    # generate RSS ?
+    # generate RSS
     if "rss" in config["site"]:
         rss = generate_rss(config, pages)
         outfile = Path(odir, "rss.xml")

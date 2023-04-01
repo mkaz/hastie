@@ -76,6 +76,7 @@ def gather_pages(content_dir: Path, config: Dict) -> List:
             page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
 
         page["url"] = utils.urljoin([baseurl, page["name"]])
+        page["subpages"] = gather_subpages(f, config)
         pages.append(page)
     return pages
 
@@ -135,3 +136,28 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
     utils.human_sort(categories, "name")
 
     return categories
+
+
+def gather_subpages(filepath: Path, config: Dict) -> List:
+    """Build the list of subpages from page system."""
+    subpages = []
+    content_dir = config["content_dir"]
+    baseurl = config["site"]["baseurl"]
+    files = filepath.parent.glob("**/*.md")
+    for f in files:
+        # Check if it is an index file
+        if f.samefile(filepath):  # self
+            continue
+
+        page = get_page(f, config)
+
+        # determine name different for directory page
+        if f.name == "index.md":
+            page["name"] = os.path.relpath(f.parent, start=content_dir)
+        else:
+            page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
+
+        page["url"] = utils.urljoin([baseurl, page["name"]])
+
+        subpages.append(page)
+    return subpages
