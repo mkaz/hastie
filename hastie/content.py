@@ -160,4 +160,6 @@ def gather_subpages(filepath: Path, config: Dict) -> List:
         page["url"] = utils.urljoin([baseurl, page["name"]])
 
         subpages.append(page)
+
+    utils.human_sort(subpages, "title")
     return subpages

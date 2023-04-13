@@ -1,5 +1,6 @@
 ---
 title: Getting Started
+date: 2023-01-03
 ---
 
 ## Install

@@ -40,3 +40,10 @@ def alphanum(s) -> List:
 def human_sort(k: List, field: str) -> List:
     k.sort(key=lambda el: alphanum(el[field]))
     return k
+
+
+def date_sort(k: List) -> List:
+    kd = list(filter(lambda el: "date" in el, k))
+    kd.sort(key=lambda el: el["date"])
+    kd.reverse()
+    return kd

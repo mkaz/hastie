@@ -15,4 +15,12 @@
     {% endfor %}
     </ul>
 
+    <h3> Recent Pages </h3>
+    <ul>
+    {% for page in recent_pages %}
+        <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+    {% endfor %}
+    </ul>
+
+
 {% endblock content %}

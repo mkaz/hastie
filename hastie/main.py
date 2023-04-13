@@ -11,7 +11,7 @@ from hastie.config import config, __version__
 import hastie.content as content
 import hastie.hfs as hfs
 from hastie.rss import generate_rss
-from hastie.utils import human_sort
+from hastie.utils import human_sort, date_sort
 
 
 def main():
@@ -46,6 +46,9 @@ def main():
     site = []
     if "site" in config:
         site = config["site"]
+
+    # sort by date, most recent
+    recent_pages = date_sort(pages)
 
     # generate pages
     for page in pages:
@@ -86,6 +89,7 @@ def main():
                 page=page,
                 pages=category_pages,
                 categories=categories,
+                recent_pages=recent_pages,
                 site=site,
             )
         except Exception as err:
@@ -133,7 +137,11 @@ def main():
         tpl = jinja.get_template(tpl_name)
         try:
             html = tpl.render(
-                page=cat["page"], pages=category_pages, categories=categories, site=site
+                page=cat["page"],
+                pages=category_pages,
+                categories=categories,
+                recent_pages=recent_pages,
+                site=site,
             )
         except Exception as err:
             print("Error rendering category with template")
@@ -158,7 +166,13 @@ def main():
 
     home["categories"] = filter(lambda c: c["parent"] == "", categories)
     tpl = jinja.get_template(tpl_name)
-    html = tpl.render(page=home, pages=pages, categories=categories, site=site)
+    html = tpl.render(
+        page=home,
+        pages=pages,
+        categories=categories,
+        recent_pages=recent_pages,
+        site=site,
+    )
     outfile = hfs.get_output_file(home["filename"], cdir, odir)
     outfile.write_text(html)
     count += 1
