@@ -143,23 +143,46 @@ def gather_subpages(filepath: Path, config: Dict) -> List:
     subpages = []
     content_dir = config["content_dir"]
     baseurl = config["site"]["baseurl"]
-    files = filepath.parent.glob("**/*.md")
-    for f in files:
-        # Check if it is an index file
-        if f.samefile(filepath):  # self
+
+    dirs = []
+    for en in filepath.parent.iterdir():
+        if en.is_dir():
+            dirs.append(en)
+
+    for d in dirs:
+        files = d.glob("*.md")
+        for f in files:
+            page = get_page(f, config)
+
+            # determine name different for directory page
+            if f.name == "index.md":
+                page["name"] = os.path.relpath(f.parent, start=content_dir)
+            else:
+                page["name"] = os.path.relpath(
+                    Path(f.parent, f.stem), start=content_dir
+                )
+
+            page["url"] = utils.urljoin([baseurl, page["name"]])
+
+            subpages.append(page)
+
+        utils.human_sort(subpages, "title")
+    return subpages
+
+
+def filter_category_pages(category: str, pages: List) -> List:
+    category_pages = []
+
+    for page in pages:
+        if page["category"] != category:
             continue
 
-        page = get_page(f, config)
+        if "draft" in page:
+            continue
 
-        # determine name different for directory page
-        if f.name == "index.md":
-            page["name"] = os.path.relpath(f.parent, start=content_dir)
-        else:
-            page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
+        if "archive" in page:
+            continue
 
-        page["url"] = utils.urljoin([baseurl, page["name"]])
+        category_pages.append(page)
 
-        subpages.append(page)
-
-    utils.human_sort(subpages, "title")
-    return subpages
+    return category_pages

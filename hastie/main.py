@@ -71,15 +71,7 @@ def main():
             sys.exit()
 
         ## filter pages to those within category
-        category_pages = list(
-            filter(lambda p: p["category"] == page["category"], pages)
-        )
-
-        # remove drafts from category pages
-        category_pages = list(filter(lambda p: "draft" not in p, category_pages))
-
-        # remove archived from category pages
-        category_pages = list(filter(lambda p: "archive" not in p, category_pages))
+        category_pages = content.filter_category_pages(page["category"], pages)
 
         # sort pages
         # human_sort(category_pages, "title")
