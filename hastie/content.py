@@ -78,7 +78,8 @@ def gather_pages(content_dir: Path, config: Dict) -> List:
         page["url"] = utils.urljoin([baseurl, page["name"]])
         page["subpages"] = gather_subpages(f, config)
         pages.append(page)
-    return pages
+
+    return utils.human_sort(pages, "title")
 
 
 def determine_category_from_path(file_parent: Path, content_dir: Path) -> str:
