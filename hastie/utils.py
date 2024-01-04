@@ -2,6 +2,7 @@ from typing import List
 
 # import operator
 import re
+import time
 
 
 def urljoin(parts: List) -> str:
@@ -47,3 +48,10 @@ def date_sort(k: List) -> List:
     kd.sort(key=lambda el: el["date"])
     kd.reverse()
     return kd
+
+
+def timer(st: float = 0, s=""):
+    if st == 0:
+        return time.time()
+
+    print(f"Elapsed for {s}: {time.time()-st:.1f}")
