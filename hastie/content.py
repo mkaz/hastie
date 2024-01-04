@@ -15,7 +15,6 @@ import hastie.utils as utils
 
 def get_page(filename: Path, config: Dict) -> Dict:
     """Read page in from file system, parse frontmatter and render markdown."""
-
     try:
         page = read_page(filename, config)
         page["content"] = process_markdown(page.get("content", ""))
@@ -23,7 +22,6 @@ def get_page(filename: Path, config: Dict) -> Dict:
         print(f"Error reading page {filename}")
         print(err)
         sys.exit(1)
-
     return page
 
 
@@ -76,7 +74,12 @@ def gather_pages(content_dir: Path, config: Dict) -> List:
             page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
 
         page["url"] = utils.urljoin([baseurl, page["name"]])
-        page["subpages"] = gather_subpages(f, config)
+
+        if "subpages" in page and page["subpages"] == "skip":
+            page["subpages"] = []
+        else:
+            page["subpages"] = gather_subpages(f, config)
+
         pages.append(page)
 
     return utils.human_sort(pages, "title")
