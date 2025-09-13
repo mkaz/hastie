@@ -24,6 +24,7 @@ def main():
     cdir = config["content_dir"]
     odir = config["output_dir"]
     tdir = config["templates_dir"]
+    static_dir = config["static_dir"]
 
     # Confirm content and template directories exists
     if not cdir.is_dir():
@@ -35,7 +36,7 @@ def main():
         sys.exit()
 
     # copy all the static assets
-    hfs.copy_static_assets(cdir, odir, tdir)
+    hfs.copy_static_assets(cdir, odir, static_dir)
 
     # load in jinja templates
     jinja = Environment(loader=FileSystemLoader(tdir), autoescape=select_autoescape())

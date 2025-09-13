@@ -47,6 +47,12 @@ config = args | conf
 config["content_dir"] = Path(config["content_dir"])
 config["templates_dir"] = Path(config["templates_dir"])
 
+# Set default static_dir if not configured
+if "static_dir" not in config:
+    config["static_dir"] = config["templates_dir"] / "static"
+else:
+    config["static_dir"] = Path(config["static_dir"])
+
 # guarentee config has baseurl without trailing slash
 # command-line argument overwrite config
 if args["baseurl"]:

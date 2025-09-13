@@ -16,12 +16,11 @@ def get_output_file(f: Path, c: Path, o: Path) -> Path:
     return Path(o, jf.parent, jf.stem, "index.html")
 
 
-def copy_static_assets(cdir: Path, odir: Path, tdir: Path):
-    # copy templates static dir to output
+def copy_static_assets(cdir: Path, odir: Path, static_dir: Path):
+    # copy configured static dir to output
     # - content at top level: for example /favicon.ico
-    tpl_static = Path(tdir, "static")
-    out_tpl_static = Path(odir)
-    shutil.copytree(tpl_static, out_tpl_static, dirs_exist_ok=True)
+    if static_dir.is_dir():
+        shutil.copytree(static_dir, odir, dirs_exist_ok=True)
 
     # copy site static dir to output
     # - content within under /static dir

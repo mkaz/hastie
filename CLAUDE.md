@@ -64,6 +64,7 @@ pre-commit run --all-files
 - Output preserves directory structure from content directory
 - Drafts (pages with `draft: true`) are excluded from output
 - Configuration merges CLI args over TOML file settings
+- Static assets are copied from configurable `static_dir` (defaults to `templates/static`)
 
 **Template variables available in Jinja2:**
 - `page` - Current page data
