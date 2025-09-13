@@ -1,4 +1,4 @@
-import utils
+import hastie.utils as utils
 
 
 def test_urljoin_base_empty():

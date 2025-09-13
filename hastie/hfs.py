@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import shutil
 import sysrsync
@@ -7,7 +6,7 @@ import sysrsync
 def get_output_file(f: Path, c: Path, o: Path) -> Path:
     """Takes filename, content directory, output directory and returns output file"""
     # get file relative to content directory
-    jf = Path(os.path.relpath(f, start=c))
+    jf = f.relative_to(c)
 
     if jf.name == "index.md":
         return Path(o, jf.parent, "index.html")

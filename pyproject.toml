@@ -1,12 +1,13 @@
 
-[tool.poetry]
+[project]
 name = "hastie"
 version = "1.0.0-b3"
 description = "A static site generator"
-authors = ["Marcus Kazmierczak <marcus@mkaz.com>"]
-license = "MIT"
+authors = [{name = "Marcus Kazmierczak", email = "marcus@mkaz.com"}]
+license = {text = "MIT"}
 readme = "README.md"
 keywords = ["static site generator", "static site", "blog"]
+requires-python = ">=3.13"
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -20,28 +21,26 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: Markdown",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-jinja2 = "^3.1.2"
-markdown = "^3.4.3"
-pygments = "^2.14.0"
-python-frontmatter = "^1.0.0"
-toml = "^0.10.2"
-sysrsync = "^1.1.0"
+dependencies = [
+    "jinja2>=3.1.2",
+    "markdown>=3.4.3",
+    "pygments>=2.14.0",
+    "python-frontmatter>=1.0.0",
+    "sysrsync>=1.1.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = "^23.1.0"
-flake8 = "^6.0.0"
-pytest = "^7.2.2"
-mypy = "^1.1.1"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.2.2",
+    "mypy>=1.1.1",
+]
 
-[tool.poetry.scripts]
-hastie = 'hastie.main:main'
-
+[project.scripts]
+hastie = "hastie.main:main"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 
 [tool.pytest.ini_options]
@@ -53,9 +52,9 @@ testpaths = [
 ]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py313"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/test_content.py" = ["E402"]
 "tests/test_hfs.py" = ["E402"]
 
@@ -64,6 +63,13 @@ target-version = "py310"
 [[tool.mypy.overrides]]
 module = [
     "markdown",
-    "toml"
+    "frontmatter",
+    "sysrsync"
 ]
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.1",
+    "pytest>=8.4.2",
+]

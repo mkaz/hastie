@@ -2,10 +2,9 @@
 Hastie resources, pages and categories.
 """
 
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Any
 
 import frontmatter
 from markdown import markdown
@@ -13,7 +12,7 @@ from markdown import markdown
 import hastie.utils as utils
 
 
-def get_page(filename: Path, config: Dict) -> Dict:
+def get_page(filename: Path, config: dict[str, Any]) -> dict[str, Any]:
     """Read page in from file system, parse frontmatter and render markdown."""
     try:
         page = read_page(filename, config)
@@ -25,7 +24,9 @@ def get_page(filename: Path, config: Dict) -> Dict:
     return page
 
 
-def read_page(filename: Path, config: Dict = {}) -> Dict:
+def read_page(filename: Path, config: dict[str, Any] | None = None) -> dict[str, Any]:
+    if config is None:
+        config = {}
     """Read page using frontmatter library."""
 
     with open(filename, "r") as f:
@@ -52,7 +53,7 @@ def process_markdown(md: str) -> str:
     return html
 
 
-def gather_pages(content_dir: Path, config: Dict) -> List:
+def gather_pages(content_dir: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Build the list of pages from the file system."""
     pages = []
     baseurl = config["site"]["baseurl"]
@@ -69,9 +70,9 @@ def gather_pages(content_dir: Path, config: Dict) -> List:
 
         # determine name different for directory page
         if f.name == "index.md":
-            page["name"] = os.path.relpath(f.parent, start=content_dir)
+            page["name"] = f.parent.relative_to(content_dir).as_posix()
         else:
-            page["name"] = os.path.relpath(Path(f.parent, f.stem), start=content_dir)
+            page["name"] = (f.parent / f.stem).relative_to(content_dir).as_posix()
 
         page["url"] = utils.urljoin([baseurl, page["name"]])
 
@@ -104,13 +105,13 @@ def determine_category_from_path(file_parent: Path, content_dir: Path) -> str:
     # Option 2 - Parent is category
     category_path = file_parent
     if category_path.parent == content_dir:
-        return os.path.relpath(category_path, start=content_dir)
+        return category_path.relative_to(content_dir).as_posix()
 
     # Option 3 - Grandparent is category
-    return os.path.relpath(category_path.parent, start=content_dir)
+    return category_path.parent.relative_to(content_dir).as_posix()
 
 
-def gather_categories(content_dir: Path, config: Dict) -> List:
+def gather_categories(content_dir: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Build list of categories from the filesystem."""
     categories = []
     baseurl = config["site"]["baseurl"]
@@ -121,7 +122,7 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
         if not p.is_dir():
             continue  # skip files
 
-        name = os.path.relpath(p, start=content_dir)
+        name = p.relative_to(content_dir).as_posix()
 
         index = Path(p, "index.md")
         if not index.is_file():
@@ -142,7 +143,7 @@ def gather_categories(content_dir: Path, config: Dict) -> List:
     return categories
 
 
-def gather_subpages(filepath: Path, config: Dict) -> List:
+def gather_subpages(filepath: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Build the list of subpages from page system."""
     subpages = []
     content_dir = config["content_dir"]
@@ -160,11 +161,9 @@ def gather_subpages(filepath: Path, config: Dict) -> List:
 
             # determine name different for directory page
             if f.name == "index.md":
-                page["name"] = os.path.relpath(f.parent, start=content_dir)
+                page["name"] = f.parent.relative_to(content_dir).as_posix()
             else:
-                page["name"] = os.path.relpath(
-                    Path(f.parent, f.stem), start=content_dir
-                )
+                page["name"] = (f.parent / f.stem).relative_to(content_dir).as_posix()
 
             page["url"] = utils.urljoin([baseurl, page["name"]])
 
@@ -174,7 +173,7 @@ def gather_subpages(filepath: Path, config: Dict) -> List:
     return subpages
 
 
-def filter_category_pages(category: str, pages: List) -> List:
+def filter_category_pages(category: str, pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     category_pages = []
 
     for page in pages:

@@ -33,11 +33,11 @@ git clone https://github.com/mkaz/hastie
 cd hastie
 
 # install dependencies
-poetry install
+uv sync
 
 # build docs site
 cd docs
-poetry run python ../hastie/main.py
+uv run python ../hastie/main.py
 
 # serve site
 python3 -m http.simple --directory output/

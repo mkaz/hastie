@@ -1,7 +1,15 @@
 docs/output/
+
+# Python
 .mypy_cache
 poetry.lock
 .pytest_cache/
 __pycache__/
 .ruff_cache/
+uv.lock
+
+# Editor
 .vscode
+.claude
+
+

@@ -2,7 +2,7 @@ import argparse
 import importlib.metadata
 from pathlib import Path
 import sys
-import toml
+import tomllib
 
 # initialize config
 __version__ = importlib.metadata.version(__package__)
@@ -36,7 +36,8 @@ args["templates_dir"] = "./templates"
 args["output_dir"] = "./output"
 
 ## read config
-conf = toml.load(conffile)
+with open(conffile, "rb") as f:
+    conf = tomllib.load(f)
 
 # Merge config over args
 # anything in config will overwrite defaults

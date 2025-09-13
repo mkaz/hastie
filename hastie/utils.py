@@ -1,11 +1,11 @@
-from typing import List
+from typing import Any
 
 # import operator
 import re
 import time
 
 
-def urljoin(parts: List) -> str:
+def urljoin(parts: list[str]) -> str:
     """Join a list of URL paths avoiding duplicate /'s"""
 
     # remove leading and trailing slashes
@@ -20,7 +20,7 @@ def urljoin(parts: List) -> str:
     return url
 
 
-def tryint(s):
+def tryint(s: str) -> int | str:
     """Return an int if possible, or `s` unchanged."""
     try:
         return int(s)
@@ -28,7 +28,7 @@ def tryint(s):
         return s
 
 
-def alphanum(s) -> List:
+def alphanum(s: str) -> list[int | str]:
     """
     Turn a string into a list of string and number chunks.
     >>> alphanum_key("z23a")
@@ -38,12 +38,12 @@ def alphanum(s) -> List:
     return [tryint(c) for c in re.split("([0-9]+)", s)]
 
 
-def human_sort(k: List, field: str) -> List:
+def human_sort(k: list[dict[str, Any]], field: str) -> list[dict[str, Any]]:
     k.sort(key=lambda el: alphanum(el[field]))
     return k
 
 
-def date_sort(k: List) -> List:
+def date_sort(k: list[dict[str, Any]]) -> list[dict[str, Any]]:
     kd = list(filter(lambda el: "date" in el, k))
     kd.sort(key=lambda el: el["date"])
     kd.reverse()
