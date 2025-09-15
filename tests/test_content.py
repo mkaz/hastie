@@ -1,4 +1,4 @@
-""" Test module for Hastie resources."""
+"""Test module for Hastie resources."""
 
 from pathlib import Path
 from typing import Dict

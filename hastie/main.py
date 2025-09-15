@@ -72,7 +72,11 @@ def main():
             sys.exit()
 
         ## filter pages to those within category
-        category_pages = content.filter_category_pages(page["category"], pages)
+        # If this page is archived or has include_archived: true, include archived pages in the listing
+        include_archived = "archive" in page or page.get("include_archived", False)
+        category_pages = content.filter_category_pages(
+            page["category"], pages, include_archived
+        )
 
         # sort pages
         # human_sort(category_pages, "title")
@@ -115,8 +119,11 @@ def main():
         # remove drafts from category pages
         category_pages = list(filter(lambda p: "draft" not in p, category_pages))
 
-        # remove archived from category pages
-        category_pages = list(filter(lambda p: "archive" not in p, category_pages))
+        # remove archived from category pages (unless this category page itself is archived or has include_archived: true)
+        if "archive" not in cat["page"] and not cat["page"].get(
+            "include_archived", False
+        ):
+            category_pages = list(filter(lambda p: "archive" not in p, category_pages))
 
         # sort by title
         human_sort(category_pages, "name")

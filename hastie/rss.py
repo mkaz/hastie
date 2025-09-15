@@ -1,4 +1,5 @@
 """RSS Module"""
+
 import operator
 from datetime import datetime
 from email.utils import formatdate

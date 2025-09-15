@@ -111,7 +111,9 @@ def determine_category_from_path(file_parent: Path, content_dir: Path) -> str:
     return category_path.parent.relative_to(content_dir).as_posix()
 
 
-def gather_categories(content_dir: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
+def gather_categories(
+    content_dir: Path, config: dict[str, Any]
+) -> list[dict[str, Any]]:
     """Build list of categories from the filesystem."""
     categories = []
     baseurl = config["site"]["baseurl"]
@@ -173,7 +175,9 @@ def gather_subpages(filepath: Path, config: dict[str, Any]) -> list[dict[str, An
     return subpages
 
 
-def filter_category_pages(category: str, pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def filter_category_pages(
+    category: str, pages: list[dict[str, Any]], include_archived: bool = False
+) -> list[dict[str, Any]]:
     category_pages = []
 
     for page in pages:
@@ -183,7 +187,7 @@ def filter_category_pages(category: str, pages: list[dict[str, Any]]) -> list[di
         if "draft" in page:
             continue
 
-        if "archive" in page:
+        if "archive" in page and not include_archived:
             continue
 
         category_pages.append(page)

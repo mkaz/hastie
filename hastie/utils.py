@@ -54,4 +54,4 @@ def timer(st: float = 0, s=""):
     if st == 0:
         return time.time()
 
-    print(f"Elapsed for {s}: {time.time()-st:.1f}")
+    print(f"Elapsed for {s}: {time.time() - st:.1f}")
