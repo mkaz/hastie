@@ -7,7 +7,7 @@ authors = [{name = "Marcus Kazmierczak", email = "marcus@mkaz.com"}]
 license = {text = "MIT"}
 readme = "README.md"
 keywords = ["static site generator", "static site", "blog"]
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 
 classifiers = [
     "Development Status :: 3 - Alpha",
