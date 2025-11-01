@@ -1,6 +1,5 @@
 from pathlib import Path
 import shutil
-import sysrsync
 
 
 def get_output_file(f: Path, c: Path, o: Path) -> Path:
@@ -30,9 +29,9 @@ def copy_static_assets(cdir: Path, odir: Path, static_dir: Path):
         shutil.copytree(site_static, out_static, dirs_exist_ok=True)
 
     # sync content structure to output excluding markdown
-    sysrsync.run(
-        source=str(cdir),  # add trailing slash
-        destination=str(odir),  # add trailing slash
-        options=["-a"],
-        exclusions=["*.md"],
+    shutil.copytree(
+        cdir,
+        odir,
+        ignore=shutil.ignore_patterns("*.md"),
+        dirs_exist_ok=True,
     )

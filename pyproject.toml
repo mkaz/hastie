@@ -26,7 +26,6 @@ dependencies = [
     "markdown>=3.4.3",
     "pygments>=2.14.0",
     "python-frontmatter>=1.0.0",
-    "sysrsync>=1.1.0",
 ]
 
 [project.optional-dependencies]
@@ -64,7 +63,6 @@ target-version = "py313"
 module = [
     "markdown",
     "frontmatter",
-    "sysrsync"
 ]
 ignore_missing_imports = true
 
