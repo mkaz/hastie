@@ -8,6 +8,7 @@ from typing import Any
 
 import frontmatter
 from markdown import markdown
+from markdown.extensions.toc import TocExtension
 
 import hastie.utils as utils
 
@@ -48,7 +49,7 @@ def read_page(filename: Path, config: dict[str, Any] | None = None) -> dict[str,
 
 def process_markdown(md: str) -> str:
     """Take markdown content and process to HTML."""
-    exts = ["codehilite", "fenced_code", "tables", "toc"]
+    exts = ["codehilite", "fenced_code", "tables", TocExtension(baselevel=2,toc_depth="2-3")]
     html = markdown(md, extensions=exts)
     return html
 
