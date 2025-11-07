@@ -1,7 +1,7 @@
 
 [project]
 name = "hastie"
-version = "1.1.4"
+version = "1.2.0"
 description = "A static site generator"
 authors = [{name = "Marcus Kazmierczak", email = "marcus@mkaz.com"}]
 license = {text = "MIT"}
@@ -22,10 +22,11 @@ classifiers = [
 ]
 
 dependencies = [
-    "jinja2>=3.1.2",
-    "markdown>=3.4.3",
-    "pygments>=2.14.0",
-    "python-frontmatter>=1.0.0",
+    "jinja2>=3.1.6",
+    "markdown>=3.10",
+    "pygments>=2.19.2",
+    "python-frontmatter>=1.1.0",
+    "watchdog>=6.0.0",
 ]
 
 [project.optional-dependencies]

@@ -14,12 +14,10 @@ from hastie.rss import generate_rss
 from hastie.utils import human_sort, date_sort
 
 
-def main():
+def generate_site():
+    """Generate the static site."""
     start_time = time.time()
     count = 0
-
-    if not config["quiet"]:
-        print(f"Hastie v{__version__}")
 
     cdir = config["content_dir"]
     odir = config["output_dir"]
@@ -187,6 +185,94 @@ def main():
     elapsed = time.time() - start_time
     if not config["quiet"]:
         print(f"Generated {count} files in {elapsed:.3f} sec")
+
+
+def main():
+    if not config["quiet"]:
+        print(f"Hastie v{__version__}")
+
+    # Run initial generation
+    generate_site()
+
+    # If watch mode is enabled, start monitoring for changes
+    if config.get("watch", False):
+        from watchdog.observers import Observer
+        from watchdog.events import FileSystemEventHandler
+
+        class RegenerateHandler(FileSystemEventHandler):
+            def __init__(self):
+                self.last_regeneration = time.time()
+                self.debounce_seconds = 1.0
+
+            def should_regenerate(self, event):
+                # Skip directory events
+                if event.is_directory:
+                    return False
+
+                # Skip temporary and backup files
+                path = event.src_path
+                if path.endswith(('~', '.swp', '.swx', '.tmp', '.bak')):
+                    return False
+
+                # Skip hidden files
+                if Path(path).name.startswith('.'):
+                    return False
+
+                # Only regenerate on actual file modifications or creations
+                # Ignore delete and move events
+                if event.event_type not in ('modified', 'created'):
+                    return False
+
+                return True
+
+            def on_modified(self, event):
+                if not self.should_regenerate(event):
+                    return
+
+                # Debounce multiple rapid changes
+                now = time.time()
+                if now - self.last_regeneration < self.debounce_seconds:
+                    return
+
+                self.last_regeneration = now
+
+                if not config["quiet"]:
+                    print(f"\nChange detected: {event.src_path}")
+                    print("Regenerating site...")
+
+                try:
+                    generate_site()
+                except Exception as err:
+                    print(f"Error during regeneration: {err}")
+
+            def on_created(self, event):
+                # Use the same logic as on_modified
+                self.on_modified(event)
+
+        handler = RegenerateHandler()
+        observer = Observer()
+
+        # Watch both content and templates directories
+        cdir = config["content_dir"]
+        tdir = config["templates_dir"]
+
+        observer.schedule(handler, str(cdir), recursive=True)
+        observer.schedule(handler, str(tdir), recursive=True)
+        observer.start()
+
+        if not config["quiet"]:
+            print(f"\nWatching for changes in {cdir} and {tdir}...")
+            print("Press Ctrl+C to stop")
+
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+            if not config["quiet"]:
+                print("\nStopping watch mode...")
+
+        observer.join()
 
 
 if __name__ == "__main__":
