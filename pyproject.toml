@@ -1,7 +1,7 @@
 
 [project]
 name = "hastie"
-version = "1.3.0"
+version = "1.3.2"
 description = "A static site generator"
 authors = [{name = "Marcus Kazmierczak", email = "marcus@mkaz.com"}]
 license = {text = "MIT"}
@@ -27,7 +27,6 @@ dependencies = [
     "markdown>=3.10",
     "pygments>=2.19.2",
     "python-frontmatter>=1.1.0",
-    "watchdog>=6.0.0",
 ]
 
 [project.optional-dependencies]

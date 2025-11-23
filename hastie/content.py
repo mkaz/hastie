@@ -10,7 +10,6 @@ from typing import Any
 import aiofiles
 import frontmatter
 from markdown import markdown
-from markdown.extensions.toc import TocExtension
 
 import hastie.utils as utils
 
@@ -110,7 +109,6 @@ def process_markdown(md: str) -> str:
         "codehilite",
         "fenced_code",
         "tables",
-        TocExtension(baselevel=2, toc_depth="2-3"),
     ]
     html = markdown(md, extensions=exts)
     return html

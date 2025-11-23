@@ -12,7 +12,6 @@ parser.add_argument("-q", "--quiet", action="store_true")
 parser.add_argument("-v", "--version", action="store_true")
 parser.add_argument("-c", "--conf", help="Config file")
 parser.add_argument("--baseurl", help="Override base url in config")
-parser.add_argument("--watch", action="store_true", help="Watch for file changes and regenerate site")
 args = vars(parser.parse_args())
 
 # Convention over configuration.
