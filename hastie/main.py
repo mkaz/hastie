@@ -35,8 +35,9 @@ async def generate_site_async():
         print(f"Templates directory {tdir} not found")
         sys.exit()
 
-    # Clear the page cache for fresh generation
+    # Clear the page cache and reset semaphore for fresh generation
     content.clear_cache()
+    content.reset_semaphore()
 
     # copy all the static assets (synchronous, uses shutil.copytree)
     hfs.copy_static_assets(cdir, odir, static_dir)
@@ -219,9 +220,11 @@ async def render_and_write(loop, executor, tpl, outfile, **context):
     # create directories if they don't exist
     outfile.parent.mkdir(exist_ok=True, parents=True)
 
-    # Write asynchronously
-    async with aiofiles.open(outfile, "w") as f:
-        await f.write(html)
+    # Write asynchronously (use semaphore to limit concurrent open files)
+    sem = content._get_file_semaphore()
+    async with sem:
+        async with aiofiles.open(outfile, "w") as f:
+            await f.write(html)
 
 
 def generate_site():

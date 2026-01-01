@@ -17,6 +17,24 @@ import hastie.utils as utils
 # Module-level cache for processed pages
 _page_cache: dict[Path, dict[str, Any]] = {}
 
+# Semaphore to limit concurrent file operations (avoid "Too many open files" error)
+_file_semaphore: asyncio.Semaphore | None = None
+_MAX_CONCURRENT_FILES = 50
+
+
+def _get_file_semaphore() -> asyncio.Semaphore:
+    """Get or create the file semaphore for the current event loop."""
+    global _file_semaphore
+    if _file_semaphore is None:
+        _file_semaphore = asyncio.Semaphore(_MAX_CONCURRENT_FILES)
+    return _file_semaphore
+
+
+def reset_semaphore():
+    """Reset the semaphore (needed when event loop changes)."""
+    global _file_semaphore
+    _file_semaphore = None
+
 
 def clear_cache():
     """Clear the page cache."""
@@ -81,8 +99,10 @@ async def read_page_async(filename: Path, config: dict[str, Any] | None = None) 
     if config is None:
         config = {}
 
-    async with aiofiles.open(filename, "r") as f:
-        content = await f.read()
+    sem = _get_file_semaphore()
+    async with sem:
+        async with aiofiles.open(filename, "r") as f:
+            content = await f.read()
 
     return parse_frontmatter(content, filename, config)
 
